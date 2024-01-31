@@ -1,0 +1,81 @@
+
+Linearized model: Predictions were generated on 31-Jan-2024 at 12:35:17 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+ linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MAP++ (<1.20.10>, <Oct-20-2023>)
+
+Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
+
+Simulation information:
+   Simulation time:                   502.4750 s
+   Rotor Speed:                         0.8938 rad/s
+   Azimuth:                             2.9579 rad
+   Wind Speed:                         10.0000 m/s
+   Number of continuous states:         0
+   Number of discrete states:           0
+   Number of constraint states:         0
+   Number of inputs:                   37
+   Number of outputs:                   7
+   Jacobians included in this file?    No
+
+Order of inputs:
+     Column   Operating Point                     Rotating Frame? Derivative Order Description
+   ---------- ---------------                     --------------- ---------------- -----------
+          1    8.172E+00                                 F               0         WAMIT X translation displacement, node 1, m
+          2   -5.639E-01                                 F               0         WAMIT Y translation displacement, node 1, m
+          3   -5.494E-02                                 F               0         WAMIT Z translation displacement, node 1, m
+          4    9.998E-01,  7.486E-03, -1.841E-02         F               0         WAMIT X orientation angle, node 1, rad
+          5   -6.683E-03,  9.990E-01,  4.325E-02         F               0         WAMIT Y orientation angle, node 1, rad
+          6    1.872E-02, -4.312E-02,  9.989E-01         F               0         WAMIT Z orientation angle, node 1, rad
+          7   -7.142E-04                                 F               0         WAMIT X translation velocity, node 1, m/s
+          8    0.000E+00                                 F               0         WAMIT Y translation velocity, node 1, m/s
+          9   -4.541E-03                                 F               0         WAMIT Z translation velocity, node 1, m/s
+         10    0.000E+00                                 F               0         WAMIT X rotation velocity, node 1, rad/s
+         11    0.000E+00                                 F               0         WAMIT Y rotation velocity, node 1, rad/s
+         12    3.262E-06                                 F               0         WAMIT Z rotation velocity, node 1, rad/s
+         13   -4.015E-04                                 F               0         WAMIT X translation acceleration, node 1, m/s^2
+         14    0.000E+00                                 F               0         WAMIT Y translation acceleration, node 1, m/s^2
+         15   -2.110E-03                                 F               0         WAMIT Z translation acceleration, node 1, m/s^2
+         16    0.000E+00                                 F               0         WAMIT X rotation acceleration, node 1, rad/s^2
+         17    0.000E+00                                 F               0         WAMIT Y rotation acceleration, node 1, rad/s^2
+         18    2.189E-06                                 F               0         WAMIT Z rotation acceleration, node 1, rad/s^2
+         19    8.172E+00                                 F               0         Platform-RefPt X translation displacement, node 1, m
+         20   -5.639E-01                                 F               0         Platform-RefPt Y translation displacement, node 1, m
+         21   -5.494E-02                                 F               0         Platform-RefPt Z translation displacement, node 1, m
+         22    9.998E-01,  7.486E-03, -1.841E-02         F               0         Platform-RefPt X orientation angle, node 1, rad
+         23   -6.683E-03,  9.990E-01,  4.325E-02         F               0         Platform-RefPt Y orientation angle, node 1, rad
+         24    1.872E-02, -4.312E-02,  9.989E-01         F               0         Platform-RefPt Z orientation angle, node 1, rad
+         25   -7.142E-04                                 F               0         Platform-RefPt X translation velocity, node 1, m/s
+         26    0.000E+00                                 F               0         Platform-RefPt Y translation velocity, node 1, m/s
+         27   -4.541E-03                                 F               0         Platform-RefPt Z translation velocity, node 1, m/s
+         28    0.000E+00                                 F               0         Platform-RefPt X rotation velocity, node 1, rad/s
+         29    0.000E+00                                 F               0         Platform-RefPt Y rotation velocity, node 1, rad/s
+         30    3.262E-06                                 F               0         Platform-RefPt Z rotation velocity, node 1, rad/s
+         31   -4.015E-04                                 F               0         Platform-RefPt X translation acceleration, node 1, m/s^2
+         32    0.000E+00                                 F               0         Platform-RefPt Y translation acceleration, node 1, m/s^2
+         33   -2.110E-03                                 F               0         Platform-RefPt Z translation acceleration, node 1, m/s^2
+         34    0.000E+00                                 F               0         Platform-RefPt X rotation acceleration, node 1, rad/s^2
+         35    0.000E+00                                 F               0         Platform-RefPt Y rotation acceleration, node 1, rad/s^2
+         36    2.189E-06                                 F               0         Platform-RefPt Z rotation acceleration, node 1, rad/s^2
+         37    0.000E+00                                 F               0         Extended input: wave elevation at platform ref point, m
+
+Order of outputs:
+        Row   Operating Point                     Rotating Frame? Derivative Order Description
+   ---------- ---------------                     --------------- ---------------- -----------
+          1    0.000E+00                                 F               0         Wave1Elev, (m)
+          2   -5.218E+04                                 F               0         HydroFxi, (N)
+          3    3.909E-03                                 F               0         HydroFyi, (N)
+          4    2.036E+08                                 F               0         HydroFzi, (N)
+          5   -9.226E+07                                 F               0         HydroMxi, (N-m)
+          6   -3.971E+07                                 F               0         HydroMyi, (N-m)
+          7   -4.289E+04                                 F               0         HydroMzi, (N-m)
+
+
+Linearized state matrices:
+
+D: 7 x 37
+    0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
+   -6.860E+03  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -2.822E+05  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -9.381E+06  0.000E+00  1.995E+01  0.000E+00  9.827E+07  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
+    0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -2.822E+05  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -9.381E+06  0.000E+00 -9.827E+07  0.000E+00  1.786E+03  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
+    0.000E+00  0.000E+00 -4.395E+06  0.000E+00  4.125E+03  0.000E+00  0.000E+00  0.000E+00 -8.074E+05  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -2.413E+07 -2.292E+02  1.765E+04  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
+    0.000E+00  2.036E+08  0.000E+00 -2.134E+09  0.000E+00  8.881E+04  0.000E+00  0.000E+00  0.000E+00 -2.783E+09  0.000E+00  0.000E+00  0.000E+00 -9.820E+07  0.000E+00 -1.132E+10  0.000E+00  5.294E+04  0.000E+00 -2.036E+08  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
+   -2.036E+08  0.000E+00 -4.828E+04  0.000E+00 -2.134E+09  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -2.783E+09  0.000E+00  9.820E+07  0.000E+00  1.937E+04  0.000E+00 -1.132E+10  0.000E+00  2.036E+08  0.000E+00  5.219E+04  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
+    0.000E+00  5.218E+04  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -2.513E+09  0.000E+00  1.554E+03  0.000E+00  4.404E+04  0.000E+00 -1.959E+10  0.000E+00 -5.218E+04  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00

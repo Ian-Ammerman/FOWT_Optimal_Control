@@ -1,0 +1,43 @@
+
+Linearized model: Predictions were generated on 19-Dec-2023 at 09:27:32 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+ linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MoorDyn (v2.0.0, 2023-09-18)
+
+Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
+
+Simulation information:
+   Simulation time:                  1007.4750 s
+   Rotor Speed:                         1.0407 rad/s
+   Azimuth:                             0.3429 rad
+   Wind Speed:                         12.0000 m/s
+   Number of continuous states:         0
+   Number of discrete states:           0
+   Number of constraint states:         0
+   Number of inputs:                    3
+   Number of outputs:                   5
+   Jacobians included in this file?    No
+
+Order of inputs:
+     Column   Operating Point                     Rotating Frame? Derivative Order Description
+   ---------- ---------------                     --------------- ---------------- -----------
+          1    0.000E+00                                 F               0         Yaw, rad
+          2    0.000E+00                                 F               0         YawRate, rad/s
+          3    1.041E+00                                 F               0         HSS_Spd, rad/s
+
+Order of outputs:
+        Row   Operating Point                     Rotating Frame? Derivative Order Description
+   ---------- ---------------                     --------------- ---------------- -----------
+          1   -4.504E+00                                 F               0         GenPwr, (kW)
+          2   -4.106E-02                                 F               0         GenTq, (kN-m)
+          3    1.700E+00                                 T               0         BlPitchC1, (deg)
+          4    1.700E+00                                 T               0         BlPitchC2, (deg)
+          5    1.700E+00                                 T               0         BlPitchC3, (deg)
+
+
+Linearized state matrices:
+
+D: 5 x 3
+    0.000E+00  0.000E+00  9.990E-02
+    0.000E+00  0.000E+00 -1.190E-03
+    0.000E+00  0.000E+00  0.000E+00
+    0.000E+00  0.000E+00  0.000E+00
+    0.000E+00  0.000E+00  0.000E+00

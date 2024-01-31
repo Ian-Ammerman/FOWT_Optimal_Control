@@ -1,0 +1,79 @@
+
+Linearized model: Predictions were generated on 11-Jan-2024 at 12:32:35 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+ linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MoorDyn (v2.0.0, 2023-09-18)
+
+Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
+
+Simulation information:
+   Simulation time:                   505.7000 s
+   Rotor Speed:                         0.7073 rad/s
+   Azimuth:                             1.2895 rad
+   Wind Speed:                          8.0000 m/s
+   Number of continuous states:         0
+   Number of discrete states:           0
+   Number of constraint states:         0
+   Number of inputs:                   54
+   Number of outputs:                   0
+   Jacobians included in this file?    No
+
+Order of inputs:
+     Column   Operating Point                     Rotating Frame? Derivative Order Description
+   ---------- ---------------                     --------------- ---------------- -----------
+          1    4.465E+00                                 F               0         CoupledKinematics X translation displacement, node 1, m
+          2    3.469E-01                                 F               0         CoupledKinematics Y translation displacement, node 1, m
+          3   -4.731E+00                                 F               0         CoupledKinematics Z translation displacement, node 1, m
+          4    4.404E+00                                 F               0         CoupledKinematics X translation displacement, node 2, m
+          5    2.477E-01                                 F               0         CoupledKinematics Y translation displacement, node 2, m
+          6   -2.208E-01                                 F               0         CoupledKinematics Z translation displacement, node 2, m
+          7    4.748E+00                                 F               0         CoupledKinematics X translation displacement, node 3, m
+          8   -7.923E-02                                 F               0         CoupledKinematics Y translation displacement, node 3, m
+          9    4.973E+00                                 F               0         CoupledKinematics Z translation displacement, node 3, m
+         10    9.965E-01,  4.238E-03, -8.383E-02         F               0         CoupledKinematics X orientation angle, node 1, rad
+         11   -6.133E-04,  9.991E-01,  4.322E-02         F               0         CoupledKinematics Y orientation angle, node 1, rad
+         12    8.394E-02, -4.301E-02,  9.955E-01         F               0         CoupledKinematics Z orientation angle, node 1, rad
+         13    9.965E-01,  4.238E-03, -8.383E-02         F               0         CoupledKinematics X orientation angle, node 2, rad
+         14   -6.133E-04,  9.991E-01,  4.322E-02         F               0         CoupledKinematics Y orientation angle, node 2, rad
+         15    8.394E-02, -4.301E-02,  9.955E-01         F               0         CoupledKinematics Z orientation angle, node 2, rad
+         16    9.965E-01,  4.238E-03, -8.383E-02         F               0         CoupledKinematics X orientation angle, node 3, rad
+         17   -6.133E-04,  9.991E-01,  4.322E-02         F               0         CoupledKinematics Y orientation angle, node 3, rad
+         18    8.394E-02, -4.301E-02,  9.955E-01         F               0         CoupledKinematics Z orientation angle, node 3, rad
+         19   -6.173E-03                                 F               0         CoupledKinematics X translation velocity, node 1, m/s
+         20    7.647E-04                                 F               0         CoupledKinematics Y translation velocity, node 1, m/s
+         21    2.742E-03                                 F               0         CoupledKinematics Z translation velocity, node 1, m/s
+         22   -4.642E-03                                 F               0         CoupledKinematics X translation velocity, node 2, m/s
+         23    6.479E-04                                 F               0         CoupledKinematics Y translation velocity, node 2, m/s
+         24    5.665E-03                                 F               0         CoupledKinematics Z translation velocity, node 2, m/s
+         25   -5.344E-03                                 F               0         CoupledKinematics X translation velocity, node 3, m/s
+         26    1.777E-03                                 F               0         CoupledKinematics Y translation velocity, node 3, m/s
+         27    5.005E-03                                 F               0         CoupledKinematics Z translation velocity, node 3, m/s
+         28    2.834E-05                                 F               0         CoupledKinematics X rotation velocity, node 1, rad/s
+         29    9.176E-06                                 F               0         CoupledKinematics Y rotation velocity, node 1, rad/s
+         30   -1.448E-05                                 F               0         CoupledKinematics Z rotation velocity, node 1, rad/s
+         31    2.834E-05                                 F               0         CoupledKinematics X rotation velocity, node 2, rad/s
+         32    9.176E-06                                 F               0         CoupledKinematics Y rotation velocity, node 2, rad/s
+         33   -1.448E-05                                 F               0         CoupledKinematics Z rotation velocity, node 2, rad/s
+         34    2.834E-05                                 F               0         CoupledKinematics X rotation velocity, node 3, rad/s
+         35    9.176E-06                                 F               0         CoupledKinematics Y rotation velocity, node 3, rad/s
+         36   -1.448E-05                                 F               0         CoupledKinematics Z rotation velocity, node 3, rad/s
+         37   -3.759E-04                                 F               0         CoupledKinematics X translation acceleration, node 1, m/s^2
+         38    5.359E-05                                 F               0         CoupledKinematics Y translation acceleration, node 1, m/s^2
+         39   -1.747E-03                                 F               0         CoupledKinematics Z translation acceleration, node 1, m/s^2
+         40    8.431E-05                                 F               0         CoupledKinematics X translation acceleration, node 2, m/s^2
+         41   -7.549E-05                                 F               0         CoupledKinematics Y translation acceleration, node 2, m/s^2
+         42    1.273E-03                                 F               0         CoupledKinematics Z translation acceleration, node 2, m/s^2
+         43   -1.180E-04                                 F               0         CoupledKinematics X translation acceleration, node 3, m/s^2
+         44    1.513E-04                                 F               0         CoupledKinematics Y translation acceleration, node 3, m/s^2
+         45    1.006E-04                                 F               0         CoupledKinematics Z translation acceleration, node 3, m/s^2
+         46    2.932E-05                                 F               0         CoupledKinematics X rotation acceleration, node 1, rad/s^2
+         47    3.940E-06                                 F               0         CoupledKinematics Y rotation acceleration, node 1, rad/s^2
+         48   -4.299E-06                                 F               0         CoupledKinematics Z rotation acceleration, node 1, rad/s^2
+         49    2.932E-05                                 F               0         CoupledKinematics X rotation acceleration, node 2, rad/s^2
+         50    3.940E-06                                 F               0         CoupledKinematics Y rotation acceleration, node 2, rad/s^2
+         51   -4.299E-06                                 F               0         CoupledKinematics Z rotation acceleration, node 2, rad/s^2
+         52    2.932E-05                                 F               0         CoupledKinematics X rotation acceleration, node 3, rad/s^2
+         53    3.940E-06                                 F               0         CoupledKinematics Y rotation acceleration, node 3, rad/s^2
+         54   -4.299E-06                                 F               0         CoupledKinematics Z rotation acceleration, node 3, rad/s^2
+
+
+Linearized state matrices:
+

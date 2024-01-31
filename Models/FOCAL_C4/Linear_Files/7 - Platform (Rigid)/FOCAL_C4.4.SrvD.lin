@@ -1,0 +1,37 @@
+
+Linearized model: Predictions were generated on 30-Jan-2024 at 18:20:32 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+ linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MAP++ (<1.20.10>, <Oct-20-2023>)
+
+Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
+
+Simulation information:
+   Simulation time:                   500.7500 s
+   Rotor Speed:                         0.8796 rad/s
+   Azimuth:                             5.8198 rad
+   Wind Speed:                         10.0000 m/s
+   Number of continuous states:         0
+   Number of discrete states:           0
+   Number of constraint states:         0
+   Number of inputs:                    3
+   Number of outputs:                   2
+   Jacobians included in this file?    No
+
+Order of inputs:
+     Column   Operating Point                     Rotating Frame? Derivative Order Description
+   ---------- ---------------                     --------------- ---------------- -----------
+          1    0.000E+00                                 F               0         Yaw, rad
+          2    0.000E+00                                 F               0         YawRate, rad/s
+          3    8.796E-01                                 F               0         HSS_Spd, rad/s
+
+Order of outputs:
+        Row   Operating Point                     Rotating Frame? Derivative Order Description
+   ---------- ---------------                     --------------- ---------------- -----------
+          1   -9.169E-05                                 F               0         GenPwr, (kW)
+          2    1.700E+00                                 T               0         BlPitchC1, (deg)
+
+
+Linearized state matrices:
+
+D: 2 x 3
+    0.000E+00  0.000E+00 -5.477E-06
+    0.000E+00  0.000E+00  0.000E+00

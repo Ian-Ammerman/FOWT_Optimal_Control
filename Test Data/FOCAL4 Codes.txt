@@ -1,0 +1,78 @@
+MOORING CONFIGURATION
+M00- No Mooring
+M02- Moored
+
+
+DAMPER SETTINGS
+D01- Fixed TMD
+D02- Pitch Frequency
+D03- Tower Frequency
+
+
+TURBINE CONTROLLER
+T01- ROSCO rated
+T03- ROSCO rated w/ peak shaver
+T05- ROSCO above rated
+T06- ROSCO above rated w/ floating feedback
+
+
+TEST TYPE
+AC01- Active wave test
+
+FD01- Surge Free Decay
+FD02- Pitch Free Decay
+FD03- Yaw Free Decay
+FD04- Heave Free Decay
+FD05- Sway Free Decay
+FD06- Roll Free Decay
+
+HB01- Fore/Aft Hammer Test, on ground
+HB02- Side/Side Hammer Test, on ground
+
+HF01- Fore/Aft Hammer Test, floating
+HF02- Fore/Aft Hammer Test, floating
+
+SH01- Static Heave
+SI01- Static Incline
+
+SO01- Static Offset- Surge +
+SO02- Static Offset- Surge -
+SO03- Static Offset- Sway +
+SO04- Static Offset- Sway -
+
+
+WAVES
+E02- Regular Wave 2
+E11- DLC 1.2 Seed 1
+E12- DLC 1.2 Seed 2
+E13- DLC 1.2 Seed 3
+E14- DLC 1.2 Seed 4
+E15- DLC 1.2 Seed 5
+E21- DLC 1.6 Seed 1
+E22- DLC 1.6 Seed 2
+E23- DLC 1.6 Seed 3
+E24- DLC 1.6 Seed 4
+E25- DLC 1.6 Seed 5
+E30- Pink Noise Low
+
+
+WINDS
+W01- Gust
+W02- TR1S
+W03- AR2S
+
+
+REPEATS
+R0[repeat #]
+
+
+ZERO FILE
+Z0- Zero file (no wind/ waves, system at equilibrium)
+Z1- Active Test
+
+
+ATTEMPT
+A[attempt #]- If something was wrong with the test, it will be repeated but use the same repeat #, just with the attempt iterated.
+
+
+
