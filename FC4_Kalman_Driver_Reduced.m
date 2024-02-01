@@ -1,35 +1,82 @@
 % FC4 - SS_Model_Driver
 close all; clear all; clc
-
-%% Set Top-Level Linear directory
-linear_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files';
-
 %% Load in Simulation or Test Data
 load('Test_Results.mat','test_results');
 load('OpenFAST_Results.mat','sim_results');
+% test_results = sim_results;
 
 %% Prepare Time Vector
-% Extract time vectors
+% Extract time vector
 test_time = test_results.Time;
 sim_time = sim_results.Time;
 
 % Smooth time vector
-time = linspace(min(test_time),max(test_time),length(test_time))';
+if exist("test_time","var")
+    dt = mean(diff(test_time));
+    time = linspace(min(test_time),max(test_time),length(test_time))';
+end
 
 % Prepare to shift wind input
-dt = max(test_time)/length(test_time);
-causality_shift_index = floor(29.95/dt);
+if exist("test_time","var")
+    dt = max(test_time)/length(test_time);
+    causality_shift_index = floor(29.95/dt);
+else
+   dt = max(sim_time)/length(sim_time);
+   causality_shift_index = floor(29.95/dt); 
+end
 
 %% Prepare Wave Input
+% From Experiment
 eta = test_results.Wave1Elev;
+% eta = sim_results.Wave1Elev;
 
 %% Prepare wind input
 % Wind Case
 wind_case = 2;
 
-% Load wind file
-wind_file_path = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Wind_Files';
-wind = getFOCALWindVector(wind_file_path,wind_case,test_time);
+% Load in appropriate wind file
+switch wind_case
+    case 0 % No wind
+        if exist("test_time","var")
+            wind = zeros(size(test_time));
+        else
+            wind = zeros(size(sim_time));
+        end
+        rotor_lock = true;
+    case 1 % W01 - Below Rated
+        wind = readmatrix('C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2\Models\FOCAL_C4\Wind\W01_fullScale_20230505.wnd');
+        if exist("test_time","var")
+            wind = pchip(wind(:,1),wind(:,2),test_time);
+        else
+            wind = pchip(wind(:,1),wind(:,2),sim_time);
+        end
+        
+        rotor_lock = false;
+    case 2 % W02 - Rated
+        wind = readmatrix('C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2\Models\FOCAL_C4\Wind\W02_fullScale_R02_20230606.wnd','FileType','text');
+        if exist("test_time","var")
+            wind = pchip(wind(:,1),wind(:,2),test_time);
+        else
+            wind = pchip(wind(:,1),wind(:,2),sim_time);
+        end
+        rotor_lock = false;
+    case 3 % W03 - Above Rated
+        wind = readmatrix('C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2\Models\FOCAL_C4\Wind\W03_fullScale_R02_20230613.wnd','FileType','text');
+        if exist("test_time","var")
+            wind = pchip(wind(:,1),wind(:,2),test_time);
+        else
+            wind = pchip(wind(:,1),wind(:,2),sim_time);
+        end
+        rotor_lock = false;
+    case 4 % Step Wind
+        wind = readmatrix("C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2\Models\FOCAL_Base\Wind\Step_Wind_N10_U1_T750.wnd",'FileType','text');
+        if exist("test_time","var")
+            wind = pchip(wind(:,1),wind(:,2),test_time);
+        else
+            wind = pchip(wind(:,1),wind(:,2),sim_time);
+        end
+        rotor_lock = false;
+end
 
 % Time-shift wind to account for hydro causalization time
 wind = [zeros(causality_shift_index,1);
@@ -37,15 +84,24 @@ wind = [zeros(causality_shift_index,1);
 
 %% Prepare Control Input Values
 % Blade pitch command (collective)
-c_pitch = test_results.pitch1Position*(pi/180);
+try
+    c_pitch = test_results.pitch1Position*(pi/180);
+catch
+    c_pitch = sim_results.BldPitch1*(pi/180);
+    disp('Using OpenFAST blade pitch values.');
+end
 
 % Generator torque command
-gen_torque = test_results.genTorqueSetpointActual;
+try
+    gen_torque = test_results.genTorqueSetpointActual;
+catch
+    gen_torque = sim_results.GenTq*10^3;
+    disp('Using OpenFAST generator torque values.')
+end
 
 %% Load in Platform Model
 % Define Path
-platform_folder = '1 - Platform';
-platform_dir = sprintf('%s\\%s',linear_dir,platform_folder);
+platform_dir = 'C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2\Models\FOCAL_C4\Linear_Files\7 - Platform (Rigid)';
 
 % Load in raw files
 load(sprintf('%s\\FOCAL_C4_A.mat',platform_dir),'A');
@@ -54,18 +110,15 @@ load(sprintf('%s\\FOCAL_C4_C.mat',platform_dir),'C');
 load(sprintf('%s\\FOCAL_C4_D.mat',platform_dir),'D');
 % load(sprintf('%s\\FOCAL_C4_Output_OP.mat',platform_dir),'y_op');
 
-% Remove rotor azimuth state & select inputs
-A = A([1:10,12:end],[1:10,12:end]);
-B = B([1:10,12:end],[301,2107:2112,2195,2196,3943:3954]);
-C = C(:,[1:10,12:end]);
+% Remove rotor azimuth state from state vector
+A = A([1:5,6:end],[1:5,6:end]);
+B = B([1:5,6:end],[301,2107:2112,2195,2196,3943:3954]);
+C = C(:,[1:5,6:end]);
 D = 0*D(:,[301,2107:2112,2195,2196,3943:3954]);
 
 % Scale outputs
-C(56:58,:) = C(56:58,:)*10^-5; % convert moorings to dN
-C(18:20,:) = C(18:20,:)*10^-3; % 1/1.2 gain to imrove ss freq response
-
-% Adjust tower bending outputs
-% C(19,[2,4,6,12,14,16]) = 0*C(19,[2,4,6,12,14,16]);
+C(34:end,:) = C(34:end,:)*10^-3;
+C(8:10,:) = C(8:10,:) * 10^-3;
 
 % Discretize Platform
 platform_sys_c = ss(A,B,C,D);
@@ -77,8 +130,7 @@ clear A B C D platform_sys_d platform_sys_c
 
 %% Load in Hydrodynamics Model (FC4)
 % Define Path
-hydro_folder = '2 - Hydrodynamics';
-hydro_dir = sprintf('%s\\%s',linear_dir,hydro_folder);
+hydro_dir = 'C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2\Models\FOCAL_C4\Linear_Files\2 - Hydrodynamics';
 
 % Load in raw files
 load(sprintf('%s\\FOCAL_C4_HD_A.mat',hydro_dir),'A');
@@ -103,61 +155,70 @@ hydro_sys_d = c2d(hydro_sys_c,dt,'zoh');
 clear A B C D hydro_sys_c hydro_sys_d
 
 %% Define System Measurements for Correction
+% Measurements:
+% --------------
+% 1) Tower FA Bending Moment (Strain Gauges)
+% 2) Tower SS Bending Moment (Strain Gauges)
+% 3) Rotor Speed (SCADA)
+% 4) Mooring Tensions (x3) (LCs or strain gauge array?)
+
 % Combine measurements to single matrix
+% FA_bending = test_results.towerBotMy*10^-6;
+% SS_bending = test_results.towerBotMx*10^-6;
 pitch = test_results.PtfmPitch;
 roll = test_results.PtfmRoll;
 rotor_speed = test_results.genSpeed*(30/pi);
-mooring_tension_1 = test_results.leg1MooringForce-3.28*10^6;
-mooring_tension_2 = test_results.leg2MooringForce-3.17*10^6;
-mooring_tension_3 = test_results.leg3MooringForce-3.4*10^6;
-
-% Scale mooring tensions to dN
-mooring_tension_1 = mooring_tension_1*10^-5;
-mooring_tension_2 = mooring_tension_2*10^-5;
-mooring_tension_3 = mooring_tension_3*10^-5;
+mooring_tension_1 = test_results.leg1MooringForce*10^-3;
+mooring_tension_2 = test_results.leg2MooringForce*10^-3;
+mooring_tension_3 = test_results.leg3MooringForce*10^-3;
 
 % system_measurements = [FA_bending,SS_bending,rotor_speed,mooring_tension_1,mooring_tension_2,mooring_tension_3];
 system_measurements = [pitch,roll,rotor_speed,mooring_tension_1,mooring_tension_2,mooring_tension_3];
 
 % Form measurement function (H) from SS output
-H = C_platform([33,32,11,56,57,58],:); % angular displacement
-
-clear pitch roll rotor_speed mooring_tension_1 mooring_tension_2 mooring_tension_3
+% H = C_platform([9,8,4,34,35,36],:); % tower bending
+H = C_platform([18,17,4,34,35,36],:); % angular displacement
 
 %% Compute Measurement Covariance Matrix
+% % Remove mean from measurements
+% for i = [1,2,4,5,6]
+%     system_measurements(:,i) = system_measurements(:,i) - mean(system_measurements(75000:end,i));
+% end
+
 % Low-pass filter @ 6Hz
 f_sample = length(test_results.Time)/max(test_results.Time);
 filtered_measurements = lowpass(system_measurements,1,f_sample);
 % filtered_measurements = system_measurements;
-filtered_measurements = [getRamp(zeros(1,size(system_measurements,2)),filtered_measurements(1,:),714);...
-                         filtered_measurements];
+filtered_measurements = [getRamp(zeros(1,size(system_measurements,2)),filtered_measurements(1,:),714);filtered_measurements];
 
 measurement_noise = highpass(system_measurements,1,f_sample);
 
 % Covariance of measurements
-measurement_covariance = var(measurement_noise(23906:end-1000,:));
-R = diag(measurement_covariance);
+measurement_covariance = cov(measurement_noise(23906:end-1000,:));
+R = measurement_covariance;
 
 R(1,1) = 0.0031;
 R(2,2) = 0.0031;
-R(4,4) = 0.4;
-R(5,5) = 0.4;
-R(6,6) = 0.65;
+
+R(4,4) = 2.6*10^6;
+R(5,5) = 2.6*10^6;
+R(6,6) = 2.6*10^6;
 
 %% Load in P & Q Matrices
 kalman_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files\5 - Kalman Files';
 
-load(sprintf('%s\\FC4_Q.mat',kalman_dir));
-load(sprintf('%s\\FC4_P.mat',kalman_dir));
+load(sprintf('%s\\Q_stiff.mat',kalman_dir));
+load(sprintf('%s\\P_stiff.mat',kalman_dir));
 
-%% Adjust Q Values
-qi = [2,3,4,6,12,14,16];
-for i = qi
-    Q(i,i) = 10*Q(i,i);
+% Adjust Q values
+q_adj_gain = 500;
+q_adj_points = [2,4,6,8,10,12];
+
+for i = q_adj_points
+    Q(i,i) = q_adj_gain*Q(i,i);
 end
 
 %% Simulate System (Kalman Filter)
-disp('Beginning Kalman filter simulation...')
 % Initialization (zero IC)
 if exist('test_time','var')
     ss_time = test_time;
@@ -173,7 +234,7 @@ for i = 1:length(ss_time)-1
 
     % Separate platform position/velocity
     platform_positions = x(1:6);
-    platform_velocities = x(11:16);
+    platform_velocities = x(7:12);
 
     % Define HydroDyn Input
     u_hydro = [eta(i);
@@ -204,6 +265,11 @@ for i = 1:length(ss_time)-1
     % Do update step
     [x,P,K] = update(H,P,R,z',x);
 
+    % Lock rotor for wave-only case
+    if rotor_lock == true
+        x(end) = 0;
+    end
+
     % Store platform outputs
     Y(:,i) = C_platform*x;
 end
@@ -214,7 +280,6 @@ Y = Y';
 Pk = P;
 
 %% Simulate System (State-Space)
-disp('Beginning state-space simulation...')
 % Initialization (zero IC)
 if exist('test_time','var')
     ss_time = test_time;
@@ -233,7 +298,7 @@ for i = 1:length(ss_time)-1
 
     % Separate platform position/velocity
     platform_positions = x(1:6);
-    platform_velocities = x(11:16);
+    platform_velocities = x(7:12);
 
     % Define HydroDyn Input
     u_hydro = [eta(i);
@@ -258,6 +323,11 @@ for i = 1:length(ss_time)-1
     % Do prediction step
     [x,P] = predict(x,P,A_platform,dGain(1,Q),B_platform,u_platform);
 
+    % Lock rotor for wave-only case
+    if rotor_lock == true
+        x(end) = 0;
+    end
+
     % Store platform outputs
     Y_raw(:,i) = C_platform*x;
 end
@@ -265,8 +335,6 @@ end
 Y_raw = Y_raw';
 
 %% Plot Results
-close all; 
-
 % Plot parameters
 tmax = 7500;
 
@@ -276,8 +344,8 @@ figure
 gca; hold on; box on;
 title('Platform Surge')
 xlim([0,tmax])
-plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,29)),'DisplayName','State-Space')
-plot(ss_time(1:end-1)-29.95,rMean(Y(:,29)),'DisplayName','Kalman')
+plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,14)),'DisplayName','State-Space')
+plot(ss_time(1:end-1)-29.95,rMean(Y(:,14)),'DisplayName','Kalman')
 % plot(sim_time,sim_results.PtfmSurge,'DisplayName','OpenFAST')
 try
     plot(test_time,rMean(test_results.PtfmSurge),'DisplayName','Experiment')
@@ -290,8 +358,8 @@ figure
 gca; hold on; box on;
 xlim([0,tmax])
 title('Platform Heave [m]')
-plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,31)),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,rMean(Y(:,31)),'DisplayName','Kalman');
+plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,16)),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,rMean(Y(:,16)),'DisplayName','Kalman');
 % plot(sim_time,sim_results.PtfmHeave,'DisplayName','OpenFAST')
 try
     plot(test_time,rMean(test_results.PtfmHeave),'DisplayName','Experiment')
@@ -304,83 +372,40 @@ figure
 gca; hold on; box on;
 xlim([0,tmax])
 title('Platform Pitch [deg]')
-plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,33)),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,rMean(Y(:,33)),'DisplayName','Kalman');
+plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,18)),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,rMean(Y(:,18)),'DisplayName','Kalman');
 % plot(sim_time,sim_results.PtfmPitch,'DisplayName','OpenFAST')
 try
     plot(test_time,rMean(test_results.PtfmPitch),'DisplayName','Experiment')
 end
 legend
 
-%% Plot tower fore-aft bending moment
+% Plot tower fore-aft bending moment
 figure
 gca; hold on; box on;
 xlim([0,tmax])
 title('Tower FA Bending Moment [kN-m]')
-plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,19)),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,rMean(Y(:,19)),'DisplayName','Kalman');
+plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,9)),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,rMean(Y(:,9)),'DisplayName','Kalman');
 % plot(sim_time,sim_results.TwrBsMyt,'DisplayName','OpenFAST');
 try
     plot(test_time,rMean(test_results.towerBotMy*10^-6),'DisplayName','Experiment')
 end
 legend
 
-%% Plot tower bending spectrum
-tpsd = myPSD(Y(:,19),f_sample,25);
-epsd = myPSD(test_results.towerBotMy*10^-6,f_sample,25);
-spsd = myPSD(Y_raw(:,19),f_sample,25);
-rat = tpsd(:,2)./epsd(1:end-1,2);
-diffpsd = tpsd(:,2)/mean(rat(1405:2071));
-figure; gca; hold on;
-title('Tower Bending PSD')
-plot(spsd(:,1),spsd(:,2),'DisplayName','State-Space');
-plot(tpsd(:,1),tpsd(:,2),'DisplayName','Kalman Filter'); 
-plot(epsd(:,1),epsd(:,2),'DisplayName','Experiment');
-plot(tpsd(:,1),diffpsd,'DisplayName','Kalman Scaled');
-xlim([0,0.2]); 
-ylim([0,6.6*10^5]);
-legend
-
-%% Plot rotor speed
+% Plot rotor speed
 figure
 % subplot(4,1,3)
 gca; hold on; box on;
 xlim([0,tmax])
 title('Rotor Speed [RPM]')
 % xlim([0 500])
-plot(ss_time(1:end-1)-29.95,Y_raw(:,11),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,11),'DisplayName','Kalman');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,5),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,5),'DisplayName','Kalman');
 % plot(sim_time,sim_results.RotSpeed,'DisplayName','OpenFAST')
 try
     plot(test_time,(test_results.genSpeed*(30/pi)),'DisplayName','Experiment');
 end
-legend
-
-% Plot lead mooring tension
-figure
-gca; hold on; box on;
-title('Mooring Tension (1)')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,57),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,57),'DisplayName','Kalman Filter');
-plot(test_time,10^-5*test_results.leg1MooringForce-3.28*10^1,'DisplayName','Experiment');
-legend
-
-% Plot lead mooring tension
-figure
-gca; hold on; box on;
-title('Mooring Tension (2)')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,57),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,57),'DisplayName','Kalman Filter');
-plot(test_time,10^-5*test_results.leg2MooringForce-3.17*10^1,'DisplayName','Experiment');
-legend
-
-% Plot lead mooring tension
-figure
-gca; hold on; box on;
-title('Mooring Tension (3)')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,58),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,58),'DisplayName','Kalman Filter');
-plot(test_time,10^-5*test_results.leg3MooringForce-3.4*10^1,'DisplayName','Experiment');
 legend
 
 % Plot wave elevation
@@ -400,8 +425,6 @@ title('Wind Speed [m/s]')
 xlabel('Time [s]')
 legend
 
-%% Clear window
-clc
 
 %% Functions --------------------------------------------------------- %%
 % Prediction (Labbe, 2020, pg 212)

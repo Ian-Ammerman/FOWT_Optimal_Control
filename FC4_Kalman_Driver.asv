@@ -62,7 +62,7 @@ D = 0*D(:,[301,2107:2112,2195,2196,3943:3954]);
 
 % Scale outputs
 C(56:58,:) = C(56:58,:)*10^-5; % convert moorings to dN
-C(18:20,:) = C(18:20,:)*10^-3; % 1/1.2 gain to imrove ss freq response
+C(18:20,:) = C(18:20,:)*10^-3;
 
 % Adjust tower bending outputs
 % C(19,[2,4,6,12,14,16]) = 0*C(19,[2,4,6,12,14,16]);
@@ -135,8 +135,8 @@ filtered_measurements = [getRamp(zeros(1,size(system_measurements,2)),filtered_m
 measurement_noise = highpass(system_measurements,1,f_sample);
 
 % Covariance of measurements
-measurement_covariance = var(measurement_noise(23906:end-1000,:));
-R = diag(measurement_covariance);
+measurement_covariance = cov(measurement_noise(23906:end-1000,:));
+R = measurement_covariance;
 
 R(1,1) = 0.0031;
 R(2,2) = 0.0031;
@@ -333,7 +333,7 @@ rat = tpsd(:,2)./epsd(1:end-1,2);
 diffpsd = tpsd(:,2)/mean(rat(1405:2071));
 figure; gca; hold on;
 title('Tower Bending PSD')
-plot(spsd(:,1),spsd(:,2),'DisplayName','State-Space');
+plot(spsd(:,1),spsd(:,2),'DisplayName')
 plot(tpsd(:,1),tpsd(:,2),'DisplayName','Kalman Filter'); 
 plot(epsd(:,1),epsd(:,2),'DisplayName','Experiment');
 plot(tpsd(:,1),diffpsd,'DisplayName','Kalman Scaled');
