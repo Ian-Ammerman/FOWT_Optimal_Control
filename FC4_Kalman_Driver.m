@@ -64,6 +64,13 @@ D = 0*D(:,[301,2107:2112,2195,2196,3943:3954]);
 C(56:58,:) = C(56:58,:)*10^-5; % convert moorings to dN
 C(18:20,:) = C(18:20,:)*10^-3; % 1/1.2 gain to imrove ss freq response
 
+% Replace tower bending outputs with DT1 model values
+Cdummy = load('..\\..\\Models\\DT1_Locked_Platform_out\\DT1_Locked_Platform_out_C.mat');
+Cdummy = Cdummy.C;
+
+dummy_bending_out = Cdummy(8,:);
+C(19,1:20) = dummy_bending_out*10^-6;
+
 % Adjust tower bending outputs
 % C(19,[2,4,6,12,14,16]) = 0*C(19,[2,4,6,12,14,16]);
 
