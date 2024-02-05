@@ -46,9 +46,10 @@ gen_torque = test_results.genTorqueSetpointActual;
 % Define Path
 platform_folder = '1 - Platform';
 platform_dir = sprintf('%s\\%s',linear_dir,platform_folder);
+Adir = sprintf('%s\\9 - Platform (Still Air)',linear_dir);
 
 % Load in raw files
-load(sprintf('%s\\FOCAL_C4_A.mat',platform_dir),'A');
+load(sprintf('%s\\FOCAL_C4_A.mat',Adir),'A');
 load(sprintf('%s\\FOCAL_C4_B.mat',platform_dir),'B');
 load(sprintf('%s\\FOCAL_C4_C.mat',platform_dir),'C');
 load(sprintf('%s\\FOCAL_C4_D.mat',platform_dir),'D');
@@ -63,16 +64,6 @@ D = 0*D(:,[301,2107:2112,2195,2196,3943:3954]);
 % Scale outputs
 C(56:58,:) = C(56:58,:)*10^-5; % convert moorings to dN
 C(18:20,:) = C(18:20,:)*10^-3; % 1/1.2 gain to imrove ss freq response
-
-% Replace tower bending outputs with DT1 model values
-Cdummy = load('..\\..\\Models\\DT1_Locked_Platform_out\\DT1_Locked_Platform_out_C.mat');
-Cdummy = Cdummy.C;
-
-dummy_bending_out = Cdummy(8,:);
-C(19,1:20) = dummy_bending_out*10^-6;
-
-% Adjust tower bending outputs
-% C(19,[2,4,6,12,14,16]) = 0*C(19,[2,4,6,12,14,16]);
 
 % Discretize Platform
 platform_sys_c = ss(A,B,C,D);
@@ -156,11 +147,17 @@ kalman_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\
 
 load(sprintf('%s\\FC4_Q.mat',kalman_dir));
 load(sprintf('%s\\FC4_P.mat',kalman_dir));
+P = 0*P;
 
 %% Adjust Q Values
-qi = [2,3,4,6,12,14,16];
+qi = [6,16];
 for i = qi
-    Q(i,i) = 10*Q(i,i);
+    Q(i,i) = 0*Q(i,i);
+end
+
+qi = [2,3,4];
+for i = qi
+    Q(i,i) = 100*Q(i,i);
 end
 
 %% Simulate System (Kalman Filter)
@@ -291,6 +288,20 @@ try
 end
 legend
 
+% Plot Platform Sway
+figure
+% subplot(4,1,2)
+gca; hold on; box on;
+title('Platform Sway')
+xlim([0,tmax])
+plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,30)),'DisplayName','State-Space')
+plot(ss_time(1:end-1)-29.95,rMean(Y(:,30)),'DisplayName','Kalman')
+% plot(sim_time,sim_results.PtfmSurge,'DisplayName','OpenFAST')
+try
+    plot(test_time,rMean(test_results.PtfmSway),'DisplayName','Experiment')
+end
+legend
+
 % Plot Platform Heave
 figure
 % subplot(4,1,1)
@@ -305,6 +316,20 @@ try
 end
 legend
 
+% Plot Platform Roll
+figure
+% subplot(4,1,2)
+gca; hold on; box on;
+title('Platform Roll')
+xlim([0,tmax])
+plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,32)),'DisplayName','State-Space')
+plot(ss_time(1:end-1)-29.95,rMean(Y(:,32)),'DisplayName','Kalman')
+% plot(sim_time,sim_results.PtfmSurge,'DisplayName','OpenFAST')
+try
+    plot(test_time,rMean(test_results.PtfmRoll),'DisplayName','Experiment')
+end
+legend
+
 % Plot Platform Pitch
 figure
 % subplot(4,1,1)
@@ -316,6 +341,20 @@ plot(ss_time(1:end-1)-29.95,rMean(Y(:,33)),'DisplayName','Kalman');
 % plot(sim_time,sim_results.PtfmPitch,'DisplayName','OpenFAST')
 try
     plot(test_time,rMean(test_results.PtfmPitch),'DisplayName','Experiment')
+end
+legend
+
+% Plot Platform Yaw
+figure
+% subplot(4,1,2)
+gca; hold on; box on;
+title('Platform Yaw')
+xlim([0,tmax])
+plot(ss_time(1:end-1)-29.95,rMean(Y_raw(:,34)),'DisplayName','State-Space')
+plot(ss_time(1:end-1)-29.95,rMean(Y(:,34)),'DisplayName','Kalman')
+% plot(sim_time,sim_results.PtfmSurge,'DisplayName','OpenFAST')
+try
+    plot(test_time,rMean(test_results.PtfmYaw),'DisplayName','Experiment')
 end
 legend
 

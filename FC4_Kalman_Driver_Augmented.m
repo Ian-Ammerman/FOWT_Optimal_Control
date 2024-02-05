@@ -2,8 +2,7 @@
 close all; clear all; clc
 
 %% Set Top-Level Linear directory
-full_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files';
-model_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models';
+linear_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files';
 
 %% Load in Simulation or Test Data
 load('Test_Results.mat','test_results');
@@ -43,67 +42,30 @@ c_pitch = test_results.pitch1Position*(pi/180);
 % Generator torque command
 gen_torque = test_results.genTorqueSetpointActual;
 
-%% Load in Dummy Platform Model
-% Define path
-dummy_folder = 'DT1_Locked_Platform';
-out_folder = 'DT1_Locked_Platform_out';
+%% Load in Platform Model
+% Define Path
 platform_folder = '1 - Platform';
+platform_dir = sprintf('%s\\%s',linear_dir,platform_folder);
 
-dummy_path = sprintf('%s\\%s',model_dir,dummy_folder);
-out_path = sprintf('%s\\%s',model_dir,out_folder);
-platform_dir = sprintf('%s\\%s',full_dir,platform_folder);
-
-% Load in dummy matrices
-load(sprintf('%s\\DT1_Locked_Platform_A.mat',dummy_path));
-load(sprintf('%s\\DT1_Locked_Platform_B.mat',dummy_path));
-load(sprintf('%s\\DT1_Locked_Platform_C.mat',dummy_path));
-load(sprintf('%s\\DT1_Locked_Platform_D.mat',dummy_path));
-
-A = Adummy;
-B = Bdummy;
-C = Cdummy;
-D = Ddummy;
-clear A B C D
-
-% Load in full-system A matrix
+% Load in raw files
 load(sprintf('%s\\FOCAL_C4_A.mat',platform_dir),'A');
 load(sprintf('%s\\FOCAL_C4_B.mat',platform_dir),'B');
 load(sprintf('%s\\FOCAL_C4_C.mat',platform_dir),'C');
 load(sprintf('%s\\FOCAL_C4_D.mat',platform_dir),'D');
+% load(sprintf('%s\\FOCAL_C4_Output_OP.mat',platform_dir),'y_op');
 
-A = Afull;
-B = Bfull;
-C = Cfull;
-D = Dfull;
-
-% Form new A matrix w/ rotor RPM state
-Anew = zeros(size(Afull));
-Anew(1:20,1:20) = Adummy;
-Anew(21,:) = Afull(21,:);
-
-% Form new B matrix w/ wind & control inputs
-Bnew = Bfull;
-Bnew = Bnew([1:10,12:end],[301,2107:2112,2195,2196,3943:3954]);
-
-
-
-
-
-
+% Remove rotor azimuth state & select inputs
+A = A([1:10,12:end],[1:10,12:end]);
 B = B([1:10,12:end],[301,2107:2112,2195,2196,3943:3954]);
 C = C(:,[1:10,12:end]);
-D = 0*D(:,[301,2107:2112,2195,2196,3943:3954]);
+D = D(:,[301,2107:2112,2195,2196,3943:3954]);
 
-
-
+% Augment state vector with additional values
 
 
 % Scale outputs
 C(56:58,:) = C(56:58,:)*10^-5; % convert moorings to dN
 C(18:20,:) = C(18:20,:)*10^-3; % 1/1.2 gain to imrove ss freq response
-
-% Adjust tower bending outputs
-% C(19,[2,4,6,12,14,16]) = 0*C(19,[2,4,6,12,14,16]);
 
 % Discretize Platform
 platform_sys_c = ss(A,B,C,D);
@@ -116,7 +78,7 @@ clear A B C D platform_sys_d platform_sys_c
 %% Load in Hydrodynamics Model (FC4)
 % Define Path
 hydro_folder = '2 - Hydrodynamics';
-hydro_dir = sprintf('%s\\%s',full_dir,hydro_folder);
+hydro_dir = sprintf('%s\\%s',linear_dir,hydro_folder);
 
 % Load in raw files
 load(sprintf('%s\\FOCAL_C4_HD_A.mat',hydro_dir),'A');
@@ -193,22 +155,6 @@ qi = [2,3,4,6,12,14,16];
 for i = qi
     Q(i,i) = 10*Q(i,i);
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 %% Simulate System (Kalman Filter)
 disp('Beginning Kalman filter simulation...')

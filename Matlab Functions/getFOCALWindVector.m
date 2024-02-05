@@ -14,7 +14,7 @@ function wind = getFOCALWindVector(path,wind_case,time)
 
 % Load in appropriate wind file
 if  wind_case == 0
-    wind = zeros(size(time_vector));
+    wind = zeros(size(time));
 else
    switch wind_case
         case 1 % W01 - Below Rated
