@@ -6,8 +6,10 @@ import os
 from scipy.stats import linregress
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error
-# DATA
-from MLSTM_WRP.vmod import p2v as pp
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from vmod import p2v
 
 """
 In this example:
@@ -17,14 +19,14 @@ In this example:
 """
 
 TEST_NUM = 1
-DATA_INPUT_FILE = r"./MLSTM_WRP/Data/FC2_URI/S12_merged_10Hz_FS.csv"
+DATA_INPUT_FILE = os.path.join("MLSTM_WRP", "Data", "FC2_URI", "S12_merged_10Hz_FS.csv")
 TIME_HORIZON = 20
 
-if not os.path.exists(f"./MLSTM_WRP/examples/figures/{TEST_NUM}"):
-    os.makedirs(f"./MLSTM_WRP/examples/figures/{TEST_NUM}")
+if not os.path.exists(os.path.join("figures", f"{TEST_NUM}")):
+    os.makedirs(os.path.join("figures", f"{TEST_NUM}"))
 
 # Data pre-processing
-data = pp.PreProcess(DATA_INPUT_FILE)
+data = p2v.PreProcess(DATA_INPUT_FILE)
 data.nan_check()
 correlation_matrix = data.idle_sensors_check()
 dataset = data.dataset
@@ -75,7 +77,7 @@ valid_ratio = 0.25
 features = list(np.arange(1, len(dof) + 1, 1))
 labels = list(np.arange(1, len(dof) + 1, 1))
 
-mlstm_wrp = pp.MLSTM()
+mlstm_wrp = p2v.MLSTM()
 mlstm_wrp.split_train_test(supervised_data, train_ratio, valid_ratio, past_timesteps=n, future_timesteps=m,
                            features=features, labels=labels, past_wrp=True, future_wrp=True)
 mlstm_wrp.build_and_compile_model(hidden_layer, neuron_number, len(labels), lr=0.001)
@@ -141,7 +143,6 @@ for i, label in enumerate(labels):
 plt.tight_layout()
 plt.savefig(fr".\figures\{TEST_NUM}\TD_test_n_{n}_m_{m}_WRP_comp_02_before_fixing_converted.pdf", format="pdf")
 
-# Save the model
-# model_save_path = r"../data/models/7dof_MLSTM_WRP_OPT_T20"
-# mlstm_wrp.model.save(model_save_path)
-# print(f"Model saved at {model_save_path}")
+# save the model
+mlstm_wrp.save_model(os.path.join("MLSTM_WRP", "models", "7dof_MLSTM_WRP_OPT_T20_FC2"),
+                     os.path.join("MLSTM_WRP", "scalers", "scaler.pkl"))

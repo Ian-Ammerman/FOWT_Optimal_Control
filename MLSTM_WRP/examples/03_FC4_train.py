@@ -10,7 +10,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error
 
 # DATA
-from vmod import p2v as pp
+from MLSTM_WRP.vmod import p2v as pp
 
 """
 In this example:
@@ -18,11 +18,11 @@ In this example:
 """
 
 TEST_NUM = 2
-DATA_INPUT_FILE = r"./data/FC4/Data/windwave.csv"
+DATA_INPUT_FILE = r"./MLSTM_WRP/Data/FC4/windwave.csv"
 TIME_HORIZON = 20
 
-if not os.path.exists(f"./examples/figures/{TEST_NUM}"):
-    os.makedirs(f"./examples/figures/{TEST_NUM}")
+if not os.path.exists(f"./MLSTM_WRP/examples/figures/{TEST_NUM}"):
+    os.makedirs(f"./MLSTM_WRP/examples/figures/{TEST_NUM}")
 
 # Data pre-processing
 data = pp.PreProcess(DATA_INPUT_FILE)
