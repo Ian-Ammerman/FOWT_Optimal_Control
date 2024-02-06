@@ -3,7 +3,7 @@ clear all; close all; clc;
 
 tests = {'FC4_Step_Wind'};
 
-FASTdir = 'C:\\Umaine Google Sync\\Masters Working Folder\\FOCAL_C2';
+FASTdir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control';
 model = 'FOCAL_C4';
 
 for i = 1:length(tests)
@@ -14,15 +14,15 @@ end
 %% Perform OpenFAST Linearization
 clear all; close all; clc;
 tests = {'000_Linearize'};
-FASTdir = 'C:\\Umaine Google Sync\\Masters Working Folder\\FOCAL_C2';
+FASTdir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control';
 
 % Linearization inputs
-model = 'FOCAL_C4_Straight';
+model = 'FOCAL_C4';
 num_lin_times = 36; % Number of linearizations for rotor averaging
 inflow_file_name = 'FOCAL_C4_InflowFile.dat';
 inflow_line = 14; % line of inflow file for HWindSpeed
 % wind_type_line = 5; % line of inflow file for WindType
-wind_speed = 10; % constant wind speed for linearization
+wind_speed = 12; % constant wind speed for linearization
 % wind_type = 0;
 
 % Form inflow file directory
@@ -60,7 +60,7 @@ tests = {'Test_04'};
 % FD_IC = readmatrix('FD_IC.csv');
 % FD_IC = FD_IC(:,2);
 
-SLXdir = 'C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2';
+SLXdir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control';
 model = 'DT1_Locked';
 
 for i = 1:length(tests)
@@ -75,7 +75,7 @@ clear all; close all; clc;
 tests = {'Test_01'};
 measurements = {'PtfmPitch','PtfmRoll','FAIRTEN1','FAIRTEN2','FAIRTEN3'};
 
-SLXdir = 'C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2';
+SLXdir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control';
 model = 'DT1_Locked';
 
 for i = 1:length(tests)

@@ -62,8 +62,8 @@ C = C(:,[1:10,12:end]);
 D = 0*D(:,[301,2107:2112,2195,2196,3943:3954]);
 
 % Scale outputs
-C(34:36,:) = C(34:36,:)*10^-5; % convert moorings to dN
-C(8:13,:) = C(8:13,:)*10^-3; % 1/1.2 gain to imrove ss freq response
+C(56:58,:) = C(56:58,:)*10^-5; % convert moorings to dN
+C(18:20,:) = C(18:20,:)*10^-3; % 1/1.2 gain to imrove ss freq response
 
 % Discretize Platform
 platform_sys_c = ss(A,B,C,D);
@@ -118,7 +118,7 @@ mooring_tension_3 = mooring_tension_3*10^-5;
 system_measurements = [pitch,roll,rotor_speed,mooring_tension_1,mooring_tension_2,mooring_tension_3];
 
 % Form measurement function (H) from SS output
-H = C_platform([18,17,4,34,35,36],:); % angular displacement
+H = C_platform([33,32,11,56,57,58],:); % angular displacement
 
 clear pitch roll rotor_speed mooring_tension_1 mooring_tension_2 mooring_tension_3
 
@@ -280,8 +280,8 @@ figure
 gca; hold on; box on;
 title('Platform Surge')
 xlim([0,tmax])
-plot(ss_time(1:end-1)-29.95,Y_raw(:,14),'DisplayName','State-Space')
-plot(ss_time(1:end-1)-29.95,Y(:,14),'DisplayName','Kalman')
+plot(ss_time(1:end-1)-29.95,Y_raw(:,29),'DisplayName','State-Space')
+plot(ss_time(1:end-1)-29.95,Y(:,29),'DisplayName','Kalman')
 % plot(sim_time,sim_results.PtfmSurge,'DisplayName','OpenFAST')
 try
     plot(test_time,test_results.PtfmSurge,'DisplayName','Experiment')
@@ -294,8 +294,8 @@ figure
 gca; hold on; box on;
 title('Platform Sway')
 xlim([0,tmax])
-plot(ss_time(1:end-1)-29.95,Y_raw(:,15),'DisplayName','State-Space')
-plot(ss_time(1:end-1)-29.95,Y(:,15),'DisplayName','Kalman')
+plot(ss_time(1:end-1)-29.95,Y_raw(:,30),'DisplayName','State-Space')
+plot(ss_time(1:end-1)-29.95,Y(:,30),'DisplayName','Kalman')
 % plot(sim_time,sim_results.PtfmSurge,'DisplayName','OpenFAST')
 try
     plot(test_time,test_results.PtfmSway,'DisplayName','Experiment')
@@ -308,8 +308,8 @@ figure
 gca; hold on; box on;
 xlim([0,tmax])
 title('Platform Heave [m]')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,16),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,16),'DisplayName','Kalman');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,31),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,31),'DisplayName','Kalman');
 % plot(sim_time,sim_results.PtfmHeave,'DisplayName','OpenFAST')
 try
     plot(test_time,test_results.PtfmHeave,'DisplayName','Experiment')
@@ -322,8 +322,8 @@ figure
 gca; hold on; box on;
 title('Platform Roll')
 xlim([0,tmax])
-plot(ss_time(1:end-1)-29.95,Y_raw(:,17),'DisplayName','State-Space')
-plot(ss_time(1:end-1)-29.95,Y(:,17),'DisplayName','Kalman')
+plot(ss_time(1:end-1)-29.95,Y_raw(:,32),'DisplayName','State-Space')
+plot(ss_time(1:end-1)-29.95,Y(:,32),'DisplayName','Kalman')
 % plot(sim_time,sim_results.PtfmSurge,'DisplayName','OpenFAST')
 try
     plot(test_time,test_results.PtfmRoll,'DisplayName','Experiment')
@@ -336,8 +336,8 @@ figure
 gca; hold on; box on;
 xlim([0,tmax])
 title('Platform Pitch [deg]')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,18),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,18),'DisplayName','Kalman');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,33),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,33),'DisplayName','Kalman');
 % plot(sim_time,sim_results.PtfmPitch,'DisplayName','OpenFAST')
 try
     plot(test_time,test_results.PtfmPitch,'DisplayName','Experiment')
@@ -350,42 +350,29 @@ figure
 gca; hold on; box on;
 title('Platform Yaw')
 xlim([0,tmax])
-plot(ss_time(1:end-1)-29.95,Y_raw(:,19),'DisplayName','State-Space')
-plot(ss_time(1:end-1)-29.95,Y(:,19),'DisplayName','Kalman')
+plot(ss_time(1:end-1)-29.95,Y_raw(:,34),'DisplayName','State-Space')
+plot(ss_time(1:end-1)-29.95,Y(:,34),'DisplayName','Kalman')
 % plot(sim_time,sim_results.PtfmSurge,'DisplayName','OpenFAST')
 try
     plot(test_time,test_results.PtfmYaw,'DisplayName','Experiment')
 end
 legend
 
-% Plot tower side-side bending moment
-figure
-gca; hold on; box on;
-xlim([0,tmax])
-title('Tower SS Bending Moment [kN-m]')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,8),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,8),'DisplayName','Kalman');
-% plot(sim_time,sim_results.TwrBsMyt,'DisplayName','OpenFAST');
-try
-    plot(test_time,test_results.towerBotMx*10^-6,'DisplayName','Experiment')
-end
-legend
-
-% Plot tower fore-aft bending moment
+%% Plot tower fore-aft bending moment
 figure
 gca; hold on; box on;
 xlim([0,tmax])
 title('Tower FA Bending Moment [kN-m]')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,9),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,9),'DisplayName','Kalman');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,19),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,19),'DisplayName','Kalman');
 % plot(sim_time,sim_results.TwrBsMyt,'DisplayName','OpenFAST');
 try
     plot(test_time,test_results.towerBotMy*10^-6,'DisplayName','Experiment')
 end
 legend
 
-% Plot tower bending spectrum
-tpsd = myPSD(Y(:,9),f_sample,25);
+%% Plot tower bending spectrum
+tpsd = myPSD(Y(:,19),f_sample,25);
 epsd = myPSD(test_results.towerBotMy*10^-6,f_sample,25);
 spsd = myPSD(Y_raw(:,19),f_sample,25);
 rat = tpsd(:,2)./epsd(1:end-1,2);
@@ -407,8 +394,8 @@ gca; hold on; box on;
 xlim([0,tmax])
 title('Rotor Speed [RPM]')
 % xlim([0 500])
-plot(ss_time(1:end-1)-29.95,Y_raw(:,4),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,4),'DisplayName','Kalman');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,11),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,11),'DisplayName','Kalman');
 % plot(sim_time,sim_results.RotSpeed,'DisplayName','OpenFAST')
 try
     plot(test_time,(test_results.genSpeed*(30/pi)),'DisplayName','Experiment');
@@ -419,8 +406,8 @@ legend
 figure
 gca; hold on; box on;
 title('Mooring Tension (1)')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,34),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,34),'DisplayName','Kalman Filter');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,57),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,57),'DisplayName','Kalman Filter');
 plot(test_time,10^-5*test_results.leg1MooringForce-3.28*10^1,'DisplayName','Experiment');
 legend
 
@@ -428,8 +415,8 @@ legend
 figure
 gca; hold on; box on;
 title('Mooring Tension (2)')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,35),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,35),'DisplayName','Kalman Filter');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,57),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,57),'DisplayName','Kalman Filter');
 plot(test_time,10^-5*test_results.leg2MooringForce-3.17*10^1,'DisplayName','Experiment');
 legend
 
@@ -437,8 +424,8 @@ legend
 figure
 gca; hold on; box on;
 title('Mooring Tension (3)')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,36),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,36),'DisplayName','Kalman Filter');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,58),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,58),'DisplayName','Kalman Filter');
 plot(test_time,10^-5*test_results.leg3MooringForce-3.4*10^1,'DisplayName','Experiment');
 legend
 
