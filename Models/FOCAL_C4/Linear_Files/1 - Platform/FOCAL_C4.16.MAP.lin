@@ -1,14 +1,14 @@
 
-Linearized model: Predictions were generated on 12-Jan-2024 at 09:28:28 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+Linearized model: Predictions were generated on 06-Feb-2024 at 10:15:48 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
  linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MAP++ (<1.20.10>, <Oct-20-2023>)
 
 Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
 
 Simulation information:
-   Simulation time:                   503.7250 s
-   Rotor Speed:                         0.8770 rad/s
-   Azimuth:                             0.8399 rad
-   Wind Speed:                         10.0000 m/s
+   Simulation time:                  1003.7500 s
+   Rotor Speed:                         1.0401 rad/s
+   Azimuth:                             4.9477 rad
+   Wind Speed:                         12.0000 m/s
    Number of continuous states:         0
    Number of discrete states:           0
    Number of constraint states:         0
@@ -19,27 +19,27 @@ Simulation information:
 Order of inputs:
      Column   Operating Point                     Rotating Frame? Derivative Order Description
    ---------- ---------------                     --------------- ---------------- -----------
-          1    7.150E+00                                 F               0         PtFairDisplacement X translation displacement, node 1, m
-          2    6.678E-01                                 F               0         PtFairDisplacement Y translation displacement, node 1, m
-          3   -6.045E+00                                 F               0         PtFairDisplacement Z translation displacement, node 1, m
-          4    6.726E+00                                 F               0         PtFairDisplacement X translation displacement, node 2, m
-          5    5.408E-01                                 F               0         PtFairDisplacement Y translation displacement, node 2, m
-          6   -1.009E+00                                 F               0         PtFairDisplacement Z translation displacement, node 2, m
-          7    7.560E+00                                 F               0         PtFairDisplacement X translation displacement, node 3, m
-          8   -2.677E-01                                 F               0         PtFairDisplacement Y translation displacement, node 3, m
-          9    6.931E+00                                 F               0         PtFairDisplacement Z translation displacement, node 3, m
+          1    1.000E+01                                 F               0         PtFairDisplacement X translation displacement, node 1, m
+          2    9.588E-01                                 F               0         PtFairDisplacement Y translation displacement, node 1, m
+          3   -7.292E+00                                 F               0         PtFairDisplacement Z translation displacement, node 1, m
+          4    9.417E+00                                 F               0         PtFairDisplacement X translation displacement, node 2, m
+          5    8.149E-01                                 F               0         PtFairDisplacement Y translation displacement, node 2, m
+          6   -1.957E+00                                 F               0         PtFairDisplacement Z translation displacement, node 2, m
+          7    1.079E+01                                 F               0         PtFairDisplacement X translation displacement, node 3, m
+          8   -3.177E-01                                 F               0         PtFairDisplacement Y translation displacement, node 3, m
+          9    9.119E+00                                 F               0         PtFairDisplacement Z translation displacement, node 3, m
 
 Order of outputs:
         Row   Operating Point                     Rotating Frame? Derivative Order Description
    ---------- ---------------                     --------------- ---------------- -----------
-          1    2.945E+06                                 F               0         T[1], [N]
-          2    2.759E+06                                 F               0         T[2], [N]
-          3    4.366E+06                                 F               0         T[3], [N]
+          1    2.807E+06                                 F               0         T[1], [N]
+          2    2.564E+06                                 F               0         T[2], [N]
+          3    4.780E+06                                 F               0         T[3], [N]
 
 
 Linearized state matrices:
 
 D: 3 x 9
-   -6.151E+04  1.099E+05 -3.014E+03  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
-    0.000E+00  0.000E+00  0.000E+00 -6.177E+04 -1.110E+05 -7.987E+02  0.000E+00  0.000E+00  0.000E+00
-    0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  1.228E+05 -2.914E+03  6.868E+03
+   -6.050E+04  1.105E+05 -3.565E+03  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
+    0.000E+00  0.000E+00  0.000E+00 -6.091E+04 -1.114E+05 -1.223E+03  0.000E+00  0.000E+00  0.000E+00
+    0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  1.227E+05 -2.888E+03  8.641E+03
