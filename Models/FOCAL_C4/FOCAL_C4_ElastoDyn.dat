@@ -17,11 +17,11 @@ True          TwFADOF2    - Second fore-aft tower bending-mode DOF (flag)
 True          TwSSDOF1    - First side-to-side tower bending-mode DOF (flag)
 True          TwSSDOF2    - Second side-to-side tower bending-mode DOF (flag)
 True          PtfmSgDOF   - Platform horizontal surge translation DOF (flag)
-True          PtfmSwDOF   - Platform horizontal sway translation DOF (flag)
+False         PtfmSwDOF   - Platform horizontal sway translation DOF (flag)
 True          PtfmHvDOF   - Platform vertical heave translation DOF (flag)
 True          PtfmRDOF    - Platform roll tilt rotation DOF (flag)
 True          PtfmPDOF    - Platform pitch rotation DOF (flag)
-True         PtfmYDOF    - Platform Yaw tilt rotation DOF (flag)
+False         PtfmYDOF    - Platform Yaw rotation DOF (flag)
 ---------------------- INITIAL CONDITIONS --------------------------------------
           0   OoPDefl     - Initial out-of-plane blade-tip displacement (meters)
           0   IPDefl      - Initial in-plane blade-tip deflection (meters)
@@ -136,7 +136,6 @@ True          TabDelim    - Use tab delimiters in text tabular output file? (fla
 "PtfmYaw"
 "TTDspFA"
 "TTDspSS"
-YawBrFyn
-
+"YawBrFyn"
 END of input file (the word "END" must appear in the first 3 columns of this last OutList line)
 ---------------------------------------------------------------------------------------

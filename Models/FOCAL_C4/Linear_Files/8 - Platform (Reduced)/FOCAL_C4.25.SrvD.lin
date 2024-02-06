@@ -1,14 +1,14 @@
 
-Linearized model: Predictions were generated on 31-Jan-2024 at 12:35:17 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+Linearized model: Predictions were generated on 06-Feb-2024 at 16:18:08 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
  linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MAP++ (<1.20.10>, <Oct-20-2023>)
 
 Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
 
 Simulation information:
-   Simulation time:                   505.9250 s
-   Rotor Speed:                         0.8937 rad/s
-   Azimuth:                             6.0418 rad
-   Wind Speed:                         10.0000 m/s
+   Simulation time:                  1005.9750 s
+   Rotor Speed:                         1.0418 rad/s
+   Azimuth:                             1.4430 rad
+   Wind Speed:                         12.0000 m/s
    Number of continuous states:         0
    Number of discrete states:           0
    Number of constraint states:         0
@@ -21,17 +21,17 @@ Order of inputs:
    ---------- ---------------                     --------------- ---------------- -----------
           1    0.000E+00                                 F               0         Yaw, rad
           2    0.000E+00                                 F               0         YawRate, rad/s
-          3    8.937E-01                                 F               0         HSS_Spd, rad/s
+          3    1.042E+00                                 F               0         HSS_Spd, rad/s
 
 Order of outputs:
         Row   Operating Point                     Rotating Frame? Derivative Order Description
    ---------- ---------------                     --------------- ---------------- -----------
-          1   -9.176E-05                                 F               0         GenPwr, (kW)
+          1   -9.263E-05                                 F               0         GenPwr, (kW)
           2    1.700E+00                                 T               0         BlPitchC1, (deg)
 
 
 Linearized state matrices:
 
 D: 2 x 3
-    0.000E+00  0.000E+00 -5.531E-06
+    0.000E+00  0.000E+00 -6.148E-06
     0.000E+00  0.000E+00  0.000E+00
