@@ -1,4 +1,4 @@
-function processMBC3(linTimes)
+function processMBC3(linTimes,model)
 
 % Script to generate A,B,C,D matrix .mat files from .lin files via MBC3
 % clear all; close all; clc;
@@ -6,7 +6,7 @@ function processMBC3(linTimes)
 %% Compile filenames into cell array
 % linTimes = 36;
 for i = 1:linTimes
-    filenames{i} = sprintf('FOCAL_C4.%i.lin',i);
+    filenames{i} = sprintf('%s.%i.lin',model,i);
 end
 
 %% Perform coordinate transform

@@ -1,0 +1,335 @@
+
+Linearized model: Predictions were generated on 06-Feb-2024 at 08:44:08 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+ linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MAP++ (<1.20.10>, <Oct-20-2023>)
+
+Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
+
+Simulation information:
+   Simulation time:                  2501.6000 s
+   Rotor Speed:                         0.8858 rad/s
+   Azimuth:                             4.5680 rad
+   Wind Speed:                         10.0000 m/s
+   Number of continuous states:         0
+   Number of discrete states:           0
+   Number of constraint states:         0
+   Number of inputs:                  303
+   Number of outputs:                   1
+   Jacobians included in this file?    No
+
+Order of inputs:
+     Column   Operating Point                     Rotating Frame? Derivative Order Description
+   ---------- ---------------                     --------------- ---------------- -----------
+          1   -1.080E+01                                 F               0         X-component position of node 1 (hub), m
+          2    0.000E+00                                 F               0         Y-component position of node 1 (hub), m
+          3    1.497E+02                                 F               0         Z-component position of node 1 (hub), m
+          4    1.394E+01                                 F               0         X-component position of node 2 (blade 1, node 1), m
+          5    5.764E+00                                 F               0         Y-component position of node 2 (blade 1, node 1), m
+          6    1.492E+02                                 F               0         Z-component position of node 2 (blade 1, node 1), m
+          7    1.390E+01                                 F               0         X-component position of node 3 (blade 1, node 2), m
+          8    7.085E+00                                 F               0         Y-component position of node 3 (blade 1, node 2), m
+          9    1.490E+02                                 F               0         Z-component position of node 3 (blade 1, node 2), m
+         10    1.338E+01                                 F               0         X-component position of node 4 (blade 1, node 3), m
+         11    2.504E+01                                 F               0         Y-component position of node 4 (blade 1, node 3), m
+         12    1.464E+02                                 F               0         Z-component position of node 4 (blade 1, node 3), m
+         13    1.327E+01                                 F               0         X-component position of node 5 (blade 1, node 4), m
+         14    2.887E+01                                 F               0         Y-component position of node 5 (blade 1, node 4), m
+         15    1.459E+02                                 F               0         Z-component position of node 5 (blade 1, node 4), m
+         16    1.316E+01                                 F               0         X-component position of node 6 (blade 1, node 5), m
+         17    3.270E+01                                 F               0         Y-component position of node 6 (blade 1, node 5), m
+         18    1.453E+02                                 F               0         Z-component position of node 6 (blade 1, node 5), m
+         19    1.305E+01                                 F               0         X-component position of node 7 (blade 1, node 6), m
+         20    3.652E+01                                 F               0         Y-component position of node 7 (blade 1, node 6), m
+         21    1.448E+02                                 F               0         Z-component position of node 7 (blade 1, node 6), m
+         22    1.294E+01                                 F               0         X-component position of node 8 (blade 1, node 7), m
+         23    4.035E+01                                 F               0         Y-component position of node 8 (blade 1, node 7), m
+         24    1.442E+02                                 F               0         Z-component position of node 8 (blade 1, node 7), m
+         25    1.283E+01                                 F               0         X-component position of node 9 (blade 1, node 8), m
+         26    4.418E+01                                 F               0         Y-component position of node 9 (blade 1, node 8), m
+         27    1.437E+02                                 F               0         Z-component position of node 9 (blade 1, node 8), m
+         28    1.272E+01                                 F               0         X-component position of node 10 (blade 1, node 9), m
+         29    4.800E+01                                 F               0         Y-component position of node 10 (blade 1, node 9), m
+         30    1.431E+02                                 F               0         Z-component position of node 10 (blade 1, node 9), m
+         31    1.261E+01                                 F               0         X-component position of node 11 (blade 1, node 10), m
+         32    5.183E+01                                 F               0         Y-component position of node 11 (blade 1, node 10), m
+         33    1.426E+02                                 F               0         Z-component position of node 11 (blade 1, node 10), m
+         34    1.250E+01                                 F               0         X-component position of node 12 (blade 1, node 11), m
+         35    5.565E+01                                 F               0         Y-component position of node 12 (blade 1, node 11), m
+         36    1.420E+02                                 F               0         Z-component position of node 12 (blade 1, node 11), m
+         37    1.239E+01                                 F               0         X-component position of node 13 (blade 1, node 12), m
+         38    5.948E+01                                 F               0         Y-component position of node 13 (blade 1, node 12), m
+         39    1.415E+02                                 F               0         Z-component position of node 13 (blade 1, node 12), m
+         40    1.228E+01                                 F               0         X-component position of node 14 (blade 1, node 13), m
+         41    6.331E+01                                 F               0         Y-component position of node 14 (blade 1, node 13), m
+         42    1.409E+02                                 F               0         Z-component position of node 14 (blade 1, node 13), m
+         43    1.217E+01                                 F               0         X-component position of node 15 (blade 1, node 14), m
+         44    6.713E+01                                 F               0         Y-component position of node 15 (blade 1, node 14), m
+         45    1.404E+02                                 F               0         Z-component position of node 15 (blade 1, node 14), m
+         46    1.206E+01                                 F               0         X-component position of node 16 (blade 1, node 15), m
+         47    7.096E+01                                 F               0         Y-component position of node 16 (blade 1, node 15), m
+         48    1.398E+02                                 F               0         Z-component position of node 16 (blade 1, node 15), m
+         49    1.195E+01                                 F               0         X-component position of node 17 (blade 1, node 16), m
+         50    7.479E+01                                 F               0         Y-component position of node 17 (blade 1, node 16), m
+         51    1.392E+02                                 F               0         Z-component position of node 17 (blade 1, node 16), m
+         52    1.184E+01                                 F               0         X-component position of node 18 (blade 1, node 17), m
+         53    7.861E+01                                 F               0         Y-component position of node 18 (blade 1, node 17), m
+         54    1.387E+02                                 F               0         Z-component position of node 18 (blade 1, node 17), m
+         55    1.173E+01                                 F               0         X-component position of node 19 (blade 1, node 18), m
+         56    8.244E+01                                 F               0         Y-component position of node 19 (blade 1, node 18), m
+         57    1.381E+02                                 F               0         Z-component position of node 19 (blade 1, node 18), m
+         58    1.162E+01                                 F               0         X-component position of node 20 (blade 1, node 19), m
+         59    8.626E+01                                 F               0         Y-component position of node 20 (blade 1, node 19), m
+         60    1.376E+02                                 F               0         Z-component position of node 20 (blade 1, node 19), m
+         61    1.151E+01                                 F               0         X-component position of node 21 (blade 1, node 20), m
+         62    9.009E+01                                 F               0         Y-component position of node 21 (blade 1, node 20), m
+         63    1.370E+02                                 F               0         Z-component position of node 21 (blade 1, node 20), m
+         64    1.139E+01                                 F               0         X-component position of node 22 (blade 1, node 21), m
+         65    9.392E+01                                 F               0         Y-component position of node 22 (blade 1, node 21), m
+         66    1.365E+02                                 F               0         Z-component position of node 22 (blade 1, node 21), m
+         67    1.128E+01                                 F               0         X-component position of node 23 (blade 1, node 22), m
+         68    9.774E+01                                 F               0         Y-component position of node 23 (blade 1, node 22), m
+         69    1.359E+02                                 F               0         Z-component position of node 23 (blade 1, node 22), m
+         70    1.117E+01                                 F               0         X-component position of node 24 (blade 1, node 23), m
+         71    1.016E+02                                 F               0         Y-component position of node 24 (blade 1, node 23), m
+         72    1.354E+02                                 F               0         Z-component position of node 24 (blade 1, node 23), m
+         73    1.106E+01                                 F               0         X-component position of node 25 (blade 1, node 24), m
+         74    1.054E+02                                 F               0         Y-component position of node 25 (blade 1, node 24), m
+         75    1.348E+02                                 F               0         Z-component position of node 25 (blade 1, node 24), m
+         76    1.095E+01                                 F               0         X-component position of node 26 (blade 1, node 25), m
+         77    1.092E+02                                 F               0         Y-component position of node 26 (blade 1, node 25), m
+         78    1.343E+02                                 F               0         Z-component position of node 26 (blade 1, node 25), m
+         79    1.084E+01                                 F               0         X-component position of node 27 (blade 1, node 26), m
+         80    1.130E+02                                 F               0         Y-component position of node 27 (blade 1, node 26), m
+         81    1.337E+02                                 F               0         Z-component position of node 27 (blade 1, node 26), m
+         82    1.073E+01                                 F               0         X-component position of node 28 (blade 1, node 27), m
+         83    1.169E+02                                 F               0         Y-component position of node 28 (blade 1, node 27), m
+         84    1.332E+02                                 F               0         Z-component position of node 28 (blade 1, node 27), m
+         85    1.064E+01                                 F               0         X-component position of node 29 (blade 1, node 28), m
+         86    1.201E+02                                 F               0         Y-component position of node 29 (blade 1, node 28), m
+         87    1.327E+02                                 F               0         Z-component position of node 29 (blade 1, node 28), m
+         88    1.507E+01                                 F               0         X-component position of node 30 (blade 2, node 1), m
+         89   -1.757E+00                                 F               0         Y-component position of node 30 (blade 2, node 1), m
+         90    1.551E+02                                 F               0         Z-component position of node 30 (blade 2, node 1), m
+         91    1.530E+01                                 F               0         X-component position of node 31 (blade 2, node 2), m
+         92   -2.249E+00                                 F               0         Y-component position of node 31 (blade 2, node 2), m
+         93    1.563E+02                                 F               0         Z-component position of node 31 (blade 2, node 2), m
+         94    1.850E+01                                 F               0         X-component position of node 32 (blade 2, node 3), m
+         95   -8.935E+00                                 F               0         Y-component position of node 32 (blade 2, node 3), m
+         96    1.729E+02                                 F               0         Z-component position of node 32 (blade 2, node 3), m
+         97    1.918E+01                                 F               0         X-component position of node 33 (blade 2, node 4), m
+         98   -1.036E+01                                 F               0         Y-component position of node 33 (blade 2, node 4), m
+         99    1.764E+02                                 F               0         Z-component position of node 33 (blade 2, node 4), m
+        100    1.986E+01                                 F               0         X-component position of node 34 (blade 2, node 5), m
+        101   -1.178E+01                                 F               0         Y-component position of node 34 (blade 2, node 5), m
+        102    1.799E+02                                 F               0         Z-component position of node 34 (blade 2, node 5), m
+        103    2.054E+01                                 F               0         X-component position of node 35 (blade 2, node 6), m
+        104   -1.321E+01                                 F               0         Y-component position of node 35 (blade 2, node 6), m
+        105    1.835E+02                                 F               0         Z-component position of node 35 (blade 2, node 6), m
+        106    2.122E+01                                 F               0         X-component position of node 36 (blade 2, node 7), m
+        107   -1.463E+01                                 F               0         Y-component position of node 36 (blade 2, node 7), m
+        108    1.870E+02                                 F               0         Z-component position of node 36 (blade 2, node 7), m
+        109    2.191E+01                                 F               0         X-component position of node 37 (blade 2, node 8), m
+        110   -1.606E+01                                 F               0         Y-component position of node 37 (blade 2, node 8), m
+        111    1.905E+02                                 F               0         Z-component position of node 37 (blade 2, node 8), m
+        112    2.259E+01                                 F               0         X-component position of node 38 (blade 2, node 9), m
+        113   -1.748E+01                                 F               0         Y-component position of node 38 (blade 2, node 9), m
+        114    1.940E+02                                 F               0         Z-component position of node 38 (blade 2, node 9), m
+        115    2.327E+01                                 F               0         X-component position of node 39 (blade 2, node 10), m
+        116   -1.891E+01                                 F               0         Y-component position of node 39 (blade 2, node 10), m
+        117    1.976E+02                                 F               0         Z-component position of node 39 (blade 2, node 10), m
+        118    2.395E+01                                 F               0         X-component position of node 40 (blade 2, node 11), m
+        119   -2.033E+01                                 F               0         Y-component position of node 40 (blade 2, node 11), m
+        120    2.011E+02                                 F               0         Z-component position of node 40 (blade 2, node 11), m
+        121    2.463E+01                                 F               0         X-component position of node 41 (blade 2, node 12), m
+        122   -2.176E+01                                 F               0         Y-component position of node 41 (blade 2, node 12), m
+        123    2.046E+02                                 F               0         Z-component position of node 41 (blade 2, node 12), m
+        124    2.531E+01                                 F               0         X-component position of node 42 (blade 2, node 13), m
+        125   -2.318E+01                                 F               0         Y-component position of node 42 (blade 2, node 13), m
+        126    2.082E+02                                 F               0         Z-component position of node 42 (blade 2, node 13), m
+        127    2.599E+01                                 F               0         X-component position of node 43 (blade 2, node 14), m
+        128   -2.461E+01                                 F               0         Y-component position of node 43 (blade 2, node 14), m
+        129    2.117E+02                                 F               0         Z-component position of node 43 (blade 2, node 14), m
+        130    2.667E+01                                 F               0         X-component position of node 44 (blade 2, node 15), m
+        131   -2.603E+01                                 F               0         Y-component position of node 44 (blade 2, node 15), m
+        132    2.152E+02                                 F               0         Z-component position of node 44 (blade 2, node 15), m
+        133    2.735E+01                                 F               0         X-component position of node 45 (blade 2, node 16), m
+        134   -2.746E+01                                 F               0         Y-component position of node 45 (blade 2, node 16), m
+        135    2.188E+02                                 F               0         Z-component position of node 45 (blade 2, node 16), m
+        136    2.803E+01                                 F               0         X-component position of node 46 (blade 2, node 17), m
+        137   -2.888E+01                                 F               0         Y-component position of node 46 (blade 2, node 17), m
+        138    2.223E+02                                 F               0         Z-component position of node 46 (blade 2, node 17), m
+        139    2.872E+01                                 F               0         X-component position of node 47 (blade 2, node 18), m
+        140   -3.031E+01                                 F               0         Y-component position of node 47 (blade 2, node 18), m
+        141    2.258E+02                                 F               0         Z-component position of node 47 (blade 2, node 18), m
+        142    2.940E+01                                 F               0         X-component position of node 48 (blade 2, node 19), m
+        143   -3.173E+01                                 F               0         Y-component position of node 48 (blade 2, node 19), m
+        144    2.294E+02                                 F               0         Z-component position of node 48 (blade 2, node 19), m
+        145    3.008E+01                                 F               0         X-component position of node 49 (blade 2, node 20), m
+        146   -3.315E+01                                 F               0         Y-component position of node 49 (blade 2, node 20), m
+        147    2.329E+02                                 F               0         Z-component position of node 49 (blade 2, node 20), m
+        148    3.076E+01                                 F               0         X-component position of node 50 (blade 2, node 21), m
+        149   -3.458E+01                                 F               0         Y-component position of node 50 (blade 2, node 21), m
+        150    2.364E+02                                 F               0         Z-component position of node 50 (blade 2, node 21), m
+        151    3.144E+01                                 F               0         X-component position of node 51 (blade 2, node 22), m
+        152   -3.600E+01                                 F               0         Y-component position of node 51 (blade 2, node 22), m
+        153    2.399E+02                                 F               0         Z-component position of node 51 (blade 2, node 22), m
+        154    3.212E+01                                 F               0         X-component position of node 52 (blade 2, node 23), m
+        155   -3.743E+01                                 F               0         Y-component position of node 52 (blade 2, node 23), m
+        156    2.435E+02                                 F               0         Z-component position of node 52 (blade 2, node 23), m
+        157    3.280E+01                                 F               0         X-component position of node 53 (blade 2, node 24), m
+        158   -3.885E+01                                 F               0         Y-component position of node 53 (blade 2, node 24), m
+        159    2.470E+02                                 F               0         Z-component position of node 53 (blade 2, node 24), m
+        160    3.348E+01                                 F               0         X-component position of node 54 (blade 2, node 25), m
+        161   -4.028E+01                                 F               0         Y-component position of node 54 (blade 2, node 25), m
+        162    2.505E+02                                 F               0         Z-component position of node 54 (blade 2, node 25), m
+        163    3.416E+01                                 F               0         X-component position of node 55 (blade 2, node 26), m
+        164   -4.170E+01                                 F               0         Y-component position of node 55 (blade 2, node 26), m
+        165    2.541E+02                                 F               0         Z-component position of node 55 (blade 2, node 26), m
+        166    3.484E+01                                 F               0         X-component position of node 56 (blade 2, node 27), m
+        167   -4.313E+01                                 F               0         Y-component position of node 56 (blade 2, node 27), m
+        168    2.576E+02                                 F               0         Z-component position of node 56 (blade 2, node 27), m
+        169    3.542E+01                                 F               0         X-component position of node 57 (blade 2, node 28), m
+        170   -4.433E+01                                 F               0         Y-component position of node 57 (blade 2, node 28), m
+        171    2.606E+02                                 F               0         Z-component position of node 57 (blade 2, node 28), m
+        172    1.328E+01                                 F               0         X-component position of node 58 (blade 3, node 1), m
+        173   -3.157E+00                                 F               0         Y-component position of node 58 (blade 3, node 1), m
+        174    1.458E+02                                 F               0         Z-component position of node 58 (blade 3, node 1), m
+        175    1.308E+01                                 F               0         X-component position of node 59 (blade 3, node 2), m
+        176   -3.986E+00                                 F               0         Y-component position of node 59 (blade 3, node 2), m
+        177    1.447E+02                                 F               0         Z-component position of node 59 (blade 3, node 2), m
+        178    1.040E+01                                 F               0         X-component position of node 60 (blade 3, node 3), m
+        179   -1.526E+01                                 F               0         Y-component position of node 60 (blade 3, node 3), m
+        180    1.308E+02                                 F               0         Z-component position of node 60 (blade 3, node 3), m
+        181    9.831E+00                                 F               0         X-component position of node 61 (blade 3, node 4), m
+        182   -1.766E+01                                 F               0         Y-component position of node 61 (blade 3, node 4), m
+        183    1.278E+02                                 F               0         Z-component position of node 61 (blade 3, node 4), m
+        184    9.260E+00                                 F               0         X-component position of node 62 (blade 3, node 5), m
+        185   -2.006E+01                                 F               0         Y-component position of node 62 (blade 3, node 5), m
+        186    1.248E+02                                 F               0         Z-component position of node 62 (blade 3, node 5), m
+        187    8.689E+00                                 F               0         X-component position of node 63 (blade 3, node 6), m
+        188   -2.246E+01                                 F               0         Y-component position of node 63 (blade 3, node 6), m
+        189    1.218E+02                                 F               0         Z-component position of node 63 (blade 3, node 6), m
+        190    8.119E+00                                 F               0         X-component position of node 64 (blade 3, node 7), m
+        191   -2.486E+01                                 F               0         Y-component position of node 64 (blade 3, node 7), m
+        192    1.188E+02                                 F               0         Z-component position of node 64 (blade 3, node 7), m
+        193    7.548E+00                                 F               0         X-component position of node 65 (blade 3, node 8), m
+        194   -2.727E+01                                 F               0         Y-component position of node 65 (blade 3, node 8), m
+        195    1.159E+02                                 F               0         Z-component position of node 65 (blade 3, node 8), m
+        196    6.977E+00                                 F               0         X-component position of node 66 (blade 3, node 9), m
+        197   -2.967E+01                                 F               0         Y-component position of node 66 (blade 3, node 9), m
+        198    1.129E+02                                 F               0         Z-component position of node 66 (blade 3, node 9), m
+        199    6.407E+00                                 F               0         X-component position of node 67 (blade 3, node 10), m
+        200   -3.207E+01                                 F               0         Y-component position of node 67 (blade 3, node 10), m
+        201    1.099E+02                                 F               0         Z-component position of node 67 (blade 3, node 10), m
+        202    5.836E+00                                 F               0         X-component position of node 68 (blade 3, node 11), m
+        203   -3.447E+01                                 F               0         Y-component position of node 68 (blade 3, node 11), m
+        204    1.069E+02                                 F               0         Z-component position of node 68 (blade 3, node 11), m
+        205    5.265E+00                                 F               0         X-component position of node 69 (blade 3, node 12), m
+        206   -3.687E+01                                 F               0         Y-component position of node 69 (blade 3, node 12), m
+        207    1.040E+02                                 F               0         Z-component position of node 69 (blade 3, node 12), m
+        208    4.695E+00                                 F               0         X-component position of node 70 (blade 3, node 13), m
+        209   -3.927E+01                                 F               0         Y-component position of node 70 (blade 3, node 13), m
+        210    1.010E+02                                 F               0         Z-component position of node 70 (blade 3, node 13), m
+        211    4.124E+00                                 F               0         X-component position of node 71 (blade 3, node 14), m
+        212   -4.168E+01                                 F               0         Y-component position of node 71 (blade 3, node 14), m
+        213    9.800E+01                                 F               0         Z-component position of node 71 (blade 3, node 14), m
+        214    3.553E+00                                 F               0         X-component position of node 72 (blade 3, node 15), m
+        215   -4.408E+01                                 F               0         Y-component position of node 72 (blade 3, node 15), m
+        216    9.502E+01                                 F               0         Z-component position of node 72 (blade 3, node 15), m
+        217    2.983E+00                                 F               0         X-component position of node 73 (blade 3, node 16), m
+        218   -4.648E+01                                 F               0         Y-component position of node 73 (blade 3, node 16), m
+        219    9.204E+01                                 F               0         Z-component position of node 73 (blade 3, node 16), m
+        220    2.412E+00                                 F               0         X-component position of node 74 (blade 3, node 17), m
+        221   -4.888E+01                                 F               0         Y-component position of node 74 (blade 3, node 17), m
+        222    8.907E+01                                 F               0         Z-component position of node 74 (blade 3, node 17), m
+        223    1.841E+00                                 F               0         X-component position of node 75 (blade 3, node 18), m
+        224   -5.128E+01                                 F               0         Y-component position of node 75 (blade 3, node 18), m
+        225    8.609E+01                                 F               0         Z-component position of node 75 (blade 3, node 18), m
+        226    1.271E+00                                 F               0         X-component position of node 76 (blade 3, node 19), m
+        227   -5.368E+01                                 F               0         Y-component position of node 76 (blade 3, node 19), m
+        228    8.311E+01                                 F               0         Z-component position of node 76 (blade 3, node 19), m
+        229    7.000E-01                                 F               0         X-component position of node 77 (blade 3, node 20), m
+        230   -5.609E+01                                 F               0         Y-component position of node 77 (blade 3, node 20), m
+        231    8.013E+01                                 F               0         Z-component position of node 77 (blade 3, node 20), m
+        232    1.294E-01                                 F               0         X-component position of node 78 (blade 3, node 21), m
+        233   -5.849E+01                                 F               0         Y-component position of node 78 (blade 3, node 21), m
+        234    7.716E+01                                 F               0         Z-component position of node 78 (blade 3, node 21), m
+        235   -4.413E-01                                 F               0         X-component position of node 79 (blade 3, node 22), m
+        236   -6.089E+01                                 F               0         Y-component position of node 79 (blade 3, node 22), m
+        237    7.418E+01                                 F               0         Z-component position of node 79 (blade 3, node 22), m
+        238   -1.012E+00                                 F               0         X-component position of node 80 (blade 3, node 23), m
+        239   -6.329E+01                                 F               0         Y-component position of node 80 (blade 3, node 23), m
+        240    7.120E+01                                 F               0         Z-component position of node 80 (blade 3, node 23), m
+        241   -1.583E+00                                 F               0         X-component position of node 81 (blade 3, node 24), m
+        242   -6.569E+01                                 F               0         Y-component position of node 81 (blade 3, node 24), m
+        243    6.822E+01                                 F               0         Z-component position of node 81 (blade 3, node 24), m
+        244   -2.153E+00                                 F               0         X-component position of node 82 (blade 3, node 25), m
+        245   -6.809E+01                                 F               0         Y-component position of node 82 (blade 3, node 25), m
+        246    6.525E+01                                 F               0         Z-component position of node 82 (blade 3, node 25), m
+        247   -2.724E+00                                 F               0         X-component position of node 83 (blade 3, node 26), m
+        248   -7.050E+01                                 F               0         Y-component position of node 83 (blade 3, node 26), m
+        249    6.227E+01                                 F               0         Z-component position of node 83 (blade 3, node 26), m
+        250   -3.295E+00                                 F               0         X-component position of node 84 (blade 3, node 27), m
+        251   -7.290E+01                                 F               0         Y-component position of node 84 (blade 3, node 27), m
+        252    5.929E+01                                 F               0         Z-component position of node 84 (blade 3, node 27), m
+        253   -3.778E+00                                 F               0         X-component position of node 85 (blade 3, node 28), m
+        254   -7.493E+01                                 F               0         Y-component position of node 85 (blade 3, node 28), m
+        255    5.677E+01                                 F               0         Z-component position of node 85 (blade 3, node 28), m
+        256    1.391E+01                                 F               0         X-component position of node 86 (Tower node 1), m
+        257    5.612E-02                                 F               0         Y-component position of node 86 (Tower node 1), m
+        258    1.815E+01                                 F               0         Z-component position of node 86 (Tower node 1), m
+        259    1.488E+01                                 F               0         X-component position of node 87 (Tower node 2), m
+        260    7.751E-02                                 F               0         Y-component position of node 87 (Tower node 2), m
+        261    3.047E+01                                 F               0         Z-component position of node 87 (Tower node 2), m
+        262    1.588E+01                                 F               0         X-component position of node 88 (Tower node 3), m
+        263    9.929E-02                                 F               0         Y-component position of node 88 (Tower node 3), m
+        264    4.279E+01                                 F               0         Z-component position of node 88 (Tower node 3), m
+        265    1.689E+01                                 F               0         X-component position of node 89 (Tower node 4), m
+        266    1.214E-01                                 F               0         Y-component position of node 89 (Tower node 4), m
+        267    5.510E+01                                 F               0         Z-component position of node 89 (Tower node 4), m
+        268    1.791E+01                                 F               0         X-component position of node 90 (Tower node 5), m
+        269    1.438E-01                                 F               0         Y-component position of node 90 (Tower node 5), m
+        270    6.741E+01                                 F               0         Z-component position of node 90 (Tower node 5), m
+        271    1.894E+01                                 F               0         X-component position of node 91 (Tower node 6), m
+        272    1.664E-01                                 F               0         Y-component position of node 91 (Tower node 6), m
+        273    7.972E+01                                 F               0         Z-component position of node 91 (Tower node 6), m
+        274    1.998E+01                                 F               0         X-component position of node 92 (Tower node 7), m
+        275    1.891E-01                                 F               0         Y-component position of node 92 (Tower node 7), m
+        276    9.203E+01                                 F               0         Z-component position of node 92 (Tower node 7), m
+        277    2.103E+01                                 F               0         X-component position of node 93 (Tower node 8), m
+        278    2.121E-01                                 F               0         Y-component position of node 93 (Tower node 8), m
+        279    1.043E+02                                 F               0         Z-component position of node 93 (Tower node 8), m
+        280    2.208E+01                                 F               0         X-component position of node 94 (Tower node 9), m
+        281    2.351E-01                                 F               0         Y-component position of node 94 (Tower node 9), m
+        282    1.167E+02                                 F               0         Z-component position of node 94 (Tower node 9), m
+        283    2.313E+01                                 F               0         X-component position of node 95 (Tower node 10), m
+        284    2.583E-01                                 F               0         Y-component position of node 95 (Tower node 10), m
+        285    1.290E+02                                 F               0         Z-component position of node 95 (Tower node 10), m
+        286    2.419E+01                                 F               0         X-component position of node 96 (Tower node 11), m
+        287    2.814E-01                                 F               0         Y-component position of node 96 (Tower node 11), m
+        288    1.413E+02                                 F               0         Z-component position of node 96 (Tower node 11), m
+        289    2.419E+01                                 F               0         X-component position of node 97, m
+        290    2.814E-01                                 F               0         Y-component position of node 97, m
+        291    1.413E+02                                 F               0         Z-component position of node 97, m
+        292    1.409E+01                                 F               0         X-component position of node 98, m
+        293    2.834E-01                                 F               0         Y-component position of node 98, m
+        294    1.500E+02                                 F               0         Z-component position of node 98, m
+        295    1.409E+01                                 F               0         X-component position of moving hub, m
+        296    2.834E-01                                 F               0         Y-component position of moving hub, m
+        297    1.500E+02                                 F               0         Z-component position of moving hub, m
+        298   -1.714E+00                                 F               0         X orientation of moving hub, rad
+        299   -2.852E-02                                 F               0         Y orientation of moving hub, rad
+        300    1.880E-01                                 F               0         Z orientation of moving hub, rad
+        301    1.000E+01                                 F               0         Extended input: horizontal wind speed (steady/uniform wind), m/s
+        302    0.000E+00                                 F               0         Extended input: vertical power-law shear exponent, -
+        303    0.000E+00                                 F               0         Extended input: propagation direction, rad
+
+Order of outputs:
+        Row   Operating Point                     Rotating Frame? Derivative Order Description
+   ---------- ---------------                     --------------- ---------------- -----------
+          1    1.000E+01                                 F               0         Wind1VelX, (m/s)
+
+
+Linearized state matrices:
+
+D: 1 x 303
+    0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  1.000E+00  0.000E+00  0.000E+00

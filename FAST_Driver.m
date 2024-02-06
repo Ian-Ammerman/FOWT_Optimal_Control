@@ -17,7 +17,7 @@ tests = {'000_Linearize'};
 FASTdir = 'C:\\Umaine Google Sync\\Masters Working Folder\\FOCAL_C2';
 
 % Linearization inputs
-model = 'FOCAL_C4';
+model = 'FOCAL_C4_Straight';
 num_lin_times = 36; % Number of linearizations for rotor averaging
 inflow_file_name = 'FOCAL_C4_InflowFile.dat';
 inflow_line = 14; % line of inflow file for HWindSpeed
@@ -34,7 +34,7 @@ for i = 1:length(tests)
 end
 %
 cd(sprintf('%s\\Models\\%s\\Linear_Files',FASTdir,model));
-processMBC3(36)
+processMBC3(num_lin_times,model)
 
 
 % hydro_system = ReadFASTLinear('FOCAL_C4.1.HD.lin');
