@@ -7,6 +7,7 @@ from scipy.stats import linregress
 from vmod import get_psd
 from sklearn.preprocessing import MinMaxScaler
 import joblib
+from scipy.signal import butter, filtfilt
 
 class PreProcess():
     def __init__(self, data_input_file):
@@ -15,6 +16,7 @@ class PreProcess():
         self.dynTi = None
         self.raw_dataset = pd.read_csv(data_input_file)
         self.dataset = self.raw_dataset.copy()
+        self.sampling_rate = 1/(self.raw_dataset['Time'].iloc[1] - self.raw_dataset['Time'].iloc[0])
 
     def subtract_mean(self):
         mean_values = self.dataset.mean()
@@ -25,6 +27,26 @@ class PreProcess():
         print(f"Checking if there is any NaN values in the raw dataset")
         pd.DataFrame(self.dataset.isna().sum(), columns=['number of NaN in the raw dataset'])
         self.dataset = self.dataset.dropna()
+
+    def filter(self, direction, freq_cutoff):
+        """
+        Apply a low-pass Butterworth filter to the dataset.
+        :param direction: 'low pass' for low-pass filtering.
+        :param freq_cutoff: The cutoff frequency for the filter.
+        """
+        # Calculate the Nyquist frequency
+        nyquist_freq = 0.5 * self.sampling_rate
+
+        # Calculate the cutoff frequency as a fraction of the Nyquist frequency
+        normalized_cutoff_freq = freq_cutoff / nyquist_freq
+
+        # Design the Butterworth filter
+        b, a = butter(N=6, Wn=normalized_cutoff_freq, btype=direction, analog=False)
+
+        # Apply the filter to each column except 'Time'
+        for column in self.dataset.columns:
+            if column != 'Time':
+                self.dataset[column] = filtfilt(b, a, self.dataset[column])
 
     def idle_sensors_check(self):
         print(f"Checking if there is any idle sensors")

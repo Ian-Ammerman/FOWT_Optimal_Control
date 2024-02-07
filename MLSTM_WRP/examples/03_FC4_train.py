@@ -29,6 +29,7 @@ if not os.path.exists(os.path.join("figures", f"{TEST_NUM}")):
 # Data pre-processing
 data = p2v.PreProcess(DATA_INPUT_FILE)
 data.nan_check()
+data.filter(direction="low", freq_cutoff=1)  # cut-off frequency at 1Hz
 correlation_matrix = data.idle_sensors_check()
 dataset = data.dataset
 
@@ -42,17 +43,19 @@ sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm', vmin=-1, vmax=1)
 plt.savefig(os.path.join("figures", f"{TEST_NUM}", "correlation heatmap.pdf"), format="pdf")
 
 # LSTM
-dof = ["Surge", "Heave", "Pitch", "rotorTorque", "leg1MooringForce", "leg2MooringForce", "leg3MooringForce", "towerBotMy"]
-dof_with_units = ["surge [m]", "heave [m]", "pitch [deg]", "rotor torque [kN.m]",
-                  "cable 1 tension [kN]", "cable 2 tension [kN]", "cable 3 tension [kN]",
-                  "fore-aft tower bending moment [kN-m]"]
+dof = ["Surge", "Heave", "Pitch", "rotorTorque", "genSpeed", "leg1MooringForce", "accelNacelleAx", "towerBotMy"]
+dof_with_units = ["surge [m]", "heave [m]", "pitch [deg]",
+                  "rotor torque [kN.m]", "generator speed [rad/s]",
+                  "cable 1 tension [kN]",
+                  "Nacelle Acceleration X [m/s^2]", "fore-aft tower bending moment [kN-m]"]
 
+conversion = [1, 1, 1, 1e-3, 1, 1e-3, 1, 1e-3]
 nm = 0.588482
 hidden_layer = 1
 neuron_number = 96
 epochs = 60
 batch_time = 53
-timestep = 0.25
+timestep = 1.00
 
 new_time_range = np.arange(dataset['Time'].min(), dataset['Time'].max(), timestep)
 dataset_interpolated = pd.DataFrame(new_time_range, columns=['Time'])
@@ -125,9 +128,8 @@ for i, label in enumerate(labels):
     R2[i] = r_value_wrp ** 2
 
 
-fig = plt.figure(figsize=(12, 24))
+fig = plt.figure(figsize=(12, 20))
 gs = gridspec.GridSpec(len(dof), 2, width_ratios=[3, 1])  # 3:1 width ratio
-conversion = [1, 1, 1, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3]
 
 for i, label in enumerate(labels):
     label_index = label - 1
@@ -135,29 +137,29 @@ for i, label in enumerate(labels):
 
     # Time domain data plots on the left side
     ax0 = plt.subplot(gs[i, 0])
-    ax0.plot(original_test_Y[:, label_index]*conversion[i], label='exact', color='black')
+    ax0.plot(original_test_Y[:, label_index]*conversion[i], label='Experiment', color='black')
     ax0.plot(predicted_Y_wrp[:, label_index]*conversion[i], label='MLSTM-WRP', color='red', linestyle='--')
     ax0.set_xlabel('t [s]')
     ax0.set_ylabel(f"{dof_with_units[label_index]}")
-    ax0.set_xlim((2000, 2500))
-    ax0.legend(loc='upper right')
+    ax0.set_xlim((2000, 2250))
+    if label == labels[0]:
+        ax0.legend(loc='upper right')
     ax0.grid()
 
     # R plots on the right side (square plots)
     ax1 = plt.subplot(gs[i, 1], aspect='equal')  # aspect='equal' makes the plot square
     x_range = np.linspace(min(original_test_Y[:, label_index]*conversion[i]), max(predicted_Y_wrp[:, label_index]*conversion[i]), 100)
-    ax1.plot(x_range, 1.0 * x_range + 0.0, color='black',
-             label="exact")
+    ax1.plot(x_range, 1.0 * x_range + 0.0, color='black')
     ax1.plot(x_range, slope_wrp * x_range + intercept_wrp, color='red', linestyle='--',
-             label=f"MLSTM-WRP - $R^2$={np.round(r_value_wrp ** 2, 2)}")
+             label=f"$R^2$={np.round(r_value_wrp ** 2, 2)}")
     ax1.set_xlabel('True Values')
     ax1.set_ylabel('Predictions')
     ax1.legend(loc='lower right')
     ax1.grid()
 
 plt.tight_layout()
-plt.savefig(fr".\figures\{TEST_NUM}\TD_test_n_{n}_m_{m}_WRP_comp_04_before_fixing_converted.pdf", format="pdf")
+plt.savefig(os.path.join("figures", f"{TEST_NUM}", "8dof_TD_test_n_12_m_20.pdf"))
 
 # save the model
-mlstm_wrp.save_model(os.path.join("MLSTM_WRP", "models", "7dof_MLSTM_WRP_OPT_T20_FC4"),
+mlstm_wrp.save_model(os.path.join("MLSTM_WRP", "models", "8dof_MLSTM_WRP_OPT_T20_FC4"),
                      os.path.join("MLSTM_WRP", "scalers", "scaler.pkl"))
