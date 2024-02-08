@@ -58,14 +58,17 @@ load(sprintf('%s\\FOCAL_C4_D.mat',platform_dir),'D');
 % load(sprintf('%s\\FOCAL_C4_Output_OP.mat',platform_dir),'y_op');
 
 % Remove rotor azimuth state & select inputs
-A = A([1:10,12:end],[1:10,12:end]);
-B = B([1:10,12:end],[301,2107:2112,2191,2192,2193,2195,2196,3943:3954]);
-C = C(:,[1:10,12:end]);
-D = 0*D(:,[301,2107:2112,2191,2192,2193,2195,2196,3943:3954]);
+state_range = [1:10,12:22];
+control_range = [301,2107:2112,2191:2193,2195,2196];
+
+A = A(state_range,state_range);
+B = B(state_range,control_range);
+C = C(:,state_range);
+D = 0*D(:,control_range);
 
 % Scale outputs
-C(34:36,:) = C(34:36,:)*10^-5; % convert moorings to dN
-C(8:13,:) = 0.6241*C(8:13,:)*10^-3; % 1/1.2 gain to imrove ss freq response
+C(39:41,:) = C(39:41,:)*10^-5; % convert moorings to dN
+C(8:13,:) = C(8:13,:)*10^-3; % Tower Base Forces/Moments to MN
 
 % Discretize Platform
 platform_sys_c = ss(A,B,C,D);
@@ -106,7 +109,12 @@ clear A B C D hydro_sys_c hydro_sys_d
 % Combine measurements to single matrix
 pitch = test_results.PtfmPitch;
 roll = test_results.PtfmRoll;
+
+FA_bending = test_results.towerBotMy*10^-6; % MN
+SS_bending = test_results.towerBotMx*10^-6; % MN
+
 rotor_speed = test_results.genSpeed*(30/pi);
+
 mooring_tension_1 = test_results.leg1MooringForce-3.28*10^6;
 mooring_tension_2 = test_results.leg2MooringForce-3.17*10^6;
 mooring_tension_3 = test_results.leg3MooringForce-3.4*10^6;
@@ -118,11 +126,13 @@ mooring_tension_3 = mooring_tension_3*10^-5;
 
 % system_measurements = [FA_bending,SS_bending,rotor_speed,mooring_tension_1,mooring_tension_2,mooring_tension_3];
 system_measurements = [pitch,roll,rotor_speed,mooring_tension_1,mooring_tension_2,mooring_tension_3];
+% system_measurements = [pitch,roll,rotor_speed,surge_acceleration,sway_acceleration,heave_acceleration];
 
 % Form measurement function (H) from SS output
-H = C_platform([18,17,4,34,35,36],:); % angular displacement
+H = C_platform([18,17,4,39,40,41],:); % angular displacement
+% H = C_platform([9,8,4,39,40,41],:); % tower bending
 
-clear pitch roll rotor_speed mooring_tension_1 mooring_tension_2 mooring_tension_3
+clear pitch roll pitch_acceleration roll_acceleration rotor_speed mooring_tension_1 mooring_tension_2 mooring_tension_3
 
 %% Compute Measurement Covariance Matrix
 % Low-pass filter @ 6Hz
@@ -149,13 +159,11 @@ kalman_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\
 
 load(sprintf('%s\\FC4_Q.mat',kalman_dir));
 load(sprintf('%s\\FC4_P.mat',kalman_dir));
-P = 0*P;
+% P = 0*P;
+P = zeros(size(A_platform));
 
 %% Adjust Q Values
-% qi = [2,3,4,6,12,13,14,16];
-% for i = qi
-%     Q(i,i) = 100*Q(i,i);
-% end
+
 
 %% Simulate System (Kalman Filter)
 disp('Beginning Kalman filter simulation...')
@@ -193,9 +201,7 @@ for i = 1:length(ss_time)-1
                   platform_forces;
                   idv_pitch(i,:)';
                   gen_torque(i);
-                  c_pitch(i);
-                  platform_positions;
-                  platform_velocities;];
+                  c_pitch(i)];
 
     % Do prediction step
     [x,P] = predict(x,P,A_platform,dGain(1,Q),B_platform,u_platform);
@@ -254,9 +260,7 @@ for i = 1:length(ss_time)-1
                   platform_forces;
                   idv_pitch(i,:)';
                   gen_torque(i);
-                  c_pitch(i);
-                  platform_positions;
-                  platform_velocities;];
+                  c_pitch(i)];
 
     % Do prediction step
     [x,P] = predict(x,P,A_platform,dGain(1,Q),B_platform,u_platform);
@@ -405,8 +409,8 @@ legend
 figure
 gca; hold on; box on;
 title('Mooring Tension (1)')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,34),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,34),'DisplayName','Kalman Filter');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,39),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,39),'DisplayName','Kalman Filter');
 plot(test_time,10^-5*test_results.leg1MooringForce-3.28*10^1,'DisplayName','Experiment');
 legend
 
@@ -414,8 +418,8 @@ legend
 figure
 gca; hold on; box on;
 title('Mooring Tension (2)')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,35),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,35),'DisplayName','Kalman Filter');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,40),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,40),'DisplayName','Kalman Filter');
 plot(test_time,10^-5*test_results.leg2MooringForce-3.17*10^1,'DisplayName','Experiment');
 legend
 
@@ -423,8 +427,8 @@ legend
 figure
 gca; hold on; box on;
 title('Mooring Tension (3)')
-plot(ss_time(1:end-1)-29.95,Y_raw(:,36),'DisplayName','State-Space');
-plot(ss_time(1:end-1)-29.95,Y(:,36),'DisplayName','Kalman Filter');
+plot(ss_time(1:end-1)-29.95,Y_raw(:,41),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,41),'DisplayName','Kalman Filter');
 plot(test_time,10^-5*test_results.leg3MooringForce-3.4*10^1,'DisplayName','Experiment');
 legend
 
