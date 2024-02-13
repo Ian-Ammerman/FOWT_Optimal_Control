@@ -22,7 +22,7 @@ num_lin_times = 36; % Number of linearizations for rotor averaging
 inflow_file_name = 'FOCAL_C4_InflowFile.dat';
 inflow_line = 14; % line of inflow file for HWindSpeed
 % wind_type_line = 5; % line of inflow file for WindType
-wind_speed = 12; % constant wind speed for linearization
+wind_speed = 16; % constant wind speed for linearization
 % wind_type = 0;
 
 % Form inflow file directory
@@ -34,8 +34,26 @@ for i = 1:length(tests)
 end
 %
 cd(sprintf('%s\\Models\\%s\\Linear_Files',FASTdir,model));
-processMBC3(num_lin_times,model)
+cd('..')
+% processMBC3(num_lin_times,model)
 
+load('OpenFAST_Results.mat')
+%
+figure
+plot(sim_results.Time,sim_results.GenSpeed)
+title('GenSpeed')
+
+figure
+plot(sim_results.Time,sim_results.PtfmPitch)
+title('PtfmPitch')
+
+figure
+plot(sim_results.Time,sim_results.GenTq)
+title('GenTorque')
+
+figure
+plot(sim_results.Time,sim_results.BlPitchC1)
+title('Collective Pitch')
 
 % hydro_system = ReadFASTLinear('FOCAL_C4.1.HD.lin');
 % 

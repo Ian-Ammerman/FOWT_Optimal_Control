@@ -169,7 +169,7 @@ for i = 1:length(ss_time)-1
                   gen_torque(i);
                   c_pitch(i);
                   platform_positions;
-                  platform_velocities;];
+                  platform_velocities];
 
     % Do prediction step
     [x] = predict(x,A_platform,B_platform,u_platform);

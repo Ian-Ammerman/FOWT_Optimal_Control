@@ -3,7 +3,7 @@ CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch 
 ---------------------- SIMULATION CONTROL -------------------------------------- 
 False                  Echo        - Echo input data to <RootName>.ech (flag) 
 "FATAL"                AbortLevel  - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"} 
-1010                  TMax        - Total run time (s) 
+1500                  TMax        - Total run time (s) 
 0.025                  DT          - Integration time step (s)  
 2                      InterpOrder - Interpolation order for input/output time history (-) {1=linear, 2=quadratic} 
 1                      NumCrctn    - Number of correction iterations (-) {0=explicit calculation, i.e., no corrections} 
@@ -35,27 +35,27 @@ False                  Echo        - Echo input data to <RootName>.ech (flag)
 "unused"               			                BDBldFile(2) - Name of file containing BeamDyn input parameters for blade 2 (quoted string) 
 "unused"               			                BDBldFile(3) - Name of file containing BeamDyn input parameters for blade 3 (quoted string) 
 "FOCAL_C4_InflowFile.dat"               		InflowFile   - Name of file containing inflow wind input parameters (quoted string) 
-"FOCAL_C4_AeroDyn15_rated.dat"     		AeroFile     - Name of file containing aerodynamic input parameters (quoted string) 
-"FOCAL_C4_ServoDyn_rated_controller.dat"   ServoFile    - Name of file containing control and electrical-drive input parameters (quoted string) 
+"FOCAL_C4_AeroDyn15_aboverated.dat"     		AeroFile     - Name of file containing aerodynamic input parameters (quoted string) 
+"FOCAL_C4_ServoDyn_aboverated_controller.dat"   ServoFile    - Name of file containing control and electrical-drive input parameters (quoted string) 
 "FOCAL_C4_HydroDyn.dat"  						HydroFile    - Name of file containing hydrodynamic input parameters (quoted string) 
 "unused"      				                    SubFile      - Name of file containing sub-structural input parameters (quoted string) 
 "FOCAL_C4_MAP.dat"                  		MooringFile  - Name of file containing mooring system input parameters (quoted string) 
 "unused"      				                    IceFile      - Name of file containing ice input parameters (quoted string) 
 ---------------------- OUTPUT -------------------------------------------------- 
 False                  SumPrint    - Print summary data to "<RootName>.sum" (flag) 
-5.0                   SttsTime    - Amount of time between screen status messages (s) 
+25.0                   SttsTime    - Amount of time between screen status messages (s) 
 99999.0                ChkptTime   - Amount of time between creating checkpoint files for potential restart (s) 
 0.05                   DT_Out      - Time step for tabular output (s) (or "default") 
 0.000000   	           TStart      - Time to begin tabular output (s)    
 1                      OutFileFmt  - Format for tabular (time-marching) output file (switch) {1: text file [<RootName>.out], 2: binary file [<RootName>.outb], 3: both} 
 True                   TabDelim    - Use tab delimiters in text tabular output file? (flag) {uses spaces if false} 
-"ES10.3E2"             OutFmt      - Format used for text tabular output, excluding the time channel.  Resulting field should be 10 characters. (quoted string) 
+"ES20.11E3"             OutFmt      - Format used for text tabular output, excluding the time channel.  Resulting field should be 10 characters. (quoted string) 
 ---------------------- LINEARIZATION ------------------------------------------- 
 True                  Linearize   - Linearization analysis (flag) 
-False                 CalcSteady  - Calculate a steady-state periodic operating point before linearization? [unused if Linearize=False] (flag)
-2                      TrimCase    - Controller parameter to be trimmed {1:yaw; 2:torque; 3:pitch} [used only if CalcSteady=True] (-)
-0.00001                  TrimTol     - Tolerance for the rotational speed convergence [used only if CalcSteady=True] (-)
-0.01                   TrimGain    - Proportional gain for the rotational speed error (>0) [used only if CalcSteady=True] (rad/(rad/s) for yaw or pitch; Nm/(rad/s) for torque)
+True                  CalcSteady  - Calculate a steady-state periodic operating point before linearization? [unused if Linearize=False] (flag)
+3                      TrimCase    - Controller parameter to be trimmed {1:yaw; 2:torque; 3:pitch} [used only if CalcSteady=True] (-)
+0.01                  TrimTol     - Tolerance for the rotational speed convergence [used only if CalcSteady=True] (-)
+0.0001                   TrimGain    - Proportional gain for the rotational speed error (>0) [used only if CalcSteady=True] (rad/(rad/s) for yaw or pitch; Nm/(rad/s) for torque)
 0                      Twr_Kdmp    - Damping factor for the tower [used only if CalcSteady=True] (N/(m/s))
 0                      Bld_Kdmp    - Damping factor for the blades [used only if CalcSteady=True] (N/(m/s))
 36                    NLinTimes   - Number of times to linearize (-) [>=1] [unused if Linearize=False] 

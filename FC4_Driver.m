@@ -101,7 +101,7 @@ end
 
 %% Load in Platform Model
 % Define Path
-platform_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files\8 - Platform (Reduced)';
+platform_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files\1 - Platform';
 
 % Load in raw files
 load(sprintf('%s\\FOCAL_C4_A.mat',platform_dir),'A');

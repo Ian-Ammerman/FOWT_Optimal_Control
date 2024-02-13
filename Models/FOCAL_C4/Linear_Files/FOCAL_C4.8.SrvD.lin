@@ -1,0 +1,45 @@
+
+Linearized model: Predictions were generated on 13-Feb-2024 at 11:29:37 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+ linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MAP++ (<1.20.10>, <Oct-20-2023>)
+
+Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
+
+Simulation information:
+   Simulation time:                  1212.3750 s
+   Rotor Speed:                         0.7914 rad/s
+   Azimuth:                             1.2270 rad
+   Wind Speed:                         16.0000 m/s
+   Number of continuous states:         0
+   Number of discrete states:           0
+   Number of constraint states:         0
+   Number of inputs:                    3
+   Number of outputs:                   6
+   Jacobians included in this file?    No
+
+Order of inputs:
+     Column   Operating Point                                                   Rotating Frame? Derivative Order Description
+   ---------- ---------------                                                   --------------- ---------------- -----------
+          1     0.00000000000E+000                                                     F               0         Yaw, rad
+          2     0.00000000000E+000                                                     F               0         YawRate, rad/s
+          3     7.91353642941E-001                                                     F               0         HSS_Spd, rad/s
+
+Order of outputs:
+        Row   Operating Point                                                   Rotating Frame? Derivative Order Description
+   ---------- ---------------                                                   --------------- ---------------- -----------
+          1     1.47738828125E+004                                                     F               0         GenPwr, (kW)
+          2     1.86691289062E+004                                                     F               0         GenTq, (kN-m)
+          3     8.08787059784E+000                                                     T               0         BlPitchC1, (deg)
+          4     0.00000000000E+000                                                     F               0         SStC1_zQ, INVALID
+          5     0.00000000000E+000                                                     F               0         SStC1_zQD, INVALID
+          6     0.00000000000E+000                                                     F               0         SStC1_Fzl, INVALID
+
+
+Linearized state matrices:
+
+D: 6 x 3
+     0.00000000000E+000   0.00000000000E+000   1.86691280000E+004
+     0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
