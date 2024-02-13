@@ -1,14 +1,14 @@
 
-Linearized model: Predictions were generated on 12-Feb-2024 at 15:30:16 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+Linearized model: Predictions were generated on 13-Feb-2024 at 11:29:37 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
  linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MAP++ (<1.20.10>, <Oct-20-2023>)
 
 Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
 
 Simulation information:
-   Simulation time:                  1008.7000 s
-   Rotor Speed:                         1.0428 rad/s
-   Azimuth:                             3.8190 rad
-   Wind Speed:                         12.0000 m/s
+   Simulation time:                  1218.5500 s
+   Rotor Speed:                         0.7916 rad/s
+   Azimuth:                             6.1156 rad
+   Wind Speed:                         16.0000 m/s
    Number of continuous states:         0
    Number of discrete states:           0
    Number of constraint states:         0
@@ -17,29 +17,29 @@ Simulation information:
    Jacobians included in this file?    No
 
 Order of inputs:
-     Column   Operating Point                     Rotating Frame? Derivative Order Description
-   ---------- ---------------                     --------------- ---------------- -----------
-          1    1.004E+01                                 F               0         PtFairDisplacement X translation displacement, node 1, m
-          2    1.030E+00                                 F               0         PtFairDisplacement Y translation displacement, node 1, m
-          3   -7.394E+00                                 F               0         PtFairDisplacement Z translation displacement, node 1, m
-          4    9.397E+00                                 F               0         PtFairDisplacement X translation displacement, node 2, m
-          5    8.709E-01                                 F               0         PtFairDisplacement Y translation displacement, node 2, m
-          6   -1.782E+00                                 F               0         PtFairDisplacement Z translation displacement, node 2, m
-          7    1.079E+01                                 F               0         PtFairDisplacement X translation displacement, node 3, m
-          8   -3.349E-01                                 F               0         PtFairDisplacement Y translation displacement, node 3, m
-          9    9.110E+00                                 F               0         PtFairDisplacement Z translation displacement, node 3, m
+     Column   Operating Point                                                   Rotating Frame? Derivative Order Description
+   ---------- ---------------                                                   --------------- ---------------- -----------
+          1     6.72307920456E+000                                                     F               0         PtFairDisplacement X translation displacement, node 1, m
+          2     2.88636654615E-001                                                     F               0         PtFairDisplacement Y translation displacement, node 1, m
+          3    -6.04299020767E+000                                                     F               0         PtFairDisplacement Z translation displacement, node 1, m
+          4     6.97421693802E+000                                                     F               0         PtFairDisplacement X translation displacement, node 2, m
+          5     1.49394124746E-001                                                     F               0         PtFairDisplacement Y translation displacement, node 2, m
+          6    -6.62181675434E-001                                                     F               0         PtFairDisplacement Z translation displacement, node 2, m
+          7     7.40941953659E+000                                                     F               0         PtFairDisplacement X translation displacement, node 3, m
+          8    -8.27413722873E-002                                                     F               0         PtFairDisplacement Y translation displacement, node 3, m
+          9     6.60952329636E+000                                                     F               0         PtFairDisplacement Z translation displacement, node 3, m
 
 Order of outputs:
-        Row   Operating Point                     Rotating Frame? Derivative Order Description
-   ---------- ---------------                     --------------- ---------------- -----------
-          1    2.813E+06                                 F               0         T[1], [N]
-          2    2.559E+06                                 F               0         T[2], [N]
-          3    4.780E+06                                 F               0         T[3], [N]
+        Row   Operating Point                                                   Rotating Frame? Derivative Order Description
+   ---------- ---------------                                                   --------------- ---------------- -----------
+          1     2.92969575000E+006                                                     F               0         T[1], [N]
+          2     2.78650450000E+006                                                     F               0         T[2], [N]
+          3     4.34523850000E+006                                                     F               0         T[3], [N]
 
 
 Linearized state matrices:
 
 D: 3 x 9
-   -6.048E+04  1.105E+05 -3.609E+03  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
-    0.000E+00  0.000E+00  0.000E+00 -6.093E+04 -1.114E+05 -1.146E+03  0.000E+00  0.000E+00  0.000E+00
-    0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  1.227E+05 -2.903E+03  8.633E+03
+    -6.17161493806E+004   1.09807976171E+005  -3.01426959520E+003   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     0.00000000000E+000   0.00000000000E+000   0.00000000000E+000  -6.16178257296E+004  -1.11047508982E+005  -6.45600663443E+002   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   1.22792836931E+005  -2.74958355458E+003   6.58430825598E+003

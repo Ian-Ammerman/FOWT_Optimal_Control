@@ -47,7 +47,7 @@ gen_torque = test_results.genTorqueSetpointActual;
 
 %% Load in Platform Model
 % Define Path
-platform_folder = '7 - Platform (Rigid)';
+platform_folder = '1 - Platform';
 platform_dir = sprintf('%s\\%s',linear_dir,platform_folder);
 
 % Load in raw files
@@ -58,9 +58,9 @@ load(sprintf('%s\\FOCAL_C4_D.mat',platform_dir),'D');
 % load(sprintf('%s\\FOCAL_C4_Output_OP.mat',platform_dir),'y_op');
 
 % Remove rotor azimuth state & select inputs
-state_range = [1:6,8:14];
+state_range = [1:10,12:22];
 position_range = [1:6];
-velocity_range = [7:12];
+velocity_range = [11:16];
 control_range = [301,2107:2112,2191:2193,2195,2196];
 
 A = A(state_range,state_range);
@@ -159,7 +159,7 @@ R(5,5) = 0.4;
 R(6,6) = 0.65;
 % R(7,7) = 0.04;
 
-R = 0.01*eye(size(R));
+% R = 0.01*eye(size(R));
 
 %% Load in P & Q Matrices
 kalman_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files\5 - Kalman Files';
@@ -168,9 +168,9 @@ load(sprintf('%s\\FC4_Q.mat',kalman_dir));
 load(sprintf('%s\\FC4_P.mat',kalman_dir));
 % P = 0*P;
 P = zeros(size(A_platform));
-qi = [1,2,3,4,5,6,11,12,13,14,15,16,21];
+% qi = [1,2,3,4,5,6,11,12,13,14,15,16,21];
 
-Q = Q(qi,qi);
+% Q = Q(qi,qi);
 
 Q = eye(size(Q));
 

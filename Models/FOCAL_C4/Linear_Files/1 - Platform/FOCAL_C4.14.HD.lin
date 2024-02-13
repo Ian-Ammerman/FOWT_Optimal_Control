@@ -1,14 +1,14 @@
 
-Linearized model: Predictions were generated on 12-Feb-2024 at 15:30:16 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+Linearized model: Predictions were generated on 13-Feb-2024 at 11:29:37 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
  linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MAP++ (<1.20.10>, <Oct-20-2023>)
 
 Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
 
 Simulation information:
-   Simulation time:                  1003.2500 s
-   Rotor Speed:                         1.0399 rad/s
-   Azimuth:                             4.4277 rad
-   Wind Speed:                         12.0000 m/s
+   Simulation time:                  1213.7000 s
+   Rotor Speed:                         0.7917 rad/s
+   Azimuth:                             2.2758 rad
+   Wind Speed:                         16.0000 m/s
    Number of continuous states:         0
    Number of discrete states:           0
    Number of constraint states:         0
@@ -17,65 +17,65 @@ Simulation information:
    Jacobians included in this file?    No
 
 Order of inputs:
-     Column   Operating Point                     Rotating Frame? Derivative Order Description
-   ---------- ---------------                     --------------- ---------------- -----------
-          1    1.230E+01                                 F               0         WAMIT X translation displacement, node 1, m
-          2   -2.191E-01                                 F               0         WAMIT Y translation displacement, node 1, m
-          3   -2.612E-01                                 F               0         WAMIT Z translation displacement, node 1, m
-          4    9.879E-01,  1.362E-02, -1.547E-01         F               0         WAMIT X orientation angle, node 1, rad
-          5   -5.942E-03,  9.987E-01,  4.998E-02         F               0         WAMIT Y orientation angle, node 1, rad
-          6    1.552E-01, -4.846E-02,  9.867E-01         F               0         WAMIT Z orientation angle, node 1, rad
-          7   -1.268E-03                                 F               0         WAMIT X translation velocity, node 1, m/s
-          8   -6.239E-04                                 F               0         WAMIT Y translation velocity, node 1, m/s
-          9    5.719E-04                                 F               0         WAMIT Z translation velocity, node 1, m/s
-         10    1.628E-03                                 F               0         WAMIT X rotation velocity, node 1, rad/s
-         11   -7.663E-05                                 F               0         WAMIT Y rotation velocity, node 1, rad/s
-         12   -2.822E-04                                 F               0         WAMIT Z rotation velocity, node 1, rad/s
-         13    2.785E-04                                 F               0         WAMIT X translation acceleration, node 1, m/s^2
-         14    1.187E-04                                 F               0         WAMIT Y translation acceleration, node 1, m/s^2
-         15    1.308E-03                                 F               0         WAMIT Z translation acceleration, node 1, m/s^2
-         16   -2.741E-04                                 F               0         WAMIT X rotation acceleration, node 1, rad/s^2
-         17   -9.945E-06                                 F               0         WAMIT Y rotation acceleration, node 1, rad/s^2
-         18    1.432E-04                                 F               0         WAMIT Z rotation acceleration, node 1, rad/s^2
-         19    1.230E+01                                 F               0         Platform-RefPt X translation displacement, node 1, m
-         20   -2.191E-01                                 F               0         Platform-RefPt Y translation displacement, node 1, m
-         21   -2.612E-01                                 F               0         Platform-RefPt Z translation displacement, node 1, m
-         22    9.879E-01,  1.362E-02, -1.547E-01         F               0         Platform-RefPt X orientation angle, node 1, rad
-         23   -5.942E-03,  9.987E-01,  4.998E-02         F               0         Platform-RefPt Y orientation angle, node 1, rad
-         24    1.552E-01, -4.846E-02,  9.867E-01         F               0         Platform-RefPt Z orientation angle, node 1, rad
-         25   -1.268E-03                                 F               0         Platform-RefPt X translation velocity, node 1, m/s
-         26   -6.239E-04                                 F               0         Platform-RefPt Y translation velocity, node 1, m/s
-         27    5.719E-04                                 F               0         Platform-RefPt Z translation velocity, node 1, m/s
-         28    1.628E-03                                 F               0         Platform-RefPt X rotation velocity, node 1, rad/s
-         29   -7.663E-05                                 F               0         Platform-RefPt Y rotation velocity, node 1, rad/s
-         30   -2.822E-04                                 F               0         Platform-RefPt Z rotation velocity, node 1, rad/s
-         31    2.785E-04                                 F               0         Platform-RefPt X translation acceleration, node 1, m/s^2
-         32    1.187E-04                                 F               0         Platform-RefPt Y translation acceleration, node 1, m/s^2
-         33    1.308E-03                                 F               0         Platform-RefPt Z translation acceleration, node 1, m/s^2
-         34   -2.741E-04                                 F               0         Platform-RefPt X rotation acceleration, node 1, rad/s^2
-         35   -9.945E-06                                 F               0         Platform-RefPt Y rotation acceleration, node 1, rad/s^2
-         36    1.432E-04                                 F               0         Platform-RefPt Z rotation acceleration, node 1, rad/s^2
-         37    0.000E+00                                 F               0         Extended input: wave elevation at platform ref point, m
+     Column   Operating Point                                                   Rotating Frame? Derivative Order Description
+   ---------- ---------------                                                   --------------- ---------------- -----------
+          1     8.64545631409E+000                                                     F               0         WAMIT X translation displacement, node 1, m
+          2    -6.18386745453E-001                                                     F               0         WAMIT Y translation displacement, node 1, m
+          3    -1.30842253566E-001                                                     F               0         WAMIT Z translation displacement, node 1, m
+          4     9.93684768677E-001,   3.40432510711E-003,  -1.12156018615E-001         F               0         WAMIT X orientation angle, node 1, rad
+          5     2.36721569672E-003,   9.98681187630E-001,   5.12866042554E-002         F               0         WAMIT Y orientation angle, node 1, rad
+          6     1.12182699144E-001,  -5.12282177806E-002,   9.92366194725E-001         F               0         WAMIT Z orientation angle, node 1, rad
+          7     1.85376688023E-004                                                     F               0         WAMIT X translation velocity, node 1, m/s
+          8     1.53049913934E-004                                                     F               0         WAMIT Y translation velocity, node 1, m/s
+          9    -2.52796662971E-003                                                     F               0         WAMIT Z translation velocity, node 1, m/s
+         10    -9.57562278359E-008                                                     F               0         WAMIT X rotation velocity, node 1, rad/s
+         11     1.39153898999E-005                                                     F               0         WAMIT Y rotation velocity, node 1, rad/s
+         12    -5.05301613885E-006                                                     F               0         WAMIT Z rotation velocity, node 1, rad/s
+         13    -4.60510091216E-005                                                     F               0         WAMIT X translation acceleration, node 1, m/s^2
+         14    -6.98025221936E-004                                                     F               0         WAMIT Y translation acceleration, node 1, m/s^2
+         15    -2.19576270320E-003                                                     F               0         WAMIT Z translation acceleration, node 1, m/s^2
+         16     5.28838208993E-005                                                     F               0         WAMIT X rotation acceleration, node 1, rad/s^2
+         17     3.34232254318E-007                                                     F               0         WAMIT Y rotation acceleration, node 1, rad/s^2
+         18     1.18261359603E-005                                                     F               0         WAMIT Z rotation acceleration, node 1, rad/s^2
+         19     8.64545631409E+000                                                     F               0         Platform-RefPt X translation displacement, node 1, m
+         20    -6.18386745453E-001                                                     F               0         Platform-RefPt Y translation displacement, node 1, m
+         21    -1.30842253566E-001                                                     F               0         Platform-RefPt Z translation displacement, node 1, m
+         22     9.93684768677E-001,   3.40432510711E-003,  -1.12156018615E-001         F               0         Platform-RefPt X orientation angle, node 1, rad
+         23     2.36721569672E-003,   9.98681187630E-001,   5.12866042554E-002         F               0         Platform-RefPt Y orientation angle, node 1, rad
+         24     1.12182699144E-001,  -5.12282177806E-002,   9.92366194725E-001         F               0         Platform-RefPt Z orientation angle, node 1, rad
+         25     1.85376688023E-004                                                     F               0         Platform-RefPt X translation velocity, node 1, m/s
+         26     1.53049913934E-004                                                     F               0         Platform-RefPt Y translation velocity, node 1, m/s
+         27    -2.52796662971E-003                                                     F               0         Platform-RefPt Z translation velocity, node 1, m/s
+         28    -9.57562278359E-008                                                     F               0         Platform-RefPt X rotation velocity, node 1, rad/s
+         29     1.39153898999E-005                                                     F               0         Platform-RefPt Y rotation velocity, node 1, rad/s
+         30    -5.05301613885E-006                                                     F               0         Platform-RefPt Z rotation velocity, node 1, rad/s
+         31    -4.60510091216E-005                                                     F               0         Platform-RefPt X translation acceleration, node 1, m/s^2
+         32    -6.98025221936E-004                                                     F               0         Platform-RefPt Y translation acceleration, node 1, m/s^2
+         33    -2.19576270320E-003                                                     F               0         Platform-RefPt Z translation acceleration, node 1, m/s^2
+         34     5.28838208993E-005                                                     F               0         Platform-RefPt X rotation acceleration, node 1, rad/s^2
+         35     3.34232254318E-007                                                     F               0         Platform-RefPt Y rotation acceleration, node 1, rad/s^2
+         36     1.18261359603E-005                                                     F               0         Platform-RefPt Z rotation acceleration, node 1, rad/s^2
+         37     0.00000000000E+000                                                     F               0         Extended input: wave elevation at platform ref point, m
 
 Order of outputs:
-        Row   Operating Point                     Rotating Frame? Derivative Order Description
-   ---------- ---------------                     --------------- ---------------- -----------
-          1    0.000E+00                                 F               0         Wave1Elev, (m)
-          2   -8.773E+04                                 F               0         HydroFxi, (N)
-          3    2.592E+04                                 F               0         HydroFyi, (N)
-          4    2.045E+08                                 F               0         HydroFzi, (N)
-          5   -1.040E+08                                 F               0         HydroMxi, (N-m)
-          6   -3.350E+08                                 F               0         HydroMyi, (N-m)
-          7   -2.799E+06                                 F               0         HydroMzi, (N-m)
+        Row   Operating Point                                                   Rotating Frame? Derivative Order Description
+   ---------- ---------------                                                   --------------- ---------------- -----------
+          1     0.00000000000E+000                                                     F               0         Wave1Elev, (m)
+          2    -5.88727304688E+004                                                     F               0         HydroFxi, (N)
+          3     1.32691162109E+003                                                     F               0         HydroFyi, (N)
+          4     2.03963296000E+008                                                     F               0         HydroFzi, (N)
+          5    -1.10766128000E+008                                                     F               0         HydroMxi, (N-m)
+          6    -2.41221280000E+008                                                     F               0         HydroMyi, (N-m)
+          7    -2.31686890625E+005                                                     F               0         HydroMzi, (N-m)
 
 
 Linearized state matrices:
 
 D: 7 x 37
-    0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
-   -6.860E+03  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -2.822E+05  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -9.381E+06  0.000E+00  1.995E+01  0.000E+00  9.827E+07  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
-    0.000E+00  0.000E+00  0.000E+00  0.000E+00  2.798E-02  0.000E+00  0.000E+00 -2.822E+05  0.000E+00  0.000E+00  2.798E-02  0.000E+00  0.000E+00 -9.381E+06  0.000E+00 -9.827E+07  2.798E-02  1.786E+03  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
-    0.000E+00  0.000E+00 -4.395E+06  0.000E+00  3.667E+03  0.000E+00  0.000E+00  0.000E+00 -8.064E+05  0.000E+00 -2.292E+02  0.000E+00  6.548E+01  0.000E+00 -2.413E+07  0.000E+00  1.788E+04  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
-    0.000E+00  2.045E+08 -2.590E+04 -2.134E+09  0.000E+00  8.881E+04  0.000E+00  0.000E+00  0.000E+00 -2.789E+09  0.000E+00  0.000E+00  0.000E+00 -9.820E+07  0.000E+00 -1.132E+10  0.000E+00  5.306E+04  0.000E+00 -2.045E+08  2.590E+04  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
-   -2.045E+08  0.000E+00 -8.382E+04  0.000E+00 -2.134E+09  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -2.783E+09  0.000E+00  9.820E+07  0.000E+00  1.938E+04  0.000E+00 -1.132E+10  0.000E+00  2.045E+08  0.000E+00  8.774E+04  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
-    2.592E+04  8.773E+04  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00 -2.513E+09  0.000E+00  1.554E+03  0.000E+00  4.404E+04  0.000E+00 -1.959E+10 -2.592E+04 -8.773E+04  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00  0.000E+00
+     0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+    -6.85998695922E+003   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000  -2.82173352244E+005   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000  -9.38083896931E+006   0.00000000000E+000   1.99512100047E+001   0.00000000000E+000   9.82680351759E+007   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000  -2.82173224351E+005   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000  -9.38088705685E+006   0.00000000000E+000  -9.82662375208E+007   0.00000000000E+000   1.78567767633E+003   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     0.00000000000E+000   0.00000000000E+000  -4.39481570682E+006   0.00000000000E+000   3.66692991724E+003   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000  -8.06593656903E+005   0.00000000000E+000   2.29183119828E+002   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000  -2.41346861249E+007   2.29183119828E+002   1.78762833466E+004   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     0.00000000000E+000   2.03963327544E+008  -1.34235833467E+003  -2.13421417455E+009   0.00000000000E+000   8.88084589332E+004   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000  -2.78327406252E+009   1.14591559914E+002   0.00000000000E+000   0.00000000000E+000  -9.82009770033E+007   0.00000000000E+000  -1.13246530020E+010   1.14591559914E+002   5.29413006802E+004   0.00000000000E+000  -2.03963327544E+008   1.34235833467E+003   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+    -2.03963294804E+008   0.00000000000E+000  -5.50694321688E+004   0.00000000000E+000  -2.13398086613E+009   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000  -2.78327406252E+009   0.00000000000E+000   9.82036617200E+007   0.00000000000E+000   1.94478256292E+004   0.00000000000E+000  -1.13240534590E+010   0.00000000000E+000   2.03963294804E+008   0.00000000000E+000   5.89328049369E+004   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000
+     1.32694730387E+003   5.88726315759E+004   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   2.23811640457E-001  -2.51327388742E+009   0.00000000000E+000   1.55389231767E+003   0.00000000000E+000   4.40409831741E+004   2.23811640457E-001  -1.95913504720E+010  -1.32694730387E+003  -5.88726315759E+004   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000   0.00000000000E+000

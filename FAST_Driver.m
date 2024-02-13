@@ -22,7 +22,7 @@ num_lin_times = 36; % Number of linearizations for rotor averaging
 inflow_file_name = 'FOCAL_C4_InflowFile.dat';
 inflow_line = 14; % line of inflow file for HWindSpeed
 % wind_type_line = 5; % line of inflow file for WindType
-wind_speed = 16; % constant wind speed for linearization
+wind_speed = 24; % constant wind speed for linearization
 % wind_type = 0;
 
 % Form inflow file directory
@@ -34,9 +34,9 @@ for i = 1:length(tests)
 end
 %
 cd(sprintf('%s\\Models\\%s\\Linear_Files',FASTdir,model));
-cd('..')
-% processMBC3(num_lin_times,model)
+processMBC3(num_lin_times,model)
 
+cd('..')
 load('OpenFAST_Results.mat')
 %
 figure
