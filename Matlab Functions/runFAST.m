@@ -78,7 +78,9 @@ try
     movefile('..\*.lin')
 catch
     disp('Could not locate linearization folder. Ignoring this step.')
-%% Relocate Output Files to Simulation Folder
+end
+    
+    %% Relocate Output Files to Simulation Folder
 if MoveFiles == false
     cd(model_path)
 else

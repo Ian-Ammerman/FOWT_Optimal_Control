@@ -1,20 +1,20 @@
 %% Simulate Non-Linear OpenFAST
 clear all; close all; clc;
 
-tests = {'FC4_Step_Wind'};
+tests = {'WindWave_AboveRated_FOCAL_C4'};
 
-FASTdir = 'C:\\Umaine Google Sync\\Masters Working Folder\\FOCAL_C2';
-model = 'FOCAL_C4';
+FASTdir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control';
+model = 'FOCAL_Base';
 
 for i = 1:length(tests)
     % Run OpenFAST
-    runFAST(model,tests{i},FASTdir,'CheckSimFolder',false,'Version','v3_5_1');
+    runFAST(model,tests{i},FASTdir,'CheckSimFolder',false,'Version','FC4');
 end
 
 %% Perform OpenFAST Linearization
 clear all; close all; clc;
 tests = {'000_Linearize'};
-FASTdir = 'C:\\Umaine Google Sync\\Masters Working Folder\\FOCAL_C2';
+FASTdir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control';
 
 % Linearization inputs
 model = 'FOCAL_C4';
@@ -22,7 +22,7 @@ num_lin_times = 36; % Number of linearizations for rotor averaging
 inflow_file_name = 'FOCAL_C4_InflowFile.dat';
 inflow_line = 14; % line of inflow file for HWindSpeed
 % wind_type_line = 5; % line of inflow file for WindType
-wind_speed = 10; % constant wind speed for linearization
+wind_speed = 24; % constant wind speed for linearization
 % wind_type = 0;
 
 % Form inflow file directory
@@ -34,8 +34,26 @@ for i = 1:length(tests)
 end
 %
 cd(sprintf('%s\\Models\\%s\\Linear_Files',FASTdir,model));
-processMBC3(36)
+processMBC3(num_lin_times,model)
 
+cd('..')
+load('OpenFAST_Results.mat')
+%
+figure
+plot(sim_results.Time,sim_results.GenSpeed)
+title('GenSpeed')
+
+figure
+plot(sim_results.Time,sim_results.PtfmPitch)
+title('PtfmPitch')
+
+figure
+plot(sim_results.Time,sim_results.GenTq)
+title('GenTorque')
+
+figure
+plot(sim_results.Time,sim_results.BlPitchC1)
+title('Collective Pitch')
 
 % hydro_system = ReadFASTLinear('FOCAL_C4.1.HD.lin');
 % 
@@ -60,7 +78,7 @@ tests = {'Test_04'};
 % FD_IC = readmatrix('FD_IC.csv');
 % FD_IC = FD_IC(:,2);
 
-SLXdir = 'C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2';
+SLXdir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control';
 model = 'DT1_Locked';
 
 for i = 1:length(tests)
@@ -75,7 +93,7 @@ clear all; close all; clc;
 tests = {'Test_01'};
 measurements = {'PtfmPitch','PtfmRoll','FAIRTEN1','FAIRTEN2','FAIRTEN3'};
 
-SLXdir = 'C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2';
+SLXdir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control';
 model = 'DT1_Locked';
 
 for i = 1:length(tests)

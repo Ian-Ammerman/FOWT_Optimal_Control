@@ -3,7 +3,7 @@ FOCAL As Built Full Scale Turbine (only)
 ======  General Options  ============================================================================
 False                  Echo        - Echo the input to "<rootname>.AD.ech"?  (flag)
 "default"              DTAero      - Time interval for aerodynamic calculations {or "default"} (s)
-2                      WakeMod     - Type of wake/induction model (switch) {0=none, 1=BEMT, 2=dynamic wake}
+1                      WakeMod     - Type of wake/induction model (switch) {0=none, 1=BEMT, 2=dynamic wake}
 1                      AFAeroMod   - Type of blade airfoil aerodynamics model (switch) {1=steady model, 2=Beddoes-Leishman unsteady model} [must be 1 when linearizing]
 1                      TwrPotent   - Type tower influence on wind based on potential flow around the tower (switch) {0=none, 1=baseline potential flow, 2=potential flow with Bak correction}
 0                      TwrShadow   - Calculate tower influence on wind based on downstream tower shadow? (flag)
@@ -47,7 +47,7 @@ True                   FLookup     Flag to indicate whether a lookup for f' will
 0                      InCol_Cm    - The column in the airfoil tables that contains the pitching-moment coefficient; use zero if there is no Cm column (-)
 0                      InCol_Cpmin - The column in the airfoil tables that contains the Cpmin coefficient; use zero if there is no Cpmin column (-)
 2                      NumAFfiles  - Number of airfoil files used (-)
-"AeroData_aboverated/CCT9_Camp4_AeroDyn15_Polar_Cyl.dat.dat"    AFNames            - Airfoil file names (NumAFfiles lines) (quoted strings)
+"AeroData_aboverated/CCT9_Camp4_AeroDyn15_Polar_Cyl.dat"    AFNames            - Airfoil file names (NumAFfiles lines) (quoted strings)
 "AeroData_aboverated/SD7032_Polar_20220818.dat"
 ======  Rotor/Blade Properties  =====================================================================
 False                   UseBlCm     - Include aerodynamic pitching moment in calculations?  (flag)

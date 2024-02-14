@@ -42,7 +42,7 @@ elseif ~iscell(FileNames)
 end 
 
 % Input data from linearization files:
-matData.NAzimStep       = length(FileNames);
+matData.NAzimStep       = length(FileNames)
 data(matData.NAzimStep) = ReadFASTLinear(FileNames{matData.NAzimStep}); %we'll read this twice so we can allocate space first; putting it at matData.NAzimStep saves some reallocation later
 
 matData.NumStates       = data(matData.NAzimStep).n_x;
@@ -63,7 +63,7 @@ matData.Azimuth   = zeros(matData.NAzimStep, 1);
 matData.Omega     = zeros(matData.NAzimStep, 1);
 matData.OmegaDot  = zeros(matData.NAzimStep, 1);
 
-matData.WindSpeed = zeros(matData.NAzimStep, 1);
+matData.WindSpeed = zeros(matData.NAzimStep, 1)
 
 if ( matData.NumStates > 0 )
     matData.DescStates = data(matData.NAzimStep).x_desc;

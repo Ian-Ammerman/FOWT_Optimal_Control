@@ -32,7 +32,7 @@ eta = test_results.Wave1Elev;
 
 %% Prepare wind input
 % Wind Case
-wind_case = 2;
+wind_case = 3;
 
 % Load in appropriate wind file
 switch wind_case
@@ -101,20 +101,23 @@ end
 
 %% Load in Platform Model
 % Define Path
-platform_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files\8 - Platform (Reduced)';
+platform_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files\1 - Platform';
 
 % Load in raw files
 load(sprintf('%s\\FOCAL_C4_A.mat',platform_dir),'A');
 load(sprintf('%s\\FOCAL_C4_B.mat',platform_dir),'B');
 load(sprintf('%s\\FOCAL_C4_C.mat',platform_dir),'C');
 load(sprintf('%s\\FOCAL_C4_D.mat',platform_dir),'D');
-% load(sprintf('%s\\FOCAL_C4_Output_OP.mat',platform_dir),'y_op');
+load(sprintf('%s\\FOCAL_C4_X_OP.mat',platform_dir));
+load(sprintf('%s\\FOCAL_C4_Y_OP.mat',platform_dir));
 
 % Remove rotor azimuth state from state vector
-A = A([1:5,6:end],[1:5,6:end]);
-B = B([1:5,6:end],[301,2107:2112,2195,2196,3943:3954]);
-C = C(:,[1:5,6:end]);
+A = A([1:10,12:end],[1:10,12:end]);
+B = B([1:10,12:end],[301,2107:2112,2195,2196,3943:3954]);
+C = C(:,[1:10,12:end]);
 D = 0*D(:,[301,2107:2112,2195,2196,3943:3954]);
+
+x_OP = x_OP([1:10,12:end]);
 
 % Discretize Platform
 platform_sys_c = ss(A,B,C,D);
@@ -126,7 +129,7 @@ clear A B C D platform_sys_d platform_sys_c
 
 %% Load in Hydrodynamics Model (FC4)
 % Define Path
-hydro_dir = 'C:\Umaine Google Sync\Masters Working Folder\FOCAL_C2\Models\FOCAL_C4\Linear_Files\2 - Hydrodynamics';
+hydro_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files\2 - Hydrodynamics';
 
 % Load in raw files
 load(sprintf('%s\\FOCAL_C4_HD_A.mat',hydro_dir),'A');
@@ -169,8 +172,8 @@ X_log = zeros(size(x,1),length(ss_time)-1);
 for i = 1:length(ss_time)-1
 
     % Separate platform position/velocity
-    platform_positions([1,3,5]) = x([1,2,3]);
-    platform_velocities([1,3,5]) = x([6,7,8]);
+    platform_positions = x(1:6);
+    platform_velocities = x(11:16);
 
     % Define HydroDyn Input
     u_hydro = [eta(i);
@@ -190,7 +193,7 @@ for i = 1:length(ss_time)-1
                   gen_torque(i);
                   c_pitch(i);
                   platform_positions;
-                  platform_velocities;];
+                  platform_velocities];
 
     % Update platform states
     x = A_platform*x + B_platform*u_platform;
@@ -201,7 +204,7 @@ for i = 1:length(ss_time)-1
     end
 
     % Store platform outputs
-    Y(:,i) = C_platform*x;
+    Y(:,i) = C_platform*x + y_OP;
     X_log(:,i) = x;
 end
 
@@ -218,7 +221,7 @@ figure
 gca; hold on; box on;
 title('Platform Surge')
 xlim([0,tmax])
-plot(ss_time(1:end-1)-29.95,Y(:,14),'DisplayName','State-Space')
+plot(ss_time(1:end-1)-29.95,Y(:,18),'DisplayName','State-Space')
 plot(sim_time,sim_results.PtfmSurge,'DisplayName','OpenFAST')
 try
     plot(test_time,test_results.PtfmSurge,'DisplayName','Experiment')
@@ -231,7 +234,7 @@ figure
 gca; hold on; box on;
 xlim([0,tmax])
 title('Platform Heave [m]')
-plot(ss_time(1:end-1)-29.95,Y(:,16),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,20),'DisplayName','State-Space');
 plot(sim_time,sim_results.PtfmHeave,'DisplayName','OpenFAST')
 try
     plot(test_time,test_results.PtfmHeave,'DisplayName','Experiment')
@@ -244,7 +247,7 @@ figure
 gca; hold on; box on;
 xlim([0,tmax])
 title('Platform Pitch [deg]')
-plot(ss_time(1:end-1)-29.95,Y(:,18),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,22),'DisplayName','State-Space');
 plot(sim_time,sim_results.PtfmPitch,'DisplayName','OpenFAST')
 try
     plot(test_time,test_results.PtfmPitch,'DisplayName','Experiment')
@@ -258,7 +261,7 @@ gca; hold on; box on;
 xlim([0,tmax])
 title('Rotor Speed [RPM]')
 % xlim([0 500])
-plot(ss_time(1:end-1)-29.95,Y(:,5),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,8),'DisplayName','State-Space');
 plot(sim_time,sim_results.RotSpeed,'DisplayName','OpenFAST')
 try
     plot(test_time,(test_results.genSpeed*(30/pi)),'DisplayName','Experiment');
@@ -284,96 +287,96 @@ legend
 
 figure
 gca; hold on;
-plot(ss_time(1:end-1)-29.95,Y(:,9),'DisplayName','State-Space');
+plot(ss_time(1:end-1)-29.95,Y(:,13),'DisplayName','State-Space');
 plot(test_results.Time,test_results.towerBotMy*10^-3,'DisplayName','Experiment');
 title('Tower Base Bending Moment')
 legend
 
-%% Prepare Process Covariance (Q) Matrix
-% Transpose states
-x_process = X_log';
-x_process(:,4:6) = x_process(:,4:6)*57.3;
-x_process(:,10:12) = x_process(:,10:12)*57.3;
-x_process(:,13) = x_process(:,13)*9.549296;
-
-x_process = x_process(50000:end,:);
-
-% State-space standard deviations
-ss_std = std(x_process);
-ss_mean = mean(x_process);
-
-% Corresponding test data
-x_test(:,1) = test_results.PtfmSurge;
-x_test(:,2) = test_results.PtfmSway;
-x_test(:,3) = rMean(test_results.PtfmHeave);
-% x_test(:,3) = test_results.PtfmHeave;
-x_test(:,4) = test_results.PtfmRoll;
-x_test(:,5) = test_results.PtfmPitch;
-x_test(:,6) = test_results.PtfmYaw;
-
-x_test(2:end,7:12) = (x_test(2:end,1:6) - x_test(1:end-1,1:6))./0.0416;
-x_test(1,7:12) = x_test(2,7:12);
-
-x_test(:,13) = test_results.genSpeed*(30/pi);
-
-x_test = x_test(50000:end,:);
-
-%% Form P matrix
-x_test_filtered = highpass(x_test,1,24);
-P = diag(var(x_test_filtered));
-
-figure
-plot(test_results.Time(50000:end),x_test(:,3))
-hold on
-plot(test_results.Time(50000:end),x_test_filtered(:,3))
-plot(test_results.Time(50000:end),x_test(:,3)-x_test_filtered(:,3))
-
-%% Form Q Matrix
-
-%%% Compute uncertainty of all states directly
-% Experimental standard deviations
-exp_std = std(x_test);
-exp_mean = mean(x_test);
-
-mean_diff = abs(exp_mean - ss_mean);
-
-% Compute difference between STDs
-diff_std = abs(ss_std - exp_std);
-
-% Form Q matrix
-Q_diag = diag(2*diff_std);
-Q = Q_diag;
-
-%%% Compute uncertainty of measurements & project onto states
-% % Measurements from linear system
-% y_measurements = Y(:,[29,31,33,32,11,56,57,58,19]);
-% y_measurements = y_measurements(50000:end,:);
+% %% Prepare Process Covariance (Q) Matrix
+% % Transpose states
+% x_process = X_log';
+% x_process(:,4:6) = x_process(:,4:6)*57.3;
+% x_process(:,10:12) = x_process(:,10:12)*57.3;
+% x_process(:,13) = x_process(:,13)*9.549296;
 % 
-% % Measurements from experiment
-% exp_measurements = [test_results.PtfmSurge,...
-%                     test_results.PtfmHeave,...
-%                     test_results.PtfmPitch,...
-%                     test_results.PtfmRoll,...
-%                     test_results.genSpeed*(30/pi),...
-%                     test_results.leg1MooringForce,...
-%                     test_results.leg2MooringForce,...
-%                     test_results.leg3MooringForce,...
-%                     test_results.towerBotMy*10^-3];
+% x_process = x_process(50000:end,:);
 % 
-% exp_measurements = exp_measurements(50000:end,:);
+% % State-space standard deviations
+% ss_std = std(x_process);
+% ss_mean = mean(x_process);
 % 
-% % Compute standard deviations
-% ss_std = std(y_measurements);
-% exp_std = std(exp_measurements);
+% % Corresponding test data
+% x_test(:,1) = test_results.PtfmSurge;
+% x_test(:,2) = test_results.PtfmSway;
+% x_test(:,3) = rMean(test_results.PtfmHeave);
+% % x_test(:,3) = test_results.PtfmHeave;
+% x_test(:,4) = test_results.PtfmRoll;
+% x_test(:,5) = test_results.PtfmPitch;
+% x_test(:,6) = test_results.PtfmYaw;
 % 
-% ss_mean = mean(y_measurements);
-% exp_mean = mean(exp_measurements);
+% x_test(2:end,7:12) = (x_test(2:end,1:6) - x_test(1:end-1,1:6))./0.0416;
+% x_test(1,7:12) = x_test(2,7:12);
 % 
+% x_test(:,13) = test_results.genSpeed*(30/pi);
+% 
+% x_test = x_test(50000:end,:);
+% 
+% %% Form P matrix
+% x_test_filtered = highpass(x_test,1,24);
+% P = diag(var(x_test_filtered));
+% 
+% figure
+% plot(test_results.Time(50000:end),x_test(:,3))
+% hold on
+% plot(test_results.Time(50000:end),x_test_filtered(:,3))
+% plot(test_results.Time(50000:end),x_test(:,3)-x_test_filtered(:,3))
+% 
+% %% Form Q Matrix
+% 
+% %%% Compute uncertainty of all states directly
+% % Experimental standard deviations
+% exp_std = std(x_test);
+% exp_mean = mean(x_test);
+% 
+% mean_diff = abs(exp_mean - ss_mean);
+% 
+% % Compute difference between STDs
 % diff_std = abs(ss_std - exp_std);
 % 
-% Qc = diag(diff_std);
+% % Form Q matrix
+% Q_diag = diag(2*diff_std);
+% Q = Q_diag;
 % 
-% H = C_platform([29,31,33,32,11,56,57,58,19],:);
+% %%% Compute uncertainty of measurements & project onto states
+% % % Measurements from linear system
+% % y_measurements = Y(:,[29,31,33,32,11,56,57,58,19]);
+% % y_measurements = y_measurements(50000:end,:);
+% % 
+% % % Measurements from experiment
+% % exp_measurements = [test_results.PtfmSurge,...
+% %                     test_results.PtfmHeave,...
+% %                     test_results.PtfmPitch,...
+% %                     test_results.PtfmRoll,...
+% %                     test_results.genSpeed*(30/pi),...
+% %                     test_results.leg1MooringForce,...
+% %                     test_results.leg2MooringForce,...
+% %                     test_results.leg3MooringForce,...
+% %                     test_results.towerBotMy*10^-3];
+% % 
+% % exp_measurements = exp_measurements(50000:end,:);
+% % 
+% % % Compute standard deviations
+% % ss_std = std(y_measurements);
+% % exp_std = std(exp_measurements);
+% % 
+% % ss_mean = mean(y_measurements);
+% % exp_mean = mean(exp_measurements);
+% % 
+% % diff_std = abs(ss_std - exp_std);
+% % 
+% % Qc = diag(diff_std);
+% % 
+% % H = C_platform([29,31,33,32,11,56,57,58,19],:);
+% % 
+% % Q = H'*Qc*H;
 % 
-% Q = H'*Qc*H;
-
