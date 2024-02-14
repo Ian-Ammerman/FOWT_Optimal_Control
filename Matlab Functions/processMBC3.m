@@ -19,11 +19,15 @@ C = mbc_data.AvgC;
 D = mbc_data.AvgD;
 
 %% Extract Operation Point
-Platform_OP = matData.Avgxop;
+x_OP = matData.Avgxop;
+
+output_op = FAST_linData.y_op;
+y_OP = cell2mat(output_op);
 
 %% Save in .mat files
 save('FOCAL_C4_A.mat','A');
 save('FOCAL_C4_B.mat','B');
 save('FOCAL_C4_C.mat','C');
 save('FOCAL_C4_D.mat','D');
-save('FOCAL_C4_Platform_OP.mat','Platform_OP')
+save('FOCAL_C4_X_OP.mat','x_OP')
+save('FOCAL_C4_Y_OP.mat','y_OP')

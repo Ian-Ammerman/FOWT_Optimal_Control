@@ -1,14 +1,14 @@
 %% Simulate Non-Linear OpenFAST
 clear all; close all; clc;
 
-tests = {'FC4_Step_Wind'};
+tests = {'WindWave_AboveRated_FOCAL_C4'};
 
 FASTdir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control';
-model = 'FOCAL_C4';
+model = 'FOCAL_Base';
 
 for i = 1:length(tests)
     % Run OpenFAST
-    runFAST(model,tests{i},FASTdir,'CheckSimFolder',false,'Version','v3_5_1');
+    runFAST(model,tests{i},FASTdir,'CheckSimFolder',false,'Version','FC4');
 end
 
 %% Perform OpenFAST Linearization
