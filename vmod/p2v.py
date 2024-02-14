@@ -76,11 +76,14 @@ class PreProcess():
         df = df.mul(conversion, axis=1)
         return df
 
-    def series_to_supervised(self, data, wave_var_number, n_in=1, n_out=1, dropnan=True, wp=False):
+    def series_to_supervised(self, data, wind_var_number, wave_var_number, n_in=1, n_out=1, dropnan=True,
+                             wind_predictor=False, wave_predictor=False):
         """
         Frame a time series as a supervised learning dataset.
         Arguments:
             data: Sequence of observations as a list or NumPy array.
+            wind_var_number: the index of the wind column in the data
+            wave_var_number: the index of the wave column in the data
             n_in: Number of lag observations as input (X).
             n_out: Number of observations as output (y).
             dropnan: Boolean whether or not to drop rows with NaN values.
@@ -107,42 +110,79 @@ class PreProcess():
         if dropnan:
             agg.dropna(inplace=True)
 
-        # WRP: replace varx with wrp
-        new_columns = [col.replace(f"var{wave_var_number}", "wrp") for col in agg.columns]
-        agg.columns = new_columns
+        if wind_var_number:
+            # WIND: replace varx with wind
+            new_columns = [col.replace(f"var{wind_var_number}", "wind") for col in agg.columns]
+            agg.columns = new_columns
+        if wave_var_number:
+            # WAVE: replace varx with wave
+            new_columns = [col.replace(f"var{wave_var_number}", "wave") for col in agg.columns]
+            agg.columns = new_columns
 
-        # Interpolate wave future data if needed
-        if wp:
+        # Interpolate wind future data if needed
+        if wind_predictor:
             # Define interpolation points
             x = np.linspace(0, n_out - 1, n_in)
-            wrp_input_name = [f"wrp(t+{xi:.2f})" for xi in x]
+            wind_input_name = [f"wind(t+{xi:.2f})" for xi in x]
 
             # Extract relevant columns for interpolation
-            wrp_cols = [f'wrp(t+{j:.2f})' for j in range(0, n_out)]
-            wrp_data = agg[wrp_cols].to_numpy()
+            wind_cols = [f'wind(t+{j:.2f})' for j in range(0, n_out)]
+            wind_data = agg[wind_cols].to_numpy()
 
             # Perform vectorized interpolation
             xp = np.arange(0, n_out)
-            wave_interpolated = np.array([np.interp(x, xp, wrp_row) for wrp_row in wrp_data])
+            wind_interpolated = np.array([np.interp(x, xp, wind_row) for wind_row in wind_data])
 
             # Create DataFrame from interpolated data
-            wp_df = pd.DataFrame(wave_interpolated, columns=wrp_input_name)
+            wind_df = pd.DataFrame(wind_interpolated, columns=wind_input_name)
 
             # Concatenate the new DataFrame with the existing one
-            agg = agg.drop(columns=wrp_cols)
+            agg = agg.drop(columns=wind_cols)
 
-            # The old way (before fixing)
-            agg = pd.concat([agg, wp_df], axis=1)
-            # The new way (after fixing)
-            # agg = pd.concat([agg.reset_index(drop=True), wp_df.reset_index(drop=True)], axis=1)
+            # The old way to concatenate
+            agg = pd.concat([agg, wind_df], axis=1)
+
+            # The new way to concatenate
+            # agg = pd.concat([agg.reset_index(drop=True), wind_df.reset_index(drop=True)], axis=1)
+
+        # Interpolate wave future data if needed
+        if wave_predictor:
+            # Define interpolation points
+            x = np.linspace(0, n_out - 1, n_in)
+            wave_input_name = [f"wave(t+{xi:.2f})" for xi in x]
+
+            # Extract relevant columns for interpolation
+            wave_cols = [f'wave(t+{j:.2f})' for j in range(0, n_out)]
+            wave_data = agg[wave_cols].to_numpy()
+
+            # Perform vectorized interpolation
+            xp = np.arange(0, n_out)
+            wave_interpolated = np.array([np.interp(x, xp, wave_row) for wave_row in wave_data])
+
+            # Create DataFrame from interpolated data
+            wave_df = pd.DataFrame(wave_interpolated, columns=wave_input_name)
+
+            # Concatenate the new DataFrame with the existing one
+            agg = agg.drop(columns=wave_cols)
+
+            # The old way to concatenate
+            agg = pd.concat([agg, wave_df], axis=1)
+
+            # The new way to concatenate
+            # agg = pd.concat([agg.reset_index(drop=True), wave_df.reset_index(drop=True)], axis=1)
 
         # drop rows with NaN values
         if dropnan:
             agg.dropna(inplace=True)
 
-        # WRP: replace varx with wrp
-        new_columns = [col.replace(f"var{wave_var_number}", "wrp") for col in agg.columns]
-        agg.columns = new_columns
+        if wind_var_number:
+            # WIND: replace varx with wind
+            new_columns = [col.replace(f"var{wind_var_number}", "wind") for col in agg.columns]
+            agg.columns = new_columns
+        if wave_var_number:
+            # WAVE: replace varx with wave
+            new_columns = [col.replace(f"var{wave_var_number}", "wave") for col in agg.columns]
+            agg.columns = new_columns
 
         return agg
 
@@ -211,7 +251,7 @@ class MLSTM:
         self.scaler.fit(data)
 
     def split_train_test(self, supervised_data, train_ratio, valid_ratio, past_timesteps, future_timesteps,
-                         features, labels, past_wrp=False, future_wrp=False):
+                         features, labels, past_wind=False, future_wind=False, past_wave=False, future_wave=False):
         """
         :param supervised_data:
         :param train_ratio: the
@@ -222,9 +262,13 @@ class MLSTM:
         :param future_timesteps: the value (n) of timesteps of observations to be extracted in the future
         :param features: [list] the `index` of variable(s) that are used as input.
         :param labels: [list] the 'index' of variable(s) to be forecasted as output.
-        :param past_wrp: past wave elevation data as input
-        :param future_wrp: activates the
-        ability to allow predicted waves in the futures to be input as well (if there is wrp, the past version of it
+        :param past_wind: past wave elevation data as input
+        :param future_wind: activates the
+        ability to allow predicted wind in the futures to be input as well (if there is wind, the past version of it
+        will be used)
+        :param past_wave: past wave elevation data as input
+        :param future_wave: activates the
+        ability to allow predicted waves in the futures to be input as well (if there is wave, the past version of it
         will be used)
         :return: nothing. The class updates itself with the train, valid, and test datasets
         """
@@ -237,8 +281,9 @@ class MLSTM:
             var_numbers = [labels]
 
         input_columns = self.extract_input_columns(supervised_data.columns, features, past_timesteps,
-                                                   past_wrp, future_wrp)
-        num_features = len(features) + (1 if past_wrp else 0) + (1 if future_wrp else 0)
+                                                   past_wind, future_wind, past_wave, future_wave)
+        num_features = len(features) + (1 if past_wind else 0) + (1 if future_wind else 0) + \
+                       (1 if past_wave else 0) + (1 if future_wave else 0)
         output_columns = self.extract_output_columns(supervised_data.columns, labels, future_timesteps)
 
         # Selecting the columns from the dataframe
@@ -271,15 +316,20 @@ class MLSTM:
         self.valid_Y = valid_Y
         self.test_Y = test_Y
 
-    def extract_input_columns(self, columns, features, past_timesteps, past_wrp, future_wrp):
+    def extract_input_columns(self, columns, features, past_timesteps, past_wind, future_wind, past_wave, future_wave):
         # Extracting input columns:
         # Lists for different types of columns
         var_columns = [col for col in columns if any(f'var{var_num}(t-' in col for var_num in features)]
-        past_wrp_columns = [col for col in columns if 'wrp(t-' in col] if past_wrp else []
-        future_wrp_columns = [col for col in columns if
-                              'wrp(t+' in col or 'wrp(t)' in col] if future_wrp else []
+        past_wind_columns = [col for col in columns if 'wind(t-' in col] if past_wind else []
+        future_wind_columns = [col for col in columns if
+                              'wind(t+' in col or 'wind(t)' in col] if future_wind else []
+        past_wave_columns = [col for col in columns if 'wave(t-' in col] if past_wave else []
+        future_wave_columns = [col for col in columns if
+                              'wave(t+' in col or 'wave(t)' in col] if future_wave else []
 
-        num_features = len(features) + (1 if past_wrp else 0) + (1 if future_wrp else 0)
+        num_features = len(features) + (1 if past_wind else 0) + (1 if future_wind else 0) + \
+                       (1 if past_wave else 0) + (1 if future_wave else 0)
+
         # Interleaving columns
         input_columns = []
         for i in range(past_timesteps):
@@ -287,10 +337,14 @@ class MLSTM:
                 if j < len(features):
                     input_columns.append(var_columns[len(features) * i + j])
                 else:
-                    if past_wrp:
-                        input_columns.append(past_wrp_columns[i])
-                    if future_wrp:
-                        input_columns.append(future_wrp_columns[i])
+                    if past_wind:
+                        input_columns.append(past_wind_columns[i])
+                    if future_wind:
+                        input_columns.append(future_wind_columns[i])
+                    if past_wave:
+                        input_columns.append(past_wave_columns[i])
+                    if future_wave:
+                        input_columns.append(future_wave_columns[i])
                     break
         return input_columns
 
@@ -299,13 +353,16 @@ class MLSTM:
                           any(f'var{var_num}(t+{float(future_timesteps - 1):.2f})' in col for var_num in labels)]
         return output_columns
 
-    def build_and_compile_model(self, hidden_layer, neuron_number, last_layer, lr):
+    def build_and_compile_model(self, hidden_layer, neuron_number, last_layer, lr=0.001, dropout=0.0):
         neuron_per_layer = int(np.round(neuron_number / hidden_layer, 0))
-        self.model.add(LSTM(neuron_per_layer, input_shape=(self.train_X.shape[1], self.train_X.shape[2])))
+        self.model.add(LSTM(neuron_per_layer, input_shape=(self.train_X.shape[1], self.train_X.shape[2]),
+                            return_sequences=True if hidden_layer > 1 else False, dropout=dropout))
 
         # Add additional LSTM layers
-        for _ in range(hidden_layer - 1):
-            self.model.add(LSTM(neuron_per_layer))
+        for _ in range(1, hidden_layer):  # Start the range from 1 since we already added the first LSTM layer
+            # Only the final LSTM layer should not return sequences, hence check if it's the last one
+            return_sequences = _ < hidden_layer - 1
+            self.model.add(LSTM(neuron_per_layer, return_sequences=return_sequences, dropout=dropout))
 
         # Add the output Dense layer
         self.model.add(Dense(last_layer))
