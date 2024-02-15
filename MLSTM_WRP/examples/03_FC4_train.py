@@ -28,7 +28,7 @@ if not os.path.exists(os.path.join("figures", f"{TEST_NUM}")):
     os.makedirs(os.path.join("figures", f"{TEST_NUM}"))
 
 # Data pre-processing
-data = p2v.PreProcess(DATA_INPUT_FILE)
+data = p2v.PreProcess(data_input_file=DATA_INPUT_FILE)
 data.nan_check()
 data.filter(direction="low", freq_cutoff=1)  # cut-off frequency at 1Hz
 correlation_matrix = data.idle_sensors_check()
