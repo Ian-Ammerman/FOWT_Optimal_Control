@@ -10,11 +10,15 @@ import joblib
 from scipy.signal import butter, filtfilt
 
 class PreProcess():
-    def __init__(self, data_input_file):
+    def __init__(self, data_input_file=None, raw_dataset=None):
         self.dynHs = None
         self.dynTp = None
         self.dynTi = None
-        self.raw_dataset = pd.read_csv(data_input_file)
+        if not data_input_file:
+            self.raw_dataset = raw_dataset
+        elif not raw_dataset:
+            self.raw_dataset = pd.read_csv(data_input_file)
+
         self.dataset = self.raw_dataset.copy()
         self.sampling_rate = 1/(self.raw_dataset['Time'].iloc[1] - self.raw_dataset['Time'].iloc[0])
 
