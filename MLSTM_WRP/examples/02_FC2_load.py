@@ -29,7 +29,7 @@ model = p2v.MLSTM()
 model.load_model(MODEL_PATH, SCALER_PATH)
 
 # perform data pre-processing and cleaning
-data = p2v.PreProcess(DATA_INPUT_FILE)
+data = p2v.PreProcess(data_input_file=DATA_INPUT_FILE)
 data.nan_check()
 correlation_matrix = data.idle_sensors_check()
 

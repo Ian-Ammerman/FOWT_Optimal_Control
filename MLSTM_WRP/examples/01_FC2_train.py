@@ -26,7 +26,7 @@ if not os.path.exists(os.path.join("figures", f"{TEST_NUM}")):
     os.makedirs(os.path.join("figures", f"{TEST_NUM}"))
 
 # Data pre-processing
-data = p2v.PreProcess(DATA_INPUT_FILE)
+data = p2v.PreProcess(data_input_file=DATA_INPUT_FILE)
 data.nan_check()
 correlation_matrix = data.idle_sensors_check()
 dataset = data.dataset
