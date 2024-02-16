@@ -155,5 +155,5 @@ plt.tight_layout()
 plt.savefig(fr".\figures\{TEST_NUM}\TD_test_n_{n}_m_{m}_WRP_comp_02_before_fixing_converted.pdf", format="pdf")
 
 # save the model
-mlstm_wrp.save_model(os.path.join("MLSTM_WRP", "models", "7dof_MLSTM_WRP_OPT_T20_FC2"),
+mlstm_wrp.save_model(os.path.join("MLSTM_WRP", "models", "FC2_OPT_MLSTM_WRP_7dof_T20"),
                      os.path.join("MLSTM_WRP", "scalers", "scaler.pkl"))
