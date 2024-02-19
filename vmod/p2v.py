@@ -80,8 +80,8 @@ class PreProcess():
         df = df.mul(conversion, axis=1)
         return df
 
-    def series_to_supervised(self, data, wind_var_number, wave_var_number, n_in=1, n_out=1, dropnan=True,
-                             wind_predictor=False, wave_predictor=False):
+    def series_to_supervised(self, data, wind_var_number, wave_var_number, n_in=1, n_out=1,
+                             waveshift=None, dropnan=True, wind_predictor=False, wave_predictor=False):
         """
         Frame a time series as a supervised learning dataset.
         Arguments:
@@ -169,11 +169,11 @@ class PreProcess():
             # Concatenate the new DataFrame with the existing one
             agg = agg.drop(columns=wave_cols)
 
-            # The old way to concatenate
-            agg = pd.concat([agg, wave_df], axis=1)
+            if not waveshift:
+                waveshift = n_in
 
-            # The new way to concatenate
-            # agg = pd.concat([agg.reset_index(drop=True), wave_df.reset_index(drop=True)], axis=1)
+            wave_df = wave_df.shift(-waveshift)
+            agg = pd.concat([agg.reset_index(drop=True), wave_df.reset_index(drop=True)], axis=1)
 
         # drop rows with NaN values
         if dropnan:

@@ -49,11 +49,12 @@ dof_with_units_f = ["surge [$m^2/Hz$]", "heave [$m^2/Hz$]", "pitch [$deg^2/Hz$]"
                     "nacelle acceleration X [$(m/s)^2/Hz$]", "fore-aft tower bending moment [$(kN-m)^2/Hz$]"]
 conversion = [1, 1, 1, 1e-3, 1, 1e-3, 1, 1e-3]
 nm = 0.39
+waveshift_to_n = 0.75
 hidden_layer = 1
 neuron_number = 100
 epochs = 200
 batch_time = 47
-timestep = 0.73
+timestep = 1.0
 
 new_time_range = np.arange(dataset['Time'].min(), dataset['Time'].max(), timestep)
 dataset_interpolated = pd.DataFrame(new_time_range, columns=['Time'])
@@ -76,12 +77,14 @@ winddata_interpolated_inittransremoved = winddata_interpolated.iloc[idx_cut:]
 m = int(np.round(TIME_HORIZON / timestep, 0))  # corresponding to TIME_HORIZON
 n = int(np.round(nm * m))
 batch_size = int(np.round(batch_time / timestep, 0))
+waveshift = int(n * waveshift_to_n)
 
 # Concatenate DOF with wind and wave data
 df = dataset_interpolated_inittransremoved[dof]
 wave_past = dataset_interpolated_inittransremoved["waveStaff5"]
 wind_past = winddata_interpolated_inittransremoved["wind"]
-df_wrp = pd.concat([df, wind_past, wave_past], axis=1).values
+# df_wrp = pd.concat([df, wind_past, wave_past], axis=1).values
+df_wrp = pd.concat([df, wave_past], axis=1).values
 
 # Normalize the dataframe
 scaler = MinMaxScaler(feature_range=(0, 1))
@@ -90,11 +93,12 @@ scaled = scaler.fit_transform(df_wrp)
 # Create the supervised data
 supervised_data = data.series_to_supervised(
     scaled,
-    wind_var_number=len(dof) + 1,
-    wave_var_number=len(dof) + 2,
+    wind_var_number=None,
+    wave_var_number=len(dof) + 1,
     n_in=n,
     n_out=m,
-    wind_predictor=True,
+    waveshift=waveshift,
+    wind_predictor=False,
     wave_predictor=True)
 # Train_Test ratio
 train_ratio = 0.50
@@ -181,7 +185,7 @@ plt.tight_layout()
 plt.savefig(os.path.join("figures", f"{TEST_NUM}", "MLSTM_Wave.pdf"))
 
 # save the model
-mlstm_wrp.save_model(os.path.join("MLSTM_WRP", "models", f"FC4_OPT_MLSTM_WRP_{len(dof)}dof_T{TIME_HORIZON}"),
+mlstm_wrp.save_model(os.path.join("MLSTM_WRP", "models", f"FC4_OPT_MLSTM_WRP_{len(dof)}dof_T{TIME_HORIZON}_nm_{nm}_dt_{timestep}_wvshftn_{waveshift_to_n}"),
                      os.path.join("MLSTM_WRP", "scalers", "scaler.pkl"))
 
 # Frequency plots
