@@ -19,7 +19,7 @@ In this example:
 """
 
 TEST_NUM = 2
-MODEL_PATH = os.path.join("MLSTM_WRP", "models", "7dof_MLSTM_WRP_OPT_T20_FC2")
+MODEL_PATH = os.path.join("MLSTM_WRP", "models", "FC2_OPT_MLSTM_WRP_7dof_T20")
 SCALER_PATH = os.path.join("MLSTM_WRP", "scalers", "scaler.pkl")
 DATA_INPUT_FILE = os.path.join("MLSTM_WRP", "Data", "FC2_URI", "S12_merged_10Hz_FS.csv")
 TIME_HORIZON = 20
