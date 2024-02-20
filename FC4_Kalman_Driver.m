@@ -9,16 +9,25 @@ load('Test_Results.mat','test_results');
 load('OpenFAST_Results.mat','sim_results');
 
 %% Prepare Time Vector
-% Extract time vectors
-test_time = test_results.Time;
-sim_time = sim_results.Time;
+% Form vector with uniform spacing
+dt = 0.025;
+f_sample = 1/dt; % useful later
+num_steps = floor(max(test_results.Time)/dt); % ensure evenly divisible by new_dt
+new_time = transpose(linspace(0,max(test_results.Time),num_steps));
+test_time = new_time;
 
-% Smooth time vector
-time = linspace(min(test_time),max(test_time),length(test_time))';
+% Replace test results time vector with new
+old_time = test_results.Time;
+test_results.Time = new_time;
 
 % Prepare to shift wind input
-dt = max(test_time)/length(test_time);
 causality_shift_index = floor(29.95/dt);
+
+%% Adjust Test Results to Match New Time Vector
+fields = fieldnames(test_results);
+for i = 2:length(fields)
+    test_results.(fields{i}) = pchip(old_time,test_results.(fields{i}),new_time);
+end
 
 %% Prepare Wave Input
 eta = test_results.Wave1Elev;
@@ -37,114 +46,70 @@ wind = [zeros(causality_shift_index,1);
 
 %% Prepare Control Input Values
 % Blade pitch command (collective)
-c_pitch = test_results.pitch1Position*(pi/180);
+c_pitch = [1.7*(pi/180)*ones(causality_shift_index,1);
+           (pi/180)*test_results.pitch1Position];
 
 % Ind. Pitch
 idv_pitch = zeros(size(c_pitch,1),3);
 
 % Generator torque command
-gen_torque = test_results.genTorqueSetpointActual - 1.867*10^7;
+gen_torque = [zeros(causality_shift_index,1);
+              test_results.genTorqueSetpointActual];
 
 %% Load in Platform Model
 % Define Path
 platform_folder = '1 - Platform';
 platform_dir = sprintf('%s\\%s',linear_dir,platform_folder);
 
-% Load in raw files
-load(sprintf('%s\\FOCAL_C4_A.mat',platform_dir),'A');
-load(sprintf('%s\\FOCAL_C4_B.mat',platform_dir),'B');
-load(sprintf('%s\\FOCAL_C4_C.mat',platform_dir),'C');
-load(sprintf('%s\\FOCAL_C4_D.mat',platform_dir),'D');
-load(sprintf('%s\\FOCAL_C4_X_OP.mat',platform_dir));
-load(sprintf('%s\\FOCAL_C4_Y_OP.mat',platform_dir));
-
-% Remove rotor azimuth state & select inputs
+% Define state & input ranges
 state_range = [1:10,12:22];
-position_range = [1:6];
-velocity_range = [11:16];
 control_range = [301,2107:2112,2191:2193,2195,2196];
 
-x_OP = x_OP(state_range);
-
-A = A(state_range,state_range);
-B = B(state_range,control_range);
-C = C(:,state_range);
-D = 0*D(:,control_range);
+% Load in model matrices
+[A_platform,B_platform,C_platform,D_platform,x_OP,y_OP] = loadPlatformModel(platform_dir,state_range,control_range,dt);
 
 % Scale outputs
-% C(44:46,:) = C(44:46,:)*10^-5; % convert moorings to dN
-% C(12:17,:) = C(12:17,:)*10^-3; % Tower Base Forces/Moments to MN
+% C_platform(44:46,:) = C_platform(44:46,:)*10^-5; % convert moorings to dN
+% C_platform(12:17,:) = C_platform(12:17,:)*10^-3; % Tower Base Forces/Moments to MN
 
-% Discretize Platform
-platform_sys_c = ss(A,B,C,D);
-platform_sys_d = c2d(platform_sys_c,dt,'zoh');
-[A_platform,B_platform,C_platform,D_platform] = ssdata(platform_sys_d);
-
-% Clear out A,B,C,D matrices
-clear A B C D platform_sys_d platform_sys_c
+% Define velocity & position indices
+position_range = [1:6];
+velocity_range = [11:16];
 
 %% Load in Hydrodynamics Model (FC4)
 % Define Path
 hydro_folder = '2 - Hydrodynamics';
 hydro_dir = sprintf('%s\\%s',linear_dir,hydro_folder);
 
-% Load in raw files
-load(sprintf('%s\\FOCAL_C4_HD_A.mat',hydro_dir),'A');
-load(sprintf('%s\\FOCAL_C4_HD_B.mat',hydro_dir),'B');
-load(sprintf('%s\\FOCAL_C4_HD_C.mat',hydro_dir),'C');
-load(sprintf('%s\\FOCAL_C4_HD_D.mat',hydro_dir),'D');
-load(sprintf('%s\\FOCAL_C4_Hydro_OP.mat',hydro_dir),'Hydro_OP');
-
-% Convert Hydro_OP type
-Hydro_OP = cell2mat(Hydro_OP);
-
-% Trim inputs
-B = B(:,[37,7,8,9,10,11,12]);
-D = D(:,[37,7,8,9,10,11,12]);
-
-% Discretize hydrodynamics model
-hydro_sys_c = ss(A,B,C,D);
-hydro_sys_d = c2d(hydro_sys_c,dt,'zoh');
-[A_hydro,B_hydro,C_hydro,D_hydro] = ssdata(hydro_sys_d);
-
-% Clear extra variables
-clear A B C D hydro_sys_c hydro_sys_d
+[A_hydro,B_hydro,C_hydro,D_hydro] = loadHydroModel(hydro_dir,dt);
 
 %% Define System Measurements for Correction
 % Combine measurements to single matrix
 pitch = test_results.PtfmPitch;
 roll = test_results.PtfmRoll;
-
-FA_bending = test_results.towerBotMy*10^-6; % MN
-SS_bending = test_results.towerBotMx*10^-6; % MN
-
 rotor_speed = test_results.genSpeed*(30/pi);
-
 FA_nacelle_acceleration = test_results.accelNacelleAx;
 
 system_measurements = [pitch,roll,rotor_speed,FA_nacelle_acceleration];
 
-
 % Form measurement function (H) from SS output
 H = C_platform([22,21,8,32],:); % angular displacement
 h_OP = y_OP([22,21,8,32]);
-% H = C_platform([9,8,4,39,40,41],:); % tower bending
 
-clear pitch roll pitch_acceleration roll_acceleration rotor_speed mooring_tension_1 mooring_tension_2 mooring_tension_3
+clear pitch roll rotor_speed FA_nacelle_acceleration
 
 %% Compute Measurement Covariance Matrix
-% Low-pass filter @ 6Hz
-f_sample = length(test_results.Time)/max(test_results.Time);
+% Low-pass filter
 filtered_measurements = lowpass(system_measurements,1,f_sample);
-% filtered_measurements = system_measurements;
-filtered_measurements = [getRamp(zeros(1,size(system_measurements,2)),filtered_measurements(1,:),714);...
+filtered_measurements = [zeros(causality_shift_index,size(system_measurements,2));...
                          filtered_measurements];
 
 measurement_noise = highpass(system_measurements,1,f_sample);
 
 % Covariance of measurements
-measurement_covariance = var(measurement_noise(23906:end-1000,:));
-R = diag(measurement_covariance);
+measurement_covariance = cov(measurement_noise(23906:end-1000,:));
+% R = measurement_covariance;
+R = 0.001*eye(size(measurement_covariance));
 
 % R(1,1) = 0.0031;
 % R(2,2) = 0.0031;
@@ -153,37 +118,17 @@ R = diag(measurement_covariance);
 % R(6,6) = 0.65;
 % R(7,7) = 0.04;
 
-R = 0.001*eye(size(R));
-
 %% Load in P & Q Matrices
+% File location
 kalman_dir = 'C:\Umaine Google Sync\GitHub\FOWT_Optimal_Control\Models\FOCAL_C4\Linear_Files\5 - Kalman Files';
 
+% Load in values
 load(sprintf('%s\\FC4_Q.mat',kalman_dir));
 load(sprintf('%s\\FC4_P.mat',kalman_dir));
-% P = 0*P;
-P = zeros(size(A_platform));
-% qi = [1,2,3,4,5,6,11,12,13,14,15,16,21];
-
-% Q = Q(qi,qi);
-
-Q = eye(size(Q));
-
-%% Adjust Q Values
-% Q(7:10,7:10) = 10*Q(7:10,7:10);
-% Q(17:20,17:20) = 10*Q(17:20,17:20);
-
-%% Prepare Platform Operating Point
-OP = [6.82;
-      -0.827;
-      -0.1;
-      3.11; % roll (4)
-      5.45; % pitch (5)
-      -0.532;
-      7.5578589; % gen speed (7)
-      -0.01703];  % Nacelle FA Ax (8)
 
 %% Simulate System (Kalman Filter)
 disp('Beginning Kalman filter simulation...')
+
 % Initialization (zero IC)
 if exist('test_time','var')
     ss_time = test_time;
@@ -224,7 +169,11 @@ for i = 1:length(ss_time)-1
     [x,P] = predict(x,P,A_platform,dGain(1,Q),B_platform,u_platform);
 
     % Get "measurements"
-    z = filtered_measurements(i,:);
+    if i > causality_shift_index
+        z = filtered_measurements(i,:);
+    else
+        z = transpose(H*x + h_OP);
+    end
 
     % Do update step
     [x,P,K] = update(H,P,R,z',x,h_OP);

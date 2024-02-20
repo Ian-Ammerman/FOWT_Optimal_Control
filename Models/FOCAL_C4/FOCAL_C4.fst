@@ -3,7 +3,7 @@ CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch 
 ---------------------- SIMULATION CONTROL -------------------------------------- 
 False                  Echo        - Echo input data to <RootName>.ech (flag) 
 "FATAL"                AbortLevel  - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"} 
-1500                  TMax        - Total run time (s) 
+2000                  TMax        - Total run time (s) 
 0.025                  DT          - Integration time step (s)  
 2                      InterpOrder - Interpolation order for input/output time history (-) {1=linear, 2=quadratic} 
 1                      NumCrctn    - Number of correction iterations (-) {0=explicit calculation, i.e., no corrections} 
@@ -60,7 +60,7 @@ True                  CalcSteady  - Calculate a steady-state periodic operating 
 0                      Bld_Kdmp    - Damping factor for the blades [used only if CalcSteady=True] (N/(m/s))
 36                    NLinTimes   - Number of times to linearize (-) [>=1] [unused if Linearize=False] 
 1000,1000.248354969,1000.496709938,1000.745064907,1000.993419876,1001.241774845,1001.490129814,1001.738484783,1001.986839752,1002.235194721,1002.48354969,1002.731904659,1002.980259628,1003.228614597,1003.476969566,1003.725324535,1003.973679504,1004.222034473,1004.470389442,1004.718744411,1004.96709938,1005.215454349,1005.463809318,1005.712164287,1005.960519256,1006.208874225,1006.457229194,1006.705584163,1006.953939132,1007.202294101,1007.45064907,1007.699004039,1007.947359008,1008.195713977,1008.444068946,1008.692423915,1008.940778884                    LinTimes    - List of times at which to linearize (s) [1 to NLinTimes] [unused if Linearize=False] 
-2                      LinInputs   - Inputs included in linearization (switch) {0=none; 1=standard; 2=all module inputs (debug)} [unused if Linearize=False] 
+1                      LinInputs   - Inputs included in linearization (switch) {0=none; 1=standard; 2=all module inputs (debug)} [unused if Linearize=False] 
 1                      LinOutputs  - Outputs included in linearization (switch) {0=none; 1=from OutList(s); 2=all module outputs (debug)} [unused if Linearize=False] 
 False                  LinOutJac   - Include full Jacobians in linearization output (for debug) (flag) [unused if Linearize=False; used only if LinInputs=LinOutputs=2] 
 True                   LinOutMod   - Write module-level linearization output files in addition to output for full system? (flag) [unused if Linearize=False] 

@@ -1,43 +1,31 @@
 
-Linearized model: Predictions were generated on 08-Jan-2024 at 09:43:14 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
- linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MoorDyn (v2.0.0, 2023-09-18)
+Linearized model: Predictions were generated on 20-Feb-2024 at 08:38:00 using OpenFAST, compiled as a 64-bit application using single precision at commit v3.5.1
+ linked with  NWTC Subroutine Library; ElastoDyn; InflowWind; AeroDyn; ServoDyn; HydroDyn; MAP++ (<1.20.10>, <Oct-20-2023>)
 
 Description from the FAST input file: CCT-9 Campign 4 model. Input files to be run with OpenFAST 3.5.0. GitHub branch from Lu Wang (https://github.com/luwang00/openfast/tree/dev) compiled on March 7, 2023.
 
 Simulation information:
-   Simulation time:                  1006.2250 s
-   Rotor Speed:                         0.7078 rad/s
-   Azimuth:                             3.5913 rad
-   Wind Speed:                          8.0000 m/s
+   Simulation time:                   894.8000 s
+   Rotor Speed:                         0.7916 rad/s
+   Azimuth:                             4.1967 rad
+   Wind Speed:                         24.0000 m/s
    Number of continuous states:         0
    Number of discrete states:           0
    Number of constraint states:         0
-   Number of inputs:                    3
-   Number of outputs:                   5
+   Number of inputs:                    0
+   Number of outputs:                   6
    Jacobians included in this file?    No
 
-Order of inputs:
-     Column   Operating Point                     Rotating Frame? Derivative Order Description
-   ---------- ---------------                     --------------- ---------------- -----------
-          1    0.000E+00                                 F               0         Yaw, rad
-          2    0.000E+00                                 F               0         YawRate, rad/s
-          3    7.078E-01                                 F               0         HSS_Spd, rad/s
-
 Order of outputs:
-        Row   Operating Point                     Rotating Frame? Derivative Order Description
-   ---------- ---------------                     --------------- ---------------- -----------
-          1   -4.537E+00                                 F               0         GenPwr, (kW)
-          2   -4.066E-02                                 F               0         GenTq, (kN-m)
-          3    1.700E+00                                 T               0         BlPitchC1, (deg)
-          4    1.700E+00                                 T               0         BlPitchC2, (deg)
-          5    1.700E+00                                 T               0         BlPitchC3, (deg)
+        Row   Operating Point                                                   Rotating Frame? Derivative Order Description
+   ---------- ---------------                                                   --------------- ---------------- -----------
+          1     1.47791914062E+004                                                     F               0         GenPwr, (kW)
+          2     1.86691289062E+004                                                     F               0         GenTq, (kN-m)
+          3     1.68892955780E+001                                                     T               0         BlPitchC1, (deg)
+          4     0.00000000000E+000                                                     F               0         SStC1_zQ, INVALID
+          5     0.00000000000E+000                                                     F               0         SStC1_zQD, INVALID
+          6     0.00000000000E+000                                                     F               0         SStC1_Fzl, INVALID
 
 
 Linearized state matrices:
 
-D: 5 x 3
-    0.000E+00  0.000E+00  9.460E-02
-    0.000E+00  0.000E+00 -1.221E-03
-    0.000E+00  0.000E+00  0.000E+00
-    0.000E+00  0.000E+00  0.000E+00
-    0.000E+00  0.000E+00  0.000E+00
