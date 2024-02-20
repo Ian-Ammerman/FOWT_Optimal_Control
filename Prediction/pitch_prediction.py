@@ -103,8 +103,7 @@ def get_wave_data_for_prediction(current_time, lead_time=20):
 
 def simulate_prediction(wave_data):
     # print("Simulating prediction model...")
-    # This is a placeholder function that simulates prediction based on wave_data
-    # For simplicity, let's just generate a random value; in a real scenario, you could apply some logic based on wave_data
+    # This is a placeholder function that simulates prediction
     return random.uniform(-5, 5)  # Simulated delta_B value
 
 def send_delta_B(publisher, delta_B, topic="delta_B"):
