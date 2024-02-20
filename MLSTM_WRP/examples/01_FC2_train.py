@@ -67,19 +67,30 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 scaled = scaler.fit_transform(df_wrp)
 
 # Create the supervised data
-supervised_data = data.series_to_supervised(scaled, len(dof) + 1, n, m, wp=True)
+supervised_data = data.series_to_supervised(
+    scaled,
+    wind_var_number=None,
+    wave_var_number=len(dof)+1,
+    n_in=n,
+    n_out=m,
+    wind_predictor=False,
+    wave_predictor=True)
 
 # Train_Test ratio
 train_ratio = 0.50
 valid_ratio = 0.25
 
 # Build, compile, and fit
+past_wind = future_wind = False
+past_wave = future_wave = True
+
 features = list(np.arange(1, len(dof) + 1, 1))
 labels = list(np.arange(1, len(dof) + 1, 1))
 
 mlstm_wrp = p2v.MLSTM()
 mlstm_wrp.split_train_test(supervised_data, train_ratio, valid_ratio, past_timesteps=n, future_timesteps=m,
-                           features=features, labels=labels, past_wrp=True, future_wrp=True)
+                           features=features, labels=labels,
+                           past_wind=past_wind, future_wind=future_wind, past_wave=past_wave, future_wave=future_wave)
 mlstm_wrp.build_and_compile_model(hidden_layer, neuron_number, len(labels), lr=0.001)
 history = mlstm_wrp.model.fit(mlstm_wrp.train_X, mlstm_wrp.train_Y, epochs=epochs, batch_size=batch_size,
                               validation_data=(mlstm_wrp.valid_X, mlstm_wrp.valid_Y), verbose=2, shuffle=False)

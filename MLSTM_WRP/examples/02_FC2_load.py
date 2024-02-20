@@ -29,9 +29,9 @@ model = p2v.MLSTM()
 model.load_model(MODEL_PATH, SCALER_PATH)
 
 # perform data pre-processing and cleaning
-pre = p2v.PreProcess(DATA_INPUT_FILE)
-pre.nan_check()
-correlation_matrix = pre.idle_sensors_check()
+data = p2v.PreProcess(DATA_INPUT_FILE)
+data.nan_check()
+correlation_matrix = data.idle_sensors_check()
 
 # Define LSTM Parameters
 dof = ["PtfmTDX", "PtfmTDZ", "PtfmRDY", "leg1MooringForce", "leg2MooringForce", "leg3MooringForce", "towerBotMy"]
@@ -45,13 +45,13 @@ conversion = [1, 1, 1, 1e-3, 1e-3, 1e-3, 1e-3]
 
 nm = 0.588482
 timestep = 1.0
-pre.time_interpolator(timestep)
+data.time_interpolator(timestep)
 m = int(np.round(TIME_HORIZON / timestep, 0))  # corresponding to TIME_HORIZON
 n = int(np.round(nm * m))
 passing_time = np.concatenate((np.arange(-n, 0), np.linspace(0, m - 1, n)))
 
-df = pre.convert_extract(dof, conversion)
-wavedata = pre.dataset["waveStaff5"]
+df = data.convert_extract(dof, conversion)
+wavedata = data.dataset["waveStaff5"]
 df_wrp = pd.concat([df, wavedata], axis=1).values
 
 # Normalize the dataframe
@@ -61,19 +61,31 @@ scaled = scaler.fit_transform(df_wrp)
 # Supervise the data
 features = list(np.arange(1, len(dof) + 1, 1))
 labels = list(np.arange(1, len(dof) + 1, 1))
-supervised_data = pre.series_to_supervised(scaled, len(dof) + 1, n, m, wp=True)
-past_wrp = future_wrp = True
+supervised_data = data.series_to_supervised(
+    scaled,
+    wind_var_number=None,
+    wave_var_number=len(dof)+1,
+    n_in=n,
+    n_out=m,
+    wind_predictor=False,
+    wave_predictor=True)
+
+past_wind = future_wind = False
+past_wave = future_wave = True
 input_columns = model.extract_input_columns(
     columns=supervised_data.columns,
     features=features,
     past_timesteps=n,
-    past_wrp=past_wrp,
-    future_wrp=future_wrp)
+    past_wind=past_wind,
+    future_wind=future_wind,
+    past_wave=past_wave,
+    future_wave=future_wave)
 output_columns = model.extract_output_columns(
     columns=supervised_data.columns,
     labels=labels,
     future_timesteps=m)
-num_features = len(features) + (1 if past_wrp else 0) + (1 if future_wrp else 0)
+num_features = len(features) + (1 if past_wind else 0) + (1 if future_wind else 0) + \
+                       (1 if past_wave else 0) + (1 if future_wave else 0)
 input_super_data = supervised_data[input_columns]
 output_super_data = supervised_data[output_columns]
 test_X = input_super_data.values
