@@ -53,59 +53,6 @@ def receive_data(subscriber):
         print(f"Error decoding JSON: {e}")
         return None
 
-
-
-# Correct path to your Excel file
-wave_data_path = '/home/hpsauce/ROSCO/ZMQ_Prediction_ROSCO/wave_data/wavedata.xlsx'
-
-# Use read_excel to load Excel files
-wave_data = pd.read_excel(wave_data_path, parse_dates=['t'])
-
-def get_wave_data_for_prediction(current_time, lead_time=20):
-    print("Reading wave elevation data")
-    global wave_data_path
-    """
-    Fetches a slice of wave data leading the current time by a specified duration.
-
-    :param current_time: datetime, The current timestamp.
-    :param lead_time: int, The lead time in seconds for the wave data.
-    :return: DataFrame, A slice of the wave data.
-    """
-    # Convert lead_time to a timedelta
-    lead_timedelta = timedelta(seconds=lead_time)
-    
-    # Calculate the prediction time
-    prediction_time = current_time + lead_timedelta
-    
-    # Load the data, ensuring 't' is in seconds and interpreted as floats
-    wave_data = pd.read_excel(wave_data_path, decimal=',')
-    wave_data['t'] = pd.to_numeric(wave_data['t'], errors='coerce')
-    
-    # Assume the 't' column represents seconds from the start and convert to datetime
-    start_time = pd.Timestamp('2024-02-16 22:17:00')  # Replace with your actual start time
-    wave_data['t'] = start_time + pd.to_timedelta(wave_data['t'], unit='s')
-    
-    # Now 't' is a datetime Series
-    wave_data.sort_values('t', inplace=True)  # Sort by 't' to use searchsorted
-
-    # Find the closest timestamp in the wave data to the prediction time
-    closest_timestamp_index = wave_data['t'].searchsorted(prediction_time, side='left')
-    
-    # Handle edge case where prediction_time is beyond the last timestamp in wave_data
-    if closest_timestamp_index >= len(wave_data):
-        closest_timestamp_index = len(wave_data) - 1
-
-    # Assuming you want a single row closest to the prediction time
-    wave_data_slice = wave_data.iloc[closest_timestamp_index - 1: closest_timestamp_index]
-    
-    return wave_data_slice
-
-
-def simulate_prediction(wave_data):
-    # print("Simulating prediction model...")
-    # This is a placeholder function that simulates prediction
-    return random.uniform(-5, 5)  # Simulated delta_B value
-
 def send_delta_B(publisher, delta_B, topic="delta_B"):
     """
     Publishes the delta_B value under a specified topic.
@@ -116,7 +63,6 @@ def send_delta_B(publisher, delta_B, topic="delta_B"):
     # print(f"PUBLISHED '{full_message}'")
 
 def main():
-    wave_data = pd.read_excel(wave_data_path, parse_dates=['t'])
     port_publisher = "5556"  # Port to publish predictions
     publisher = setup_zmq_publisher(port=port_publisher)  # Setup ZeroMQ publisher
     
