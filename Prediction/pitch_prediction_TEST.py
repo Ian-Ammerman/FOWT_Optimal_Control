@@ -23,17 +23,6 @@ print("RUNNING PITCH_PREDICTION.PY")
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def setup_zmq_subscriber(port="5555", topic=""):
-    print("Setting up subscriber (Port 5555)...")
-    # Prepare our context and subscriber socket
-    context = zmq.Context()
-    subscriber = context.socket(zmq.SUB)
-    # Connect to the publisher socket
-    subscriber.connect(f"tcp://localhost:{port}")
-    # Subscribe to the specified topic
-    subscriber.setsockopt_string(zmq.SUBSCRIBE, topic)
-    return subscriber
-
 def setup_zmq_publisher(port="5556"):
     print("Setting up publisher (Port 5556)...")
     context = zmq.Context()
@@ -41,17 +30,6 @@ def setup_zmq_publisher(port="5556"):
     publisher.bind(f"tcp://*:{port}")
     return publisher
 
-
-def receive_data(subscriber):
-    try:
-        topic, message = subscriber.recv_multipart()
-        return json.loads(message.decode('utf-8'))
-    except zmq.Again as e:
-        print(f"Timeout occurred: {e}")
-        return None
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        return None
 
 def send_delta_B(publisher, delta_B, topic="delta_B"):
     """
