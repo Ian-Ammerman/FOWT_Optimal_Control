@@ -13,8 +13,9 @@ import logging
 from datetime import datetime, timedelta
 import time
 print("RUNNING PITCH_PREDICTION.PY")
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+from blade_pitch_controller import WindFarmControl
 
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class predictionClass:
@@ -22,7 +23,7 @@ class predictionClass:
     def __init__(self, port="5556"):
         self.port = port
         self.publisher = self.setup_zmq_publisher()
-        self.meas = None
+        self.wind_farm_control = WindFarmControl()
 
     def setup_zmq_publisher(self):
         print(f"Setting up publisher (Port {self.port})...")
@@ -44,7 +45,8 @@ class predictionClass:
         
         try:
             while True:
-                print(self.meas)
+                # Access meas directly from the wind_farm_control instance
+                print(self.wind_farm_control.meas)
                 self.send_delta_B(delta_B_counter, topic="delta_B")
                 print(f"Publishing delta_B: {delta_B_counter}")  # Optional: print the published value
                 delta_B_counter += 1  # Increment the counter
