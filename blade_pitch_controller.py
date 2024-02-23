@@ -2,7 +2,6 @@ import os
 import numpy as np
 import multiprocessing as mp
 import matplotlib.pyplot as plt
-from rosco.toolbox.control_interface import wfc_zmq_server
 from rosco.toolbox.ofTools.case_gen import CaseLibrary as cl
 from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
 from rosco.toolbox.ofTools.fast_io import output_processing
@@ -10,11 +9,12 @@ import subprocess
 import zmq
 import sys
 import json
-import threading
 from multiprocessing import Value, Process
 import time
-print("RUNNING BLADE_PITCH_CONTROLLER.PY")
+from pitch_prediction import predictionClass
+from rosco.toolbox.control_interface import wfc_zmq_server
 
+context = zmq.Context()
 manager = mp.Manager()
 delta_B_buffer = manager.list()
 latest_delta_B = Value('d', 0.0)  # 'd' indicates a double precision float
@@ -26,6 +26,8 @@ this_dir            = os.path.dirname(os.path.abspath(__file__))
 rosco_dir           = os.path.dirname(this_dir)
 outputs     = os.path.join(this_dir,'bpc_outputs')
 os.makedirs(outputs,exist_ok=True)
+
+
 
 def run_zmq(logfile=None):
     # Start the server at the following address
@@ -65,8 +67,11 @@ def process_delta_B_with_delay():
             delta_B_buffer.remove(item)
         time.sleep(1)  # Sleep to prevent a tight loop
 
+
 def wfc_controller(id, current_time, measurements):
     global latest_delta_B
+
+    predictionClass.meas = measurements
 
     updated_delta_B = latest_delta_B.value
 
@@ -87,8 +92,10 @@ def wfc_controller(id, current_time, measurements):
     setpoints['ZMQ_PitOffset(1)'] = col_pitch_command
     setpoints['ZMQ_PitOffset(2)'] = col_pitch_command
     setpoints['ZMQ_PitOffset(3)'] = col_pitch_command
+
     return setpoints
-    
+
+
 def sim_openfast():
     global latest_delta_B
 
@@ -140,16 +147,16 @@ def listen_for_delta_B():
 
 if __name__ == "__main__":
     logfile = os.path.join(outputs, os.path.splitext(os.path.basename(__file__))[0] + '.log')
-    
+
     # Start the pitch_prediction.py as a subprocess with immediate output to the console
-    pitch_prediction_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Prediction/pitch_prediction.py')
+    pitch_prediction_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pitch_prediction.py')
     pitch_prediction_process = subprocess.Popen(["python", pitch_prediction_script], stdout=sys.stdout, stderr=sys.stderr)
     print("Started pitch_prediction.py subprocess.")
-    
+
     # Start the existing processes
-    p1 = mp.Process(target=listen_for_delta_B)
-    p2 = mp.Process(target=run_zmq, args=(logfile,))
-    p3 = mp.Process(target=sim_openfast)
+    p3 = mp.Process(target=listen_for_delta_B)
+    p1 = mp.Process(target=run_zmq, args=(logfile,))
+    p2 = mp.Process(target=sim_openfast)
     p4 = mp.Process(target=process_delta_B_with_delay)
 
     p1.start()
