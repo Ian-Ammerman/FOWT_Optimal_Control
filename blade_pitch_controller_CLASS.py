@@ -12,9 +12,11 @@ import json
 from multiprocessing import Value, Process
 import time
 from rosco.toolbox.control_interface import wfc_zmq_server
+from pitch_prediction import predictionClass
 
-class WindFarmControl:
-    def __init__(self):
+class bpcClass:
+    def __init__(self, prediction_instance):
+        self.prediction_instance = prediction_instance
         self.context = zmq.Context()
         self.manager = mp.Manager()
         self.delta_B_buffer = self.manager.list()
@@ -24,7 +26,7 @@ class WindFarmControl:
         self.rosco_dir = os.path.dirname(self.this_dir)
         self.outputs = os.path.join(self.this_dir, 'bpc_outputs')
         os.makedirs(self.outputs, exist_ok=True)
-        self.meas = None
+
 
         # directories
         self.this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -69,9 +71,7 @@ class WindFarmControl:
     def wfc_controller(self, id, current_time, measurements):
         updated_delta_B = self.latest_delta_B.value
 
-        self.meas = measurements
-
-        print("self.meas INSIDE wfc_controller", self.meas)
+        self.prediction_instance.update_measurements(current_time, measurements)
         
         if current_time <= 10.0:
             YawOffset = 0.0
@@ -112,7 +112,7 @@ class WindFarmControl:
         r.run_FAST()
 
     def listen_for_delta_B(self):
-        subscriber = self.setup_delta_B_subscriber("5556")
+        subscriber = self.setup_delta_B_subscriber()
         print("Listening for delta_B values...")
         first_delta_B_time = None  # Initialize to None, indicating no delta_B received yet
         
@@ -135,19 +135,15 @@ class WindFarmControl:
                 
                 # Store delta_B with the current timestamp in the buffer
                 self.delta_B_buffer.append((data['delta_B'], current_time))
-                # print("REAL TIME DELTA_B (+20s):", data['delta_B'])
-
-                print("self.meas OUTSIDE wfc_controller", self.meas)
+                print("REAL TIME DELTA_B (+20s):", data['delta_B'])
 
             except Exception as e:
                 print(f"Error receiving message: {e}")
 
-    def start(self):
+    def main(self):
         logfile = os.path.join(self.outputs, os.path.splitext(os.path.basename(__file__))[0] + '.log')
 
-        # Start the pitch_prediction.py as a subprocess with immediate output to the console
-        pitch_prediction_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pitch_prediction.py')
-        pitch_prediction_process = subprocess.Popen(["python", pitch_prediction_script], stdout=sys.stdout, stderr=sys.stderr)
+    
         print("Started pitch_prediction.py subprocess.")
 
         # Start the existing processes
@@ -161,6 +157,7 @@ class WindFarmControl:
         p3.start()
         p4.start()
 
+        self.prediction_instance.main()  # Assuming prediction_instance has a method named main()
         # Wait for multiprocessing processes to complete
         p1.join()
         p2.join()
@@ -170,5 +167,6 @@ class WindFarmControl:
 
 
 if __name__ == "__main__":
-    wfc = WindFarmControl()
-    wfc.start()
+    prediction_instance = predictionClass()
+    bpc = bpcClass(prediction_instance)
+    bpc.main()
