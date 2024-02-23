@@ -1,13 +1,8 @@
 import os
-import numpy as np
 import multiprocessing as mp
-import matplotlib.pyplot as plt
 from rosco.toolbox.ofTools.case_gen import CaseLibrary as cl
 from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
-from rosco.toolbox.ofTools.fast_io import output_processing
-import subprocess
 import zmq
-import sys
 import json
 from multiprocessing import Value, Process
 import time
