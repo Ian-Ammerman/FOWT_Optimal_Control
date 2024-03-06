@@ -31,6 +31,7 @@ if not os.path.exists(os.path.join("figures", f"{TEST_NUM}")):
 data = p2v.PreProcess(data_input_file=DATA_INPUT_FILE)
 data.nan_check()
 data.filter(direction="low", freq_cutoff=1)  # cut-off frequency at 1Hz
+# data.filter(direction="high", freq_cutoff=0.05)
 correlation_matrix = data.idle_sensors_check()
 dataset = data.dataset
 
@@ -48,11 +49,11 @@ dof_with_units_f = ["surge [$m^2/Hz$]", "heave [$m^2/Hz$]", "pitch [$deg^2/Hz$]"
                     "tension [$kN^2/Hz$]",
                     "nacelle acceleration X [$(m/s)^2/Hz$]", "fore-aft tower bending moment [$(kN-m)^2/Hz$]"]
 conversion = [1, 1, 1, 1e-3, 1, 1e-3, 1, 1e-3]
-nm = 0.39
-waveshift_to_n = 0.75
+nm = 1.704
+waveshift_to_n = 0.236
 hidden_layer = 1
 neuron_number = 100
-epochs = 200
+epochs = 80
 batch_time = 47
 timestep = 1.0
 
@@ -182,7 +183,7 @@ for i, label in enumerate(labels):
     ax1.grid()
 
 plt.tight_layout()
-plt.savefig(os.path.join("figures", f"{TEST_NUM}", "MLSTM_Wave.pdf"))
+# plt.savefig(os.path.join("figures", f"{TEST_NUM}", "MLSTM_Wave.pdf"))
 
 # save the model
 mlstm_wrp.save_model(os.path.join("MLSTM_WRP", "models", f"FC4_OPT_MLSTM_WRP_{len(dof)}dof_T{TIME_HORIZON}_nm_{nm}_dt_{timestep}_wvshftn_{waveshift_to_n}"),
@@ -210,4 +211,4 @@ for i, label in enumerate(range(8)):
 
 ax[0].legend(loc='upper right')
 plt.tight_layout()
-plt.savefig(os.path.join("figures", f"{TEST_NUM}", "MLSTM_Wave_f.pdf"))
+# plt.savefig(os.path.join("figures", f"{TEST_NUM}", "MLSTM_Wave_f.pdf"))
