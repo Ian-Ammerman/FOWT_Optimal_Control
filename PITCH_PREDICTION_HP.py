@@ -69,8 +69,6 @@ class PredictionClass():
                     MODEL_PATH = "/home/hpsauce/ROSCO/ZMQ_Prediction_ROSCO/MLSTM_WRP/models/FC4_OPT_MLSTM_WRP_8dof_T20_nm_0.39_dt_1.0_wvshftn_0.75"
                     SCALER_PATH = os.path.join(MODEL_PATH, "scalers", "scaler.pkl")
                     
-                    # Now, instead of directly passing the DataFrame, you pass the path to the CSV file
-                    # This assumes run_MLSTM can work with CSV file paths or you adapt it to read the CSV within its logic
                     y, yhat = run_MLSTM(1700, 2000, 1.0, 4, MODEL_PATH, SCALER_PATH, temp_csv_path, 20)
                     
                     print("Simulation completed.")
@@ -79,10 +77,9 @@ class PredictionClass():
                     print(f"Error during simulation: {e}")
                     y, yhat = None, None
 
-                # Increment the file generation counter
                 self.file_generation_count += 1
 
-                # Delete the oldest file every 6th new file
+                # Delete the oldest file every xth new file
                 if self.file_generation_count % 2 == 0 and self.temp_csv_files:
                     oldest_file = self.temp_csv_files.pop(0)  # Remove the oldest file from the tracking list
                     if os.path.exists(oldest_file):
