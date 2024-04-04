@@ -7,8 +7,9 @@ import os
 from sklearn.preprocessing import MinMaxScaler
 from vmod import p2v, get_psd
 
-def run_MLSTM(start_simulation, end_simulation, timestep, TEST_NUM, MODEL_PATH, SCALER_PATH, DUMMY_DATA_INPUTS, TIME_HORIZON):
-    print("RUNNING MLSTM!!!!!")
+def run_MLSTM(start_simulation, end_simulation, timestep, TEST_NUM, MODEL_PATH, SCALER_PATH, data_frame_inputs, TIME_HORIZON):
+
+    print("RUNNING MLSTM")
 
     if not os.path.exists(os.path.join("figures", f"{TEST_NUM}")):
         os.makedirs(os.path.join("figures", f"{TEST_NUM}"))
@@ -16,18 +17,17 @@ def run_MLSTM(start_simulation, end_simulation, timestep, TEST_NUM, MODEL_PATH, 
     # load the model
     model = p2v.MLSTM()
     model.load_model(MODEL_PATH, SCALER_PATH)
+    print("MODEL LOADED SUCCESSFULLY")
 
     # perform data pre-processing on dummy data and cleaning
-    data = p2v.PreProcess(raw_dataset=DUMMY_DATA_INPUTS)
-    # data = p2v.PreProcess(data_input_file=DUMMY_DATA_INPUTS)
+    data = p2v.PreProcess(data_input_file=data_frame_inputs)
+    print("PREPROCESSING FINISHED SUCCESSFULLY")
     data.nan_check()
     correlation_matrix = data.idle_sensors_check()
 
     # LSTM
-    dof = ["Surge", "Heave", "Pitch",
-        "rotorTorque", "genSpeed",
-        "leg3MooringForce",
-        "accelNacelleAx", "towerBotMy"]
+    dof = [ 'PtfmTDX', 'PtfmTDZ', 'PtfmRDY', 'GenTqMeas', 'RotSpeed', 'NacIMU_FA_Acc', 'PtfmRDY', 'PtfmRDZ']
+
     dof_with_units = ["surge [m]", "heave [m]", "pitch [deg]",
                     "rotor torque [kN.m]", "generator speed [rad/s]",
                     "line 3 tension [kN]",
@@ -46,10 +46,11 @@ def run_MLSTM(start_simulation, end_simulation, timestep, TEST_NUM, MODEL_PATH, 
 
     # find wave characteristics based on certain checkpoint number and significant length
     chkpnt_no = 100
-    significant_length = 1000  # in seconds
+    significant_length = 8  # in seconds
     data.dynamic_sig_char(chkpnt_no, significant_length)
 
     df = data.convert_extract(dof, conversion)
+    # Data does not contain waveStaff5, replace with windwave_test.csv ?
     wavedata = data.dataset["waveStaff5"]
     df_wrp = pd.concat([df, wavedata], axis=1).values
 
@@ -79,7 +80,7 @@ def run_MLSTM(start_simulation, end_simulation, timestep, TEST_NUM, MODEL_PATH, 
         Tpp[i] = data.dynTp[idx]
 
     # Adding error function onto the wave to simulate wave prediction model
-    wrp_acc = pd.read_csv(os.path.join("MLSTM_WRP", "Data", "wrp", "wrp_accuracy.csv"))
+    wrp_acc = pd.read_csv("/home/hpsauce/ROSCO/ZMQ_Prediction_ROSCO/MLSTM_WRP/Data/wrp/wrp_accuracy.csv")
     alpha = 1.0
     beta = 1.0
     
