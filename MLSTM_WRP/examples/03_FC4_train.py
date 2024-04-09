@@ -49,8 +49,8 @@ dof_with_units_f = ["surge [$m^2/Hz$]", "heave [$m^2/Hz$]", "pitch [$deg^2/Hz$]"
                     "tension [$kN^2/Hz$]",
                     "nacelle acceleration X [$(m/s)^2/Hz$]", "fore-aft tower bending moment [$(kN-m)^2/Hz$]"]
 conversion = [1, 1, 1, 1e-3, 1, 1e-3, 1, 1e-3]
-nm = 1.704
-waveshift_to_n = 0.236
+nm = 0.39
+waveshift_to_n = 0.75
 hidden_layer = 1
 neuron_number = 100
 epochs = 80

@@ -169,6 +169,14 @@ num_features = len(features) + (1 if past_wind else 0) + (1 if future_wind else 
 start_simulation = 1700
 end_simulation = 2000
 T = np.arange(start_simulation, end_simulation, timestep)
+pitch_dof_index = 2
+pitch_error = []
 for i, t in enumerate(T):
     y, yhat = get_data_for_frame(t)
-    print(f"y = {y[i]}\n yhat = {yhat[i]}")
+    pitch_error.append((yhat[0][pitch_dof_index] - y[0][pitch_dof_index])/y[0][pitch_dof_index])
+
+plt.figure()
+plt.plot(T, pitch_error, color='black')
+plt.grid()
+plt.xlabel('time [s]')
+plt.ylabel('pitch error [-]')
