@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Operation Dashboard</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            text-align: center;
+        }
+        .parameter {
+            margin: 10px;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            width: 200px;
+        }
+        .value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .label {
+            font-size: 18px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="rul_blade1" class="parameter">Blade 1 RUL: <span id="rul1_value">--</span></div>
+        <div id="rul_blade2" class="parameter">Blade 2 RUL: <span id="rul2_value">--</span></div>
+        <div id="rul_blade3" class="parameter">Blade 3 RUL: <span id="rul3_value">--</span></div>
+        <div id="connection_status" style="padding: 10px; color: white; text-align: center;">--</div>
+
+        <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+        <script type="text/javascript">
+            var socket = io.connect('http://localhost:5005');
+        
+            socket.on('connect', function() {
+                console.log('Connected to server.');
+                socket.emit('request_latest_rul'); // This asks the server for the latest data.
+                document.getElementById('connection_status').textContent = 'Connected';
+                document.getElementById('connection_status').style.backgroundColor = 'green';
+            });
+
+            socket.on('update_rul', function(data) {
+                if (!data) {
+                    console.error('No data received with update_rul event');
+                    return;
+                }
+                console.log('Data received:', data);
+                updateRULValues(data); // Call the update function with the new data
+            });
+            
+            function updateRULValues(data) {
+                console.log('Received RUL update:', data);
+                updateElementText('rul1_value', data.blade1);
+                updateElementText('rul2_value', data.blade2);
+                updateElementText('rul3_value', data.blade3);
+            }
+            
+            // This helper function updates the text content of an element if data is available, or sets it to "N/A"
+            function updateElementText(elementId, value) {
+                var element = document.getElementById(elementId);
+                element.textContent = value ? value.toFixed(2) + ' years' : 'N/A';
+            }
+            
+
+            socket.on('disconnect', function() {
+                console.log('Disconnected from server.');
+                ['rul1_value', 'rul2_value', 'rul3_value'].forEach(id => {
+                    document.getElementById(id).textContent = 'N/A';
+                    document.getElementById('connection_status').textContent = 'Disconnected';
+                    document.getElementById('connection_status').style.backgroundColor = 'red';
+                });
+            });
+        </script>
+        
+    </div>
+</body>
+</html>
