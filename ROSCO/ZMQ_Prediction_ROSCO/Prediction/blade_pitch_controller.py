@@ -104,6 +104,7 @@ class bpcClass:
         r.controller_params["DISCON"] = {}
         r.controller_params["DISCON"]["ZMQ_Mode"] = 1
         r.controller_params["DISCON"]["ZMQ_ID"] = 1
+        r.controller_params["DISCON"]["ZMQ_UpdatePeriod"] = 1
         r.save_dir = run_dir
         r.run_FAST()
 
