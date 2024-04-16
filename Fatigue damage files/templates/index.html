@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Operation Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #444;
+            display: flex;
+            flex-direction: column; /* Stack content vertically */
+            align-items: center;
+            justify-content: flex-start; /* Align content to the top */
+        }
+        
+        .container {
+            text-align: center;
+            width: 100%; /* Set a max-width if necessary */
+            padding: 20px; /* Add some padding around the container */
+            box-sizing: border-box; /* Include padding in the width calculation */
+        }
+        
+        .rul-section {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 30px; /* Adjust this value for space between the main groups */
+            margin-bottom: 20px; /* Space at the bottom of the section */
+          }
+
+        .rul-container {
+            display: flex;
+            justify-content: space-between; /* This will space out your three groups */
+            flex-wrap: wrap; /* Allows wrapping onto the next line if space is tight */
+            gap: 50px; /* Spacing between boxes */
+        }
+        
+        /* Individual group containers */
+        .rul-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .parameter {
+            background-color: #f4f4f4; /* Grey background */
+            padding: 8px;
+            margin: 4px;
+            border-width: 2px;
+            border-style: solid;
+            color: #444; /* Default text color */
+            width: 100%; /* Adjust the width as needed */
+        }
+        
+        .rosco-blade1-box {
+            border-color: rgb(255, 99, 132); /* Red border */
+        }
+        
+        .rosco-blade2-box {
+            border-color: rgb(54, 162, 235); /* Blue border */
+        }
+        
+        .rosco-blade3-box {
+            border-color: rgb(255, 206, 86); /* Yellow border */
+        }
+        
+        .openfast-blade1-box {
+            border-color: rgb(75, 192, 192); /* Teal border */
+        }
+        
+        .openfast-blade2-box {
+            border-color: rgb(153, 102, 255); /* Purple border */
+        }
+        
+        .openfast-blade3-box {
+            border-color: rgb(255, 159, 64); /* Orange border */
+        }
+        
+        .openfast-tower-box {
+            border-color: rgb(201, 203, 207); /* Grey border */
+        }        
+        
+        #rulChart {
+            height: 200px; /* Control the height of the chart */
+            width: 50%; /* Chart width is the full width of the container */
+            max-width: 100%; /* Make sure the chart does not overflow the container */
+            margin-bottom: 20px; /* Space between chart and parameters */
+        }
+        
+        /* Adjust the layout for smaller screens using media queries */
+        @media (max-width: 768px) {
+            .parameter {
+                width: calc(50% - 10px); /* Two items per row on smaller screens */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .parameter {
+                width: 100%; /* One item per row on very small screens */
+            }
+        }     
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="rulChart"></canvas>
+        <div class="rul-container">
+            <!-- Group for ROSCO blades -->
+            <div class="rul-group rosco-group">
+                <div id="rul_rosco_blade1" class="parameter rosco-blade1-box">ROSCO Blade 1 RUL: <span id="rosco_rul1_value">--</span></div>
+                <div id="rul_rosco_blade2" class="parameter rosco-blade2-box">ROSCO Blade 2 RUL: <span id="rosco_rul2_value">--</span></div>
+                <div id="rul_rosco_blade3" class="parameter rosco-blade3-box">ROSCO Blade 3 RUL: <span id="rosco_rul3_value">--</span></div>
+            </div>
+            <!-- Group for OpenFAST blades -->
+            <div class="rul-group openfast-blades-group">
+                <div id="rul_openfast_blade1" class="parameter openfast-blade1-box">OpenFAST Blade 1 RUL: <span id="openfast_rul1_value">--</span></div>
+                <div id="rul_openfast_blade2" class="parameter openfast-blade2-box">OpenFAST Blade 2 RUL: <span id="openfast_rul2_value">--</span></div>
+                <div id="rul_openfast_blade3" class="parameter openfast-blade3-box">OpenFAST Blade 3 RUL: <span id="openfast_rul3_value">--</span></div>
+            </div>
+            <!-- Group for OpenFAST tower -->
+            <div class="rul-group openfast-tower-group">
+                <div id="rul_tower_openfast" class="parameter openfast-tower-box">OpenFAST Tower RUL: <span id="tower_openfast_value">--</span></div>
+            </div>
+        </div>
+        <div id="connection_status" style="padding: 10px; color: white; background-color: gray; text-align: center;">Connected</div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var socket = io.connect('http://localhost:5005', {
+                    reconnection: true,
+                    reconnectionDelay: 1000,
+                    reconnectionDelayMax: 5000,
+                    reconnectionAttempts: Infinity
+                });
+                
+                socket.on('connect', function() {
+                    document.getElementById('connection_status').textContent = 'Connected';
+                    document.getElementById('connection_status').style.backgroundColor = 'green';
+                    socket.emit('request_latest_rul');
+                });
+    
+                socket.on('update_rul', function(update) {
+                    console.log('Received update object:', update);
+                    // Check if data is not undefined and not 'N/A' before updating
+                    if (update.data && update.data !== 'N/A') {
+                        if (update.type === 'blades_rosco') {
+                            updateElementText('rosco_rul1_value', update.data['ROSCO_RUL_blade1']);
+                            updateElementText('rosco_rul2_value', update.data['ROSCO_RUL_blade2']);
+                            updateElementText('rosco_rul3_value', update.data['ROSCO_RUL_blade3']);
+                            updateChart(update.data, update.type);
+                        } else if (update.type === 'blades_openfast') {
+                            updateElementText('openfast_rul1_value', update.data['OpenFAST_RUL_blade1']);
+                            updateElementText('openfast_rul2_value', update.data['OpenFAST_RUL_blade2']);
+                            updateElementText('openfast_rul3_value', update.data['OpenFAST_RUL_blade3']);
+                            updateChart(update.data, update.type);
+                        } else if (update.type === 'tower_openfast') {
+                            updateElementText('tower_openfast_value', update.data['OpenFAST_RUL_Tower']);
+                            updateChart(update.data, update.type);
+                        }                                             
+                    } else {
+                        console.error('Invalid data received:', update.data);
+                    }
+                });
+                
+                socket.on('connect_error', (error) => {
+                    console.error('Connection Error:', error);
+                });
+                
+                socket.on('connect_timeout', (timeout) => {
+                    console.error('Connection Timeout:', timeout);
+                });
+                
+                socket.on('error', (error) => {
+                    console.error('Error:', error);
+                });
+                
+                socket.on('reconnect_attempt', () => {
+                    console.log('Attempting to reconnect...');
+                });
+
+                socket.on('disconnect', function() {
+                    console.log('Disconnected from server.');
+                    document.getElementById('connection_status').textContent = 'Disconnected';
+                    document.getElementById('connection_status').style.backgroundColor = 'red';
+                    var rulValues = ['rosco_rul1_value', 'rosco_rul2_value', 'rosco_rul3_value', 'openfast_rul1_value', 'openfast_rul2_value', 'openfast_rul3_value', 'tower_openfast_value'];
+                    rulValues.forEach(function(valueId) {
+                        document.getElementById(valueId).textContent = 'N/A';
+                    });
+                });
+        
+                function updateElementText(elementId, value) {
+                    var element = document.getElementById(elementId);
+                    if (element) {
+                        if (value !== undefined && value !== 'N/A') {
+                            element.textContent = parseFloat(value).toFixed(2) + ' years';
+                        } else {
+                            element.textContent = 'N/A';
+                        }
+                        console.log(`Updated ${elementId}:`, element.textContent);
+                    } else {
+                        console.error('Element not found:', elementId);
+                    }
+                }
+                
+
+                function updateChart(data, type) {
+                    const maxDataPoints = 60; // Maximum number of data points displayed on the chart
+                    const newLabel = new Date().toLocaleTimeString(); // Custom label for each data point
+                    rulChart.data.labels.push(newLabel);
+                
+                    if (rulChart.data.labels.length > maxDataPoints) {
+                        rulChart.data.labels.shift(); // Align label shifting with data shifting
+                    }
+                
+                    switch (type) {
+                        case 'blades_rosco':
+                            // Assuming your ROSCO datasets are the first three
+                            rulChart.data.datasets[0].data.push(data['ROSCO_RUL_blade1']);
+                            rulChart.data.datasets[1].data.push(data['ROSCO_RUL_blade2']);
+                            rulChart.data.datasets[2].data.push(data['ROSCO_RUL_blade3']);
+                            break;
+                        case 'blades_openfast':
+                            // Assuming your OpenFAST blade datasets are the next three
+                            rulChart.data.datasets[3].data.push(data['OpenFAST_RUL_blade1']);
+                            rulChart.data.datasets[4].data.push(data['OpenFAST_RUL_blade2']);
+                            rulChart.data.datasets[5].data.push(data['OpenFAST_RUL_blade3']);
+                            break;
+                        case 'tower_openfast':
+                            // Assuming the OpenFAST Tower dataset is the last one
+                            rulChart.data.datasets[6].data.push(data['OpenFAST_RUL_Tower']);
+                            break;
+                        default:
+                            console.error('Unknown type for chart update:', type);
+                        
+                    }
+                    // Remove the oldest data points if exceeding maxDataPoints
+                    rulChart.data.datasets.forEach((dataset) => {
+                        while (dataset.data.length > maxDataPoints) {
+                            dataset.data.shift();
+                        }
+                    });
+                
+                    // Ensure the labels are also limited to the maximum number of data points
+                    while (rulChart.data.labels.length > maxDataPoints) {
+                        rulChart.data.labels.shift();
+                    }
+                
+                    console.log(`Updating chart for ${type}:`, data);
+                    rulChart.update(); // Apply the updates to the chart
+                }                             
+
+                var ctx = document.getElementById('rulChart').getContext('2d');
+                var rulChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'ROSCO Blade 1 RUL',
+                                data: [],
+                                borderColor: 'rgb(255, 99, 132)',  // Red
+                                tension: 0.1
+                            },
+                            {
+                                label: 'ROSCO Blade 2 RUL',
+                                data: [],
+                                borderColor: 'rgb(54, 162, 235)',  // Blue
+                                tension: 0.1
+                            },
+                            {
+                                label: 'ROSCO Blade 3 RUL',
+                                data: [],
+                                borderColor: 'rgb(255, 206, 86)',  // Yellow
+                                tension: 0.1
+                            },
+                            {
+                                label: 'OpenFAST Blade 1 RUL',
+                                data: [],
+                                borderColor: 'rgb(75, 192, 192)',  // Teal
+                                tension: 0.1
+                            },
+                            {
+                                label: 'OpenFAST Blade 2 RUL',
+                                data: [],
+                                borderColor: 'rgb(153, 102, 255)',  // Purple
+                                tension: 0.1
+                            },
+                            {
+                                label: 'OpenFAST Blade 3 RUL',
+                                data: [],
+                                borderColor: 'rgb(255, 159, 64)',  // Orange
+                                tension: 0.1
+                            },
+                            {
+                                label: 'OpenFAST Tower RUL',
+                                data: [],
+                                borderColor: 'rgb(201, 203, 207)',  // Grey
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
