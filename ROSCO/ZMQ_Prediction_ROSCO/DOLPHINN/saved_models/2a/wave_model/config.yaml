@@ -1,0 +1,38 @@
+batch_time: 53
+conversion:
+- 1
+- 1
+- 1
+- 0.001
+- 0.001
+- 0.001
+- 1
+dof:
+- PtfmTDX
+- PtfmTDY
+- PtfmTDZ
+- PtfmRDX
+- PtfmRDY
+- PtfmRDZ
+- FA_Acc
+dropout: 0.0
+epochs: 60
+hidden_layer: 1
+lr: 0.001
+neuron_number: 96
+nm: 0.588482
+time_horizon: 20
+timestep: 1.0
+train_ratio: 0.5
+training_dataset: /home/hpsauce/ROSCO/ZMQ_Prediction_ROSCO/DOLPHINN/data/TEST_DATA_COMMA.csv
+unit:
+- '[m]'
+- '[m]'
+- '[deg]'
+- '[kN]'
+- '[kN]'
+- '[kN]'
+- '[m-s2]'
+valid_ratio: 0.25
+wave_prediction: true
+wind_prediction: false

@@ -1,12 +1,12 @@
-training_dataset: "/home/hpsauce/ROSCO/ZMQ_Prediction_ROSCO/DOLPHINN/data/TEST_DATA_COMMA.csv"
+training_dataset: "/home/hpsauce/ROSCO/ZMQ_Prediction_ROSCO/DOLPHINN/data/S12_merged_10Hz_FS.csv"
 dof:
   - "PtfmTDX"
-  - "PtfmTDY"
   - "PtfmTDZ"
-  - "PtfmRDX"
   - "PtfmRDY"
-  - "PtfmRDZ"
-  - "FA_Acc"
+  - "leg1MooringForce"
+  - "leg2MooringForce"
+  - "leg3MooringForce"
+  - "towerBotMy"
 unit:
   - "[m]"
   - "[m]"
@@ -14,7 +14,7 @@ unit:
   - "[kN]"
   - "[kN]"
   - "[kN]"
-  - "[m-s2]"
+  - "[kN-m]"
 conversion:
   - 1
   - 1
@@ -22,7 +22,7 @@ conversion:
   - 0.001
   - 0.001
   - 0.001
-  - 1
+  - 0.001
 time_horizon: 20
 nm: 0.588482
 hidden_layer: 1

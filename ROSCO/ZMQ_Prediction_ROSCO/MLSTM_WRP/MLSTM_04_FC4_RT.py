@@ -50,8 +50,8 @@ def run_MLSTM(start_simulation, end_simulation, timestep, TEST_NUM, MODEL_PATH, 
     passing_time = np.concatenate((np.arange(-n, 0), np.linspace(0, m - 1, n)))
 
     # find wave characteristics based on certain checkpoint number and significant length
-    chkpnt_no = 100
-    significant_length = 1000  # in seconds
+    chkpnt_no = 2
+    significant_length = 10  # in seconds
     data.dynamic_sig_char(chkpnt_no, significant_length)
     
     df = data.convert_extract(dof, conversion)

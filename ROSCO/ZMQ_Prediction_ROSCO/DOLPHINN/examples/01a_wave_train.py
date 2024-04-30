@@ -11,7 +11,7 @@ In this example:
 - train MLSTM model using DOLPHINN on FC2 data
 """
 # Configure
-TEST = "2a"
+TEST = "1a_Test"
 CONFIG_FILE_PATH = "/home/hpsauce/ROSCO/ZMQ_Prediction_ROSCO/DOLPHINN/dol_input/wave.yaml"
 if not os.path.exists(os.path.join("figures", f"{TEST}")):
     os.makedirs(os.path.join("figures", f"{TEST}"))

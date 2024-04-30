@@ -1,7 +1,10 @@
 import yaml
 import os
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent))
 import numpy as np
-from vmod import p2v
+import p2v
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from scipy.stats import linregress

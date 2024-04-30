@@ -1,10 +1,14 @@
 from tensorflow.keras.layers import *
 from tensorflow.keras.models import Sequential, save_model, load_model
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent))
+import numpy as np
 import numpy as np
 import pandas as pd
 from tensorflow.keras.optimizers import Adam
 from scipy.stats import linregress
-from vmod import get_psd
+import get_psd
 from sklearn.preprocessing import MinMaxScaler
 import joblib
 from scipy.signal import butter, filtfilt
