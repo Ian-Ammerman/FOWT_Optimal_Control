@@ -28,8 +28,8 @@ class PredictionClass():
         self.batch_data = [] # To store incoming data temporarily with a fixed max length        
         self.batch_size = 6000  # Number of rows or timesteps per batch
         self.file_generation_count = 0  # Initialize a counter for file generation
-        self.t_preds = None
-        self.y_preds = None
+        self.t_preds = pd.DataFrame()
+        self.y_hat = pd.DataFrame()
         self.has_run_once = False  # Flag to check if simulation has run once
         self.csv_saved = False  # Flag to check if the CSV has been saved once
         self.initial_time = None
@@ -88,6 +88,7 @@ class PredictionClass():
             t_pred, self.y_hat = run_DOLPHINN(self.data_frame_inputs, current_time)
             print("Predicted PtfmTDY:", self.y_hat["PtfmTDY"].iloc[-1])
             print("t_pred:", t_pred.iloc[-1])
+            self.send_delta_B(self.y_hat["PtfmTDY"].iloc[-1], topic="delta_B")
             if self.csv_saved is False and current_time == 100:
                 self.csv_saved = True
                 output_file_path = os.path.join("ZMQ_Prediction_ROSCO", "DOLPHINN", "data", "Control_T100.csv")
@@ -108,14 +109,7 @@ class PredictionClass():
         print("SENDING DELTA_B:", delta_B)
         
     def main(self):
-        try:
-            while True:
-                print("t_preds:", self.t_preds)
-                print("y_preds:", self.y_preds)
-                self.send_delta_B(self.y_hat["PtfmTDY"].iloc[-1], topic="delta_B")
-                # Wait some time before checking for new measurements again
-                time.sleep(1)  # Adjust sleep time as necessary
-        except KeyboardInterrupt:
+        if KeyboardInterrupt:
             print("Terminating publisher...")
             self.publisher.close()
 
