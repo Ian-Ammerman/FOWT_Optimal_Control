@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Operation Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #444;
+            display: flex;
+            flex-direction: column; /* Stack content vertically */
+            align-items: center;
+            justify-content: flex-start; /* Align content to the top */
+        }
+        
+        .container {
+            text-align: center;
+            width: 100%; /* Set a max-width if necessary */
+            padding: 20px; /* Add some padding around the container */
+            box-sizing: border-box; /* Include padding in the width calculation */
+        }
+        
+        .rul-section {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 30px; /* Adjust this value for space between the main groups */
+            margin-bottom: 20px; /* Space at the bottom of the section */
+          }
+
+        .rul-container {
+            display: flex;
+            justify-content: space-between; /* This will space out your three groups */
+            flex-wrap: wrap; /* Allows wrapping onto the next line if space is tight */
+            gap: 50px; /* Spacing between boxes */
+        }
+        
+        /* Individual group containers */
+        .rul-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .parameter {
+            background-color: #f4f4f4; /* Grey background */
+            padding: 8px;
+            margin: 4px;
+            border-width: 2px;
+            border-style: solid;
+            color: #444; /* Default text color */
+            width: 100%; /* Adjust the width as needed */
+        }
+
+        .openfast-blade1-box {
+            border-color: rgb(75, 192, 192); /* Teal border */
+        }
+        
+        .openfast-blade2-box {
+            border-color: rgb(153, 102, 255); /* Purple border */
+        }
+        
+        .openfast-blade3-box {
+            border-color: rgb(255, 159, 64); /* Orange border */
+        }
+        
+        .openfast-tower-box {
+            border-color: rgb(201, 203, 207); /* Grey border */
+            transform: translate(-30px, 46px);
+        }     
+        
+        .chart-container {
+            width: 700px; /* Adjust the width as desired */
+            max-width: 1000px;
+            height: 500px; /* Set a fixed height for the chart */
+            position: relative; /* Required for Chart.js responsiveness */
+            margin: 0 auto; /* This will center the chart within its container */
+        }
+        
+        #rulChart {
+            height: 100px; /* Control the height of the chart */
+            width: 200px; /* Chart width is the full width of the container */
+            max-width: 110%; /* Make sure the chart does not overflow the container */
+            margin-bottom: 20px; /* Space between chart and parameters */
+        }
+        
+        /* Adjust the layout for smaller screens using media queries */
+        @media (max-width: 768px) {
+            .parameter {
+                width: calc(50% - 10px); /* Two items per row on smaller screens */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .parameter {
+                width: 100%; /* One item per row on very small screens */
+            }
+        }     
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chart-container">
+            <canvas id="rulChart"></canvas>
+        </div>
+        <div class="rul-container">
+            <!-- Group for OpenFAST blades -->
+            <div class="rul-group openfast-blades-group">
+                <div id="rul_openfast_blade1" class="parameter openfast-blade1-box">Blade 1 RUL: <span id="openfast_rul1_value">--</span></div>
+                <div id="rul_openfast_blade2" class="parameter openfast-blade2-box">Blade 2 RUL: <span id="openfast_rul2_value">--</span></div>
+                <div id="rul_openfast_blade3" class="parameter openfast-blade3-box">Blade 3 RUL: <span id="openfast_rul3_value">--</span></div>
+            </div>
+            <!-- Group for OpenFAST tower -->
+            <div class="rul-group openfast-tower-group">
+                <div id="rul_tower_openfast" class="parameter openfast-tower-box">Tower RUL: <span id="tower_openfast_value">--</span></div>
+            </div>
+        </div>
+        <div id="connection_status" style="padding: 10px; color: white; background-color: gray; text-align: center;">Connected</div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var socket = io.connect('http://localhost:5005', {
+                    reconnection: true,
+                    reconnectionDelay: 1000,
+                    reconnectionDelayMax: 5000,
+                    reconnectionAttempts: Infinity
+                });
+            
+                // Function to update the connection status
+                function updateConnectionStatus(status) {
+                    var connectionStatusElement = document.getElementById('connection_status');
+                    if (connectionStatusElement) {
+                        connectionStatusElement.textContent = status;
+                        connectionStatusElement.style.backgroundColor = status === 'Connected' ? 'green' : 'red';
+                    }
+                }
+            
+                // Function to update RUL values
+                function updateRULValues(values) {
+                    var rulValueIds = ['openfast_rul1_value', 'openfast_rul2_value', 'openfast_rul3_value', 'tower_openfast_value'];
+                    rulValueIds.forEach(function(valueId, index) {
+                        var element = document.getElementById(valueId);
+                        if (element) {
+                            var rul = values[index];
+                            element.textContent = rul !== null ? rul.toFixed(2) + ' years' : 'N/A';
+                        }
+                    });
+                }
+            
+                socket.on('connect', function() {
+                    updateConnectionStatus('Connected');
+                    socket.emit('request_latest_rul');
+                });
+            
+                socket.on('update_rul', function(update) {
+                    console.log('Received update object:', update);
+                    if (update.data && update.data !== 'N/A') {
+                        if (update.type === 'blades_openfast') {
+                            lastKnownRUL.blade1 = update.data['OpenFAST_RUL_blade1'];
+                            lastKnownRUL.blade2 = update.data['OpenFAST_RUL_blade2'];
+                            lastKnownRUL.blade3 = update.data['OpenFAST_RUL_blade3'];
+                            updateElementText('openfast_rul1_value', lastKnownRUL.blade1);
+                            updateElementText('openfast_rul2_value', lastKnownRUL.blade2);
+                            updateElementText('openfast_rul3_value', lastKnownRUL.blade3);
+                            updateChart(update.data, update.type);
+                        } else if (update.type === 'tower_openfast') {
+                            lastKnownRUL.tower = update.data['OpenFAST_RUL_Tower'];
+                            updateElementText('tower_openfast_value', lastKnownRUL.tower);
+                            updateChart(update.data, update.type);
+                        }                                             
+                    } else {
+                        console.error('Invalid data received:', update.data);
+                    }
+                });
+            
+                socket.on('connect_error', function(error) {
+                    console.error('Connection Error:', error);
+                    updateConnectionStatus('Disconnected');
+                });
+            
+                socket.on('connect_timeout', function(timeout) {
+                    console.error('Connection Timeout:', timeout);
+                    updateConnectionStatus('Disconnected');
+                });
+            
+                socket.on('error', function(error) {
+                    console.error('Error:', error);
+                    updateConnectionStatus('Disconnected');
+                });
+            
+                socket.on('reconnect_attempt', function() {
+                    console.log('Attempting to reconnect...');
+                    updateConnectionStatus('Reconnecting...');
+                });
+            
+                socket.on('disconnect', function() {
+                    console.log('Disconnected from server.');
+                    document.getElementById('connection_status').textContent = 'Disconnected';
+                    document.getElementById('connection_status').style.backgroundColor = 'red';
+                    // Update the RUL values with the last known values
+                    updateElementText('openfast_rul1_value', lastKnownRUL.blade1);
+                    updateElementText('openfast_rul2_value', lastKnownRUL.blade2);
+                    updateElementText('openfast_rul3_value', lastKnownRUL.blade3);
+                    updateElementText('tower_openfast_value', lastKnownRUL.tower);
+                });
+                
+                // Define a variable to store the last known RUL values
+                var lastKnownRUL = {
+                    blade1: '20',
+                    blade2: '20',
+                    blade3: '20',
+                    tower: '20'
+                };
+            
+        
+                function updateElementText(elementId, value) {
+                    var element = document.getElementById(elementId);
+                    if (element) {
+                        if (value !== undefined && value !== 'N/A') {
+                            element.textContent = parseFloat(value).toFixed(2) + ' years';
+                        } else {
+                            element.textContent = 'N/A';
+                        }
+                        console.log(`Updated ${elementId}:`, element.textContent);
+                    } else {
+                        console.error('Element not found:', elementId);
+                    }
+                }
+                
+
+                function updateChart(data, type) {
+                    if (!rulChart || !rulChart.data || !rulChart.data.datasets) {
+                        console.error('Chart not properly initialized.');
+                        return;
+                    }
+                
+                    const maxDataPoints = 60;
+                    const newLabel = new Date().toLocaleTimeString();
+                    const newTime = new Date(); // Generates a new timestamp for the current time
+
+                    rulChart.data.labels.push(newLabel);
+                    
+                    if (rulChart.data.labels.length > maxDataPoints) {
+                        rulChart.data.labels.shift();
+                    }
+                    
+                    switch (type) {
+                        case 'blades_openfast':
+                            rulChart.data.datasets[0].data.push({ x: newTime, y: data['OpenFAST_RUL_blade1'] });
+                            rulChart.data.datasets[1].data.push({ x: newTime, y: data['OpenFAST_RUL_blade2'] });
+                            rulChart.data.datasets[2].data.push({ x: newTime, y: data['OpenFAST_RUL_blade3'] });
+                            break;
+                        case 'tower_openfast':
+                            rulChart.data.datasets[3].data.push({ x: newTime, y: data['OpenFAST_RUL_Tower'] });
+                            break;
+                        default:
+                            console.error('Unknown type for chart update:', type);
+                    }
+                
+                    rulChart.data.datasets.forEach((dataset) => {
+                        while (dataset.data.length > maxDataPoints) {
+                            dataset.data.shift();
+                        }
+                    });
+
+                    console.log(`Updating chart for ${type}:`, data);
+                    rulChart.update();
+                }
+                                             
+
+                var ctx = document.getElementById('rulChart').getContext('2d');
+                var rulChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Blade 1',
+                                data: [],
+                                borderColor: 'rgb(75, 192, 192)',  // Teal
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Blade 2',
+                                data: [],
+                                borderColor: 'rgb(153, 102, 255)',  // Purple
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Blade 3',
+                                data: [],
+                                borderColor: 'rgb(255, 159, 64)',  // Orange
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Tower',
+                                data: [],
+                                borderColor: 'rgb(201, 203, 207)',  // Grey
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: 0,   // Set minimum value of the y-axis
+                                //max: 22,  // Set maximum value of the y-axis
+                                ticks: {
+                                    // Ensures that the y-axis does not receive non-integer values
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
