@@ -1,0 +1,312 @@
+# fatigue_damage_RUL.py
+import numpy as np
+import rainflow as rfc
+from ZMQ_Prediction_ROSCO.FredrikPart.real_time_server_fredrik import RealTimeServer_class
+
+# Material properties and SN curve parameters for fatigue analysis
+material_props_blade  = {'thk': 100, 'diameter': 5.2}  
+#sn_curve_params_blade = {'S0': 605, 'b': 0.14}  # Normalized stress 'S0' and slope 'b'
+#sn_curve_params_blade = {'S0': 895, 'b': 0.10}  # Normalized stress 'S0' and slope 'b'
+sn_curve_params_blade = {'S0': 724, 'b': 0.12}  # Normalized stress 'S0' and slope 'b'
+
+material_props_tower = {'thk': 82.95, 'thk_ref': 25, 'diameter': 10} 
+sn_curve_params_tower = {'K1': 1/(10**12.164), 'beta1': 3, 
+                         'stress_lim': 52.639, 'K2': 1/(10**15.606), 'beta2': 5}
+
+chunk_duration = 30 
+
+class RUL_class():
+    def __init__(self, port="5556", emit_callback=None):
+        """Initialize the RUL class with default port and initial values for data storage and calculation.
+        
+        Parameters:
+        - port: String representing the port number for communication.
+        """
+        self.port = port
+        print(f"RUL_class initialized with emit_callback: {emit_callback}")
+        self.emit_callback = emit_callback
+        self.time_data = []
+        self.chunk_start_time = None
+        self.total_observation_time = 0 
+        
+        
+        #self.fatigue_damage_blades_rosco = {'blade1': 0, 'blade2': 0, 'blade3': 0}
+        self.fatigue_damage_blades_openfast = {'blade1': 0, 'blade2': 0, 'blade3': 0}
+        self.fatigue_damage_tower_openfast = 0
+
+        #self.bending_moment_blades_rosco = {'blade1': [], 'blade2': [], 'blade3': []}
+        self.csv_bending_moment_tower = {'TwrBsFzt': [], 'TwrBsMxt': [], 'TwrBsMyt': []}
+        self.csv_bending_moment_blades = {
+            'blade1': {'RootFzb': [], 'RootMxb': [], 'RootMyb': []},
+            'blade2': {'RootFzb': [], 'RootMxb': [], 'RootMyb': []},
+            'blade3': {'RootFzb': [], 'RootMxb': [], 'RootMyb': []},
+        }
+   
+    def update_measurements_from_csv(self, current_time, csv_measurements):
+        if self.chunk_start_time is None:
+            self.chunk_start_time = current_time
+            
+        self.time_data.append(current_time)  # Ensure all timestamps are collected
+
+        self.csv_bending_moment_tower['TwrBsFzt'].append(csv_measurements.get('TwrBsFzt', 0))
+        self.csv_bending_moment_tower['TwrBsMxt'].append(csv_measurements.get('TwrBsMxt', 0))
+        self.csv_bending_moment_tower['TwrBsMyt'].append(csv_measurements.get('TwrBsMyt', 0))
+
+        for blade_num in range(1, 4):
+            blade_key = f'blade{blade_num}'
+            self.csv_bending_moment_blades[blade_key]['RootFzb'].append(csv_measurements.get(f'RootFzb{blade_num}', 0))
+            self.csv_bending_moment_blades[blade_key]['RootMxb'].append(csv_measurements.get(f'RootMxb{blade_num}', 0))
+            self.csv_bending_moment_blades[blade_key]['RootMyb'].append(csv_measurements.get(f'RootMyb{blade_num}', 0))
+
+        if current_time - self.chunk_start_time >= chunk_duration:
+            self.process_chunk(current_time)
+
+    def process_chunk(self, current_time):
+        """Process the current chunk of data, calculate stress, fatigue damage, and update RUL estimate."""
+        print(f"Processing chunk at time: {current_time}")
+        blade_info_lines_openfast = []
+        tower_info_lines_openfast = []
+        rul_values_blade_openfast = {}
+        rul_values_tower_openfast = {}
+        
+        if self.time_data:
+                observed_chunk_duration = current_time - self.chunk_start_time
+                self.total_observation_time += observed_chunk_duration
+                print(f"Observed Chunk Duration: {observed_chunk_duration}, Total Observed Time blades: {self.total_observation_time}")
+    
+        # Calculate for each blade root using OpenFAST data
+        for blade_num in range(1, 4):
+            blade_key = f'blade{blade_num}'
+            
+            RootFzb = np.array(self.csv_bending_moment_blades[blade_key]['RootFzb'])
+            RootMxb = np.array(self.csv_bending_moment_blades[blade_key]['RootMxb'])
+            RootMyb = np.array(self.csv_bending_moment_blades[blade_key]['RootMyb'])
+            
+            stress_mpa = self.calculate_stress_blades(RootFzb, RootMxb, RootMyb, material_props_blade)
+            fatigue_damage_chunk = self.calculate_fatigue_damage_blades(stress_mpa, sn_curve_params_blade)
+            self.fatigue_damage_blades_openfast[blade_key] += fatigue_damage_chunk
+            
+            RUL_blades_openfast = self.estimate_RUL(self.fatigue_damage_blades_openfast[blade_key], self.total_observation_time)
+            rul_values_blade_openfast[f'OpenFAST_RUL_{blade_key}'] = RUL_blades_openfast
+            blade_info_lines_openfast.append(f"OpenFAST - {blade_key}, Fatigue Damage: {self.fatigue_damage_blades_openfast[blade_key]:.2e}, RUL: {rul_values_blade_openfast[f'OpenFAST_RUL_{blade_key}']:.6f} years")
+            
+        # Calculate for tower base using OpenFAST data
+        TwrBsFzt = np.array(self.csv_bending_moment_tower['TwrBsFzt'])
+        TwrBsMxt = np.array(self.csv_bending_moment_tower['TwrBsMxt'])
+        TwrBsMyt = np.array(self.csv_bending_moment_tower['TwrBsMyt'])
+
+        stress_mpa = self.calculate_stress_tower(TwrBsFzt, TwrBsMxt, TwrBsMyt, material_props_tower)
+        fatigue_damage_chunk = self.calculate_fatigue_damage_tower(stress_mpa, sn_curve_params_tower, material_props_tower)
+        self.fatigue_damage_tower_openfast += fatigue_damage_chunk
+        
+        RUL_tower_openfast = self.estimate_RUL(self.fatigue_damage_tower_openfast, self.total_observation_time)
+        rul_values_tower_openfast['OpenFAST_RUL_Tower'] = RUL_tower_openfast
+        tower_info_lines_openfast.append(f"OpenFAST - Tower, Fatigue Damage: {self.fatigue_damage_tower_openfast:.2e}, RUL: {RUL_tower_openfast:.6f} years")
+        
+        # Printing formatted information
+        print("\n".join(blade_info_lines_openfast))
+        print("\n".join(tower_info_lines_openfast))
+
+        # Reset data for the next chunk
+        self.reset_data(current_time)
+        
+        if self.emit_callback:
+            all_rul_values = {
+                #'rul_values_blade_rosco': rul_values_blade_rosco,
+                'rul_values_blade_openfast': rul_values_blade_openfast,
+                'rul_values_tower_openfast': rul_values_tower_openfast
+            }
+            self.emit_callback(all_rul_values)
+
+    def reset_data(self, current_time):
+        print(f"Data reset for the next chunk starting at: {current_time}")
+
+        """Reset the measurement data storage for the next chunk of data and update the chunk start time.
+        
+        Parameters:
+        - current_time: The current timestamp to set as the new start time for the next chunk.
+        """
+        self.chunk_start_time = current_time  # Update chunk start time
+        self.time_data = []
+
+        # Reset OpenFAST blade measurements using blade_key
+        for blade_num in range(1, 4):  
+            blade_key = f'blade{blade_num}'
+            self.csv_bending_moment_blades[blade_key] = {'RootFzb': [], 'RootMxb': [], 'RootMyb': []}
+
+        # Reset OpenFAST tower measurements
+        for key in self.csv_bending_moment_tower.keys():
+            self.csv_bending_moment_tower[key] = []
+
+    def calculate_stress_blades(self, RootFzb, RootMxb, RootMyb, material_props_blade):
+        #print(f"Calculating stress for blades with axial force: {axial_force}, moments x: {bending_moment_x}, moments y: {bending_moment_y}")
+
+        """Calculate the total stress from axial and bending moments.
+
+        Parameters:
+        - axial_force: Axial force in kN.
+        - bending_moment_x, bending_moment_y: Bending moments in kN-m.
+        - material_props: Dictionary of material properties including thickness.
+
+        Returns:
+        - sigma_total_mpa: Total stress in megapascals (MPa).
+        """
+        # Material and geometric properties
+        thk_mm, diameter_m = material_props_blade['thk'], material_props_blade['diameter']
+        thk_m = thk_mm / 1000                                    # Convert thickness to meters
+        r_outer_m = diameter_m / 2                               # Outer radius in meters
+        r_inner_m = r_outer_m - thk_m
+        theta   = np.radians(270)
+        
+        A = np.pi * (r_outer_m**2 - r_inner_m**2)                # Cross-sectional area
+        I_yy = I_xx = np.pi / 4 * (r_outer_m**4 - r_inner_m**4)  # Moment of inertia
+
+        # Stress calculations
+        sigma_axial = RootFzb / A       * 1000                   # Convert axial stress from kN to N  
+        M_x = RootMxb                   * 1000                   # Convert edgewise moment from kN to N                             
+        M_y = RootMyb                   * 1000                   # Convert flapwise moment from kN to N      
+        sigma_bending_x = M_x * r_outer_m / I_xx * np.sin(theta)
+        sigma_bending_y = M_y * r_outer_m / I_yy * np.cos(theta)
+
+        # Total stress
+        sigma_total = sigma_axial + sigma_bending_x + sigma_bending_y
+        sigma_total_mpa = sigma_total / 1e6                      # Convert to MPa
+        return sigma_total_mpa
+
+    def calculate_fatigue_damage_blades(self, sigma_total_mpa, sn_curve_params_blade):
+        #print(f"Calculating fatigue damage for blades with total stress: {sigma_total_mpa}")
+
+        """Calculate fatigue damage for a given stress sequence using the SN curve parameters and material properties.
+        
+        Parameters:
+        - sigma_total_mpa: Array of stress values in MPa.
+        - sn_curve_params: Dictionary of SN curve parameters.
+        - material_props: Dictionary of material properties including thickness and reference thickness.
+        
+        Returns:
+        - fatigue_damage_chunk: Fatigue damage calculated for the given stress sequence.
+        """
+        fatigue_damage_chunk = 0
+        S0, b = sn_curve_params_blade.values()
+
+        # Rainflow counting
+        cycles = rfc.count_cycles(sigma_total_mpa)
+        for cycle in cycles:
+            S = cycle[0]  # Stress range
+            n = cycle[1]  # Count
+            N = 10**((1 - S/S0) / b) 
+            fatigue_damage_chunk += n / N
+
+        return fatigue_damage_chunk
+
+    def calculate_stress_tower(self, axial_force, bending_moment_x, bending_moment_y, material_props_tower):
+        #print(f"Calculating stress for tower with axial force: {axial_force}, moments x: {bending_moment_x}, moments y: {bending_moment_y}")
+
+        """Calculate the total stress from axial and bending moments.
+
+        Parameters:
+        - axial_force: Axial force in kN.
+        - bending_moment_x, bending_moment_y: Bending moments in kN-m.
+        - material_props: Dictionary of material properties including thickness.
+
+        Returns:
+        - sigma_total_mpa: Total stress in megapascals (MPa).
+        """
+        # Material and geometric properties
+        thk_mm, diameter_m = material_props_tower['thk'], material_props_tower['diameter']
+        
+        thk_m = thk_mm / 1000                                    # Convert thickness to meters
+        r_outer_m = diameter_m / 2                               # Outer radius in meters
+        r_inner_m = r_outer_m - thk_m
+        theta   = np.radians(270)
+        A = np.pi * (r_outer_m**2 - r_inner_m**2)                # Cross-sectional area
+        I_yy = I_xx = np.pi / 4 * (r_outer_m**4 - r_inner_m**4)  # Moment of inertia
+        
+        # Stress calculations
+        sigma_axial = axial_force / A  *1000                     # Convert axial force from kN to N 
+        M_x = bending_moment_x  *1000                            # Convert side-side bending moment from kNm to Nm 
+        M_y = bending_moment_y  *1000                            # Convert fore-aft bending moment from kNm to Nm
+        sigma_bending_x = M_x / I_xx * r_outer_m * np.cos(theta)
+        sigma_bending_y = M_y / I_yy * r_outer_m * np.sin(theta)
+
+        # Total stress
+        sigma_total = sigma_axial + sigma_bending_x + sigma_bending_y
+        sigma_total_mpa = sigma_total / 1e6                      # Convert to MPa
+        return sigma_total_mpa
+
+    def calculate_fatigue_damage_tower(self, sigma_total_mpa, sn_curve_params_tower, material_props_tower):
+        #print(f"Calculating fatigue damage for tower with total stress: {sigma_total_mpa}")
+
+        """Calculate fatigue damage for a given stress sequence using the SN curve parameters and material properties.
+        
+        Parameters:
+        - sigma_total_mpa: Array of stress values in MPa.
+        - sn_curve_params: Dictionary of SN curve parameters.
+        - material_props: Dictionary of material properties including thickness and reference thickness.
+        
+        Returns:
+        - fatigue_damage_chunk: Fatigue damage calculated for the given stress sequence.
+        
+        fatigue_damage_chunk = 0
+        K1, beta1, stress_lim, K2, beta2 = sn_curve_params_tower.values()
+        thk, thk_ref = material_props_tower['thk'], material_props_tower['thk_ref']
+        
+        # Rainflow counting
+        cycles = rfc.count_cycles(sigma_total_mpa)
+        for s, n in cycles:  # unpack the tuple directly in the loop
+            if s > stress_lim:
+                beta, K = beta1, K1
+            else:
+                beta, K = beta2, K2
+            Ns = (1 / K) * (s * (thk / thk_ref)**0.2)**(-beta)
+            fatigue_damage_chunk += n / Ns
+
+        return fatigue_damage_chunk
+        """
+
+        FD= 0
+        K1, beta1, stress_lim, K2, beta2 = sn_curve_params_tower.values()
+        thk, thk_ref = material_props_tower['thk'], material_props_tower['thk_ref']
+        
+        cc = rfc.count_cycles(sigma_total_mpa)
+        sk = [c[0] for c in cc] # stress range
+        n = [c[1] for c in cc] # cycle count
+        
+        Ns = np.zeros(len(sk)) #initialize damage
+        
+        for i,s in enumerate(sk):
+            if s>stress_lim:
+                beta = beta1; K = K1
+            else:
+                beta = beta2; K = K2
+            
+            Ns[i] = 1/K*(s*(thk/thk_ref)**0.2)**(-beta)
+            
+        FD = np.sum(n/Ns)
+        
+        return FD
+        
+    def estimate_RUL(self, fatigue_damage, total_time_observed):
+        print(f"Estimating RUL with cumulative fatigue damage: {fatigue_damage} and total time observed: {total_time_observed}")
+
+        """Estimate the Remaining Useful Life (RUL) based on cumulative fatigue damage and total time observed.
+        
+        Parameters:
+        - fatigue_damage: Cumulative fatigue damage.
+        - total_time_observed: Total time observed in seconds.
+        
+        Returns:
+        - RUL_years: Estimated remaining useful life in years. If fatigue damage is not positive, returns an error message.
+        """
+        # print(f"TOTAL TIME OBSERVED: {total_time_observed}")
+        if fatigue_damage <= 0: 
+            return "RUL cannot be estimated yet or fatigue damage calculation is incorrect."
+        
+        RUL_seconds = (1 - fatigue_damage) * total_time_observed / fatigue_damage
+        RUL_years = RUL_seconds / (365.25 * 24 * 3600)            # Convert seconds to years
+        return RUL_years
+
+if __name__ == "__main__":
+    RUL_instance = RUL_class()
+    real_time_server_instance = RealTimeServer_class()
+
