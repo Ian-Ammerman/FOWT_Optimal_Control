@@ -7,9 +7,7 @@ import multiprocessing as mp
 from rosco.toolbox.ofTools.case_gen import CaseLibrary as cl
 from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
 import zmq
-import json
 from multiprocessing import Value, Process
-import time
 from rosco.toolbox.control_interface import wfc_zmq_server
 from ZMQ_Prediction_ROSCO.DOLPHINN.prediction.pitch_prediction import PredictionClass
 
@@ -18,8 +16,6 @@ class bpcClass:
         self.prediction_instance = prediction_instance
         self.context = zmq.Context()
         self.manager = mp.Manager()
-        self.delta_B_buffer = self.manager.list()
-        self.latest_delta_B = Value('d', 0.0)  # 'd' indicates a double precision float
         self.DESIRED_YAW_OFFSET = [-10, 10]
         self.this_dir = os.path.dirname(os.path.abspath(__file__))
         self.rosco_dir = os.path.dirname(self.this_dir)
@@ -43,38 +39,10 @@ class bpcClass:
         # Run the server to receive measurements and send setpoints
         server.runserver()
 
-    def setup_delta_B_subscriber(self, port="5556", topic="delta_B"):
-        context = zmq.Context()
-        subscriber = context.socket(zmq.SUB)
-        subscriber.connect(f"tcp://localhost:{port}")
-        if topic:
-            subscriber.setsockopt_string(zmq.SUBSCRIBE, topic)
-        else:
-            subscriber.setsockopt_string(zmq.SUBSCRIBE, "")  # Subscribe to all messages if no topic is specified
-        return subscriber
-
-    def process_delta_B_with_delay(self):
-        while True:
-            current_time = time.time()
-            to_remove = []
-            for item in self.delta_B_buffer:
-                delta_B, timestamp = item
-                if current_time - timestamp >= 20:  # 20 seconds delay
-                    self.latest_delta_B.value = delta_B
-                    to_remove.append(item)
-            for item in to_remove:
-                self.delta_B_buffer.remove(item)
-            time.sleep(1)  # Sleep to prevent a tight loop
-
     def wfc_controller(self, id, current_time, measurements):
-        time_value = measurements["Time"]
 
-        # if time_value.is_integer():
-            # print("Time(s):", int(time_value))
-        updated_delta_B = self.latest_delta_B.value
-
-        self.prediction_instance.run_simulation(current_time, measurements)
-        
+        delta_B = prediction_instance.run_simulation(current_time, measurements)
+            
         if current_time <= 10.0:
             YawOffset = 0.0
         else:
@@ -84,12 +52,15 @@ class bpcClass:
                 YawOffset = self.DESIRED_YAW_OFFSET[1]
 
         # Use latest_delta_B for blade pitch control
-        col_pitch_command = updated_delta_B  # Assuming latest_delta_B is already in radians
+        if delta_B is not None:
+            col_pitch_command = delta_B  # Assuming latest_delta_B is already in radians
+            # print("Delta_B in Driver.py:", delta_B)
+        else: 
+            col_pitch_command = 0.0
 
         # Check if the 'Time' column contains integer values
-        if pd.api.types.is_integer_dtype(current_time):
-
-            print("Collective Blade Pitch Setpoint:", col_pitch_command)
+        if current_time % 10 == 0:
+            print("Predicted  Blade Pitch Setpoint:", col_pitch_command)
         
         setpoints = {}
         setpoints["ZMQ_YawOffset"] = YawOffset
@@ -118,58 +89,21 @@ class bpcClass:
         r.save_dir = run_dir
         r.run_FAST()
 
-    def listen_for_delta_B(self):
-        subscriber = self.setup_delta_B_subscriber()
-        print("Listening for delta_B values...")
-        first_delta_B_time = None  # Initialize to None, indicating no delta_B received yet
-        
-        while True:
-            try:
-                full_message = subscriber.recv_string()
-                topic, message_content = full_message.split(' ', 1)
-                data = json.loads(message_content)
-                current_time = time.time()  # Get current time in seconds
-                
-                # If first_delta_B_time is None, this is the first delta_B received
-                if first_delta_B_time is None:
-                    first_delta_B_time = current_time
-                    print("First delta_B received.")
-                else:
-                    # Calculate and print the time passed since the first delta_B was received
-                    time_passed = current_time - first_delta_B_time
-                    if time_passed < 21:
-                        print(f"Time passed since first delta_B: {time_passed:.2f} seconds.")
-                
-                # Store delta_B with the current timestamp in the buffer
-                self.delta_B_buffer.append((data['delta_B'], current_time))
-                print("REAL TIME DELTA_B (+20s):", data['delta_B'])
-
-            except Exception as e:
-                print(f"Error receiving message: {e}")
-
     def main(self):
         logfile = os.path.join(self.outputs, os.path.splitext(os.path.basename(__file__))[0] + '.log')
     
         print("Started pitch_prediction.py subprocess.")
 
         # Start the existing processes
-        p3 = mp.Process(target=self.listen_for_delta_B)
         p1 = mp.Process(target=self.run_zmq, args=(logfile,))
         p2 = mp.Process(target=self.sim_openfast)
-        p4 = mp.Process(target=self.process_delta_B_with_delay)
 
         p1.start()
         p2.start()
-        p3.start()
-        p4.start()
-
-        self.prediction_instance.main()  # Assuming prediction_instance has a method named main()
         
         # Wait for multiprocessing processes to complete
         p1.join()
         p2.join()
-        p3.join()
-        p4.join()
 
 if __name__ == "__main__":
     prediction_instance = PredictionClass()
