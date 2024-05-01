@@ -246,22 +246,6 @@ class RUL_class():
         
         Returns:
         - fatigue_damage_chunk: Fatigue damage calculated for the given stress sequence.
-        
-        fatigue_damage_chunk = 0
-        K1, beta1, stress_lim, K2, beta2 = sn_curve_params_tower.values()
-        thk, thk_ref = material_props_tower['thk'], material_props_tower['thk_ref']
-        
-        # Rainflow counting
-        cycles = rfc.count_cycles(sigma_total_mpa)
-        for s, n in cycles:  # unpack the tuple directly in the loop
-            if s > stress_lim:
-                beta, K = beta1, K1
-            else:
-                beta, K = beta2, K2
-            Ns = (1 / K) * (s * (thk / thk_ref)**0.2)**(-beta)
-            fatigue_damage_chunk += n / Ns
-
-        return fatigue_damage_chunk
         """
 
         FD= 0
