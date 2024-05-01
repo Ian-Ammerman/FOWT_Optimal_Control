@@ -13,7 +13,7 @@ class PredictionClass():
         self.batch_data = [] # To store incoming data temporarily with a fixed max length        
         self.batch_size = 6000  # Number of rows or timesteps per batch
         self.file_generation_count = 0  # Initialize a counter for file generation
-        self.t_preds = pd.DataFrame()
+        self.t_pred = pd.DataFrame()
         self.y_hat = pd.DataFrame()
         self.has_run_once = False  # Flag to check if simulation has run once
         self.csv_saved = False  # Flag to check if the CSV has been saved once
@@ -65,7 +65,7 @@ class PredictionClass():
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print(data_frame_inputs["PtfmTDY"].iloc[0])
             print("data frame shape:", data_frame_inputs.shape)
-            t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, current_time)
+            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, current_time)
             # print("Predicted PtfmTDY:", y_hat["PtfmTDY"].iloc[-1])
             # print("t_pred:", t_pred.iloc[-1])
                         
@@ -76,7 +76,7 @@ class PredictionClass():
                 print("SAVED control CSV at t = 100")
 
         if hasattr(self, 'y_hat') and not self.y_hat.empty:
-            return self.y_hat["PtfmTDY"].iloc[-1]
+            return self.y_hat["PtfmTDY"].iloc[-1], self.t_pred.iloc[-1]
         else:
             return None
     
