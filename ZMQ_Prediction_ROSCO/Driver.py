@@ -5,7 +5,6 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 import multiprocessing as mp
 from rosco.toolbox.ofTools.case_gen import CaseLibrary as cl
 from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
-import zmq
 from rosco.toolbox.control_interface import wfc_zmq_server
 from ZMQ_Prediction_ROSCO.DOLPHINN.prediction.pitch_prediction import PredictionClass
 from collections import deque
@@ -47,7 +46,7 @@ class bpcClass:
     def wfc_controller(self, id, current_time, measurements):
         
         # Get prediction and predicted time
-        Pred_B, t_pred = prediction_instance.run_simulation(current_time, measurements)
+        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements)
         
         # Buffering Pred_B with its predicted time and the time it was predicted
         if Pred_B is not None:
