@@ -55,7 +55,6 @@ class PredictionClass():
             measurement_values = [measurements.get(key, 0.0) for key in required_measurements]
             self.batch_data[update_index][2:] = measurement_values
             popped_row = self.batch_data.pop(0)
-            # print("Popped row:", popped_row)
 
         if self.iteration_count % 100 == 0 and len(self.batch_data) < self.batch_size:
             print(f"Batch size: {len(self.batch_data)}. Remaining rows until initializing DOLPHINN: {self.batch_size - len(self.batch_data)}")
@@ -68,11 +67,11 @@ class PredictionClass():
             # print("Predicted PtfmTDY:", y_hat["PtfmTDY"].iloc[-1])
             # print("t_pred:", t_pred.iloc[-1])
                         
-            if self.csv_saved is False and current_time == 100:
+            if self.csv_saved is False and current_time % 200 == 0:
                 self.csv_saved = True
-                output_file_path = os.path.join("ZMQ_Prediction_ROSCO", "DOLPHINN", "data", "Control_T100.csv")
+                output_file_path = os.path.join("ZMQ_Prediction_ROSCO", "DOLPHINN", "data", f"Control_Data_T{current_time}.csv")
                 data_frame_inputs.to_csv(output_file_path, index=False)
-                print("SAVED control CSV at t = 100")
+                print(f"SAVED control CSV at t = {current_time}")
 
         if hasattr(self, 'y_hat') and not self.y_hat.empty:
             return self.y_hat["PtfmTDY"].iloc[-1], self.t_pred.iloc[-1]
