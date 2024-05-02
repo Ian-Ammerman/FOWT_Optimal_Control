@@ -58,12 +58,11 @@ class PredictionClass():
             # print("Popped row:", popped_row)
 
         if self.iteration_count % 100 == 0 and len(self.batch_data) < self.batch_size:
-            print(f"Number of rows: {len(self.batch_data)}")
+            print(f"Batch size: {len(self.batch_data)}. Remaining rows until initializing DOLPHINN: {self.batch_size - len(self.batch_data)}")
 
         # Check if the last time value is at a whole second
         if len(self.batch_data) >= self.batch_size and current_time % 1 == 0:
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
-            print(data_frame_inputs["PtfmTDY"].iloc[0])
             print("data frame shape:", data_frame_inputs.shape)
             self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, current_time)
             # print("Predicted PtfmTDY:", y_hat["PtfmTDY"].iloc[-1])
@@ -78,5 +77,4 @@ class PredictionClass():
         if hasattr(self, 'y_hat') and not self.y_hat.empty:
             return self.y_hat["PtfmTDY"].iloc[-1], self.t_pred.iloc[-1]
         else:
-            return None
-    
+            return None, None
