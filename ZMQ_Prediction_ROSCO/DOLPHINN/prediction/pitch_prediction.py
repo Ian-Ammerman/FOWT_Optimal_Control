@@ -1,5 +1,6 @@
 import sys
 import os
+import numpy as np
 import pandas as pd
 from pathlib import Path
 from pathlib import Path
@@ -36,9 +37,10 @@ class PredictionClass():
         # Set initial time if it has not been set
         if self.initial_time is None:
             self.initial_time = current_time
+        desired_time = current_time + self.time_horizon
 
-        wave_measurement = self.csv_df.loc[self.csv_df['Time'] == current_time, 'wave'].iloc[0]
-
+        matching_rows = self.csv_df[np.isclose(self.csv_df['Time'], desired_time)]
+        wave_measurement = matching_rows['wave'].iloc[0]
          # For all timesteps, append Time and wave
         self.batch_data.append([current_time, wave_measurement] + [None] * len(required_measurements))
 
