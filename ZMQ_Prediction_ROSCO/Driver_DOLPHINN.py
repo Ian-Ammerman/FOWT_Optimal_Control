@@ -38,8 +38,10 @@ class bpcClass:
         # Buffer duration
         buffer_duration = 20
 
+        plot_figure = False
+
         # Get prediction and predicted time
-        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH)
+        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH, plot_figure)
 
         # Buffer prediction until optimal time to send offset to ROSCO
         Pred_Delta_B = buffer(Pred_B, t_pred, current_time, measurements, buffer_duration)
@@ -75,8 +77,6 @@ class bpcClass:
     def main(self):
         logfile = os.path.join(self.outputs, os.path.splitext(os.path.basename(__file__))[0] + '.log')
     
-        print("Started pitch_prediction.py subprocess.")
-
         # Start the existing processes
         p1 = mp.Process(target=self.run_zmq, args=(logfile,))
         p2 = mp.Process(target=self.sim_openfast)
