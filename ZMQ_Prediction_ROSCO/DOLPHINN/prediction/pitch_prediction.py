@@ -64,8 +64,8 @@ class PredictionClass():
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print("Running DOLPHINN with input data frame shape:", data_frame_inputs.shape)
             self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH)
-            # print("Predicted Collective Blade Pitch Angle:", y_hat["BlPitchCMeas"].iloc[-1])
-            # print("t_pred:", t_pred.iloc[-1])
+            # print("Predicted Collective Blade Pitch Angle:", self.y_hat["BlPitchCMeas"].iloc[-1])
+            # print("t_pred:", self.t_pred.iloc[-1])
                         
             if self.csv_saved is False and current_time % 200 == 0:
                 self.csv_saved = True
