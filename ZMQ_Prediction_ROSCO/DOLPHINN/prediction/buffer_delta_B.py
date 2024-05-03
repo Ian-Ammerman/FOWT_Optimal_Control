@@ -3,26 +3,25 @@ import numpy as np
 
 # Global variables
 Pred_B_buffer = deque()
-buffer_duration = 20
 last_used_Pred_B = None  # Initially set to zero
 last_used_t_pred = None  # Initially set to None
 first_delta_received = False
 printed_first_Pred_B = False
 last_whole_second = None  # Track the last whole second for countdown
 
-def buffer(Pred_B, t_pred, current_time, measurements):
-    global Pred_B_buffer, last_used_Pred_B, last_used_t_pred, first_delta_received, printed_first_Pred_B, last_whole_second, buffer_duration
+def buffer(Pred_B, t_pred, current_time, measurements, buffer_duration):
+    global Pred_B_buffer, last_used_Pred_B, last_used_t_pred, first_delta_received, printed_first_Pred_B, last_whole_second
 
     # Buffering Pred_B with its predicted time and the time it was predicted
     if Pred_B is not None:
-        Pred_B_buffer.append((Pred_B, current_time + buffer_duration - 1, t_pred))
+        Pred_B_buffer.append((Pred_B, current_time + buffer_duration, t_pred))
         if not first_delta_received and not printed_first_Pred_B:
             printed_first_Pred_B = True # Make sure only first Pred_B is printed
             first_delta_received = True  # Set the flag on receiving the first Pred_B
             last_whole_second = int(current_time)  # Initialize countdown start time
             print(f"First pitch angle prediction received and buffered: {Pred_B} radians at time {current_time}")
 
-    # Release buffer based on current time and buffer duration
+    # Release buffer based on current time and buffer_duration
     while Pred_B_buffer and Pred_B_buffer[0][1] <= current_time:
         last_used_Pred_B, _, last_used_t_pred = Pred_B_buffer.popleft()
         first_delta_received = False  # Reset the flag after the first Pred_B is used
