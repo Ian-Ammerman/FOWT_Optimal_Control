@@ -23,7 +23,7 @@ Example for plotting for each iteration:
 # Variable to hold the last figure
 last_fig = None
 
-def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, current_time, plot_figure):
+def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, current_time, plot_figure=False):
     global last_fig
     
     # Load the trained model
