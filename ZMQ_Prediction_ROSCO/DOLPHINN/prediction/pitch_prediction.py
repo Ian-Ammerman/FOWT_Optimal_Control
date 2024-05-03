@@ -23,7 +23,7 @@ class PredictionClass():
         self.data_frame_inputs = pd.DataFrame()  # Initialize DataFrame
         self.iteration_count = 0  # Initialize the iteration count outside the loop
 
-    def run_simulation(self, current_time, measurements):
+    def run_simulation(self, current_time, measurements, DOLPHINN_PATH):
         self.iteration_count += 1  # Initialize the iteration count outside the loop
 
         if not hasattr(self, 'csv_df'):
@@ -31,8 +31,8 @@ class PredictionClass():
             csv_file_path = os.path.join("ZMQ_Prediction_ROSCO", "DOLPHINN", "data", "WaveData.csv")
             self.csv_df = pd.read_csv(csv_file_path)
         
-        required_measurements = ['PtfmTDX', 'PtfmTDY', 'PtfmTDZ', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'FA_Acc']
-
+        required_measurements = ['PtfmTDX', 'PtfmTDZ', 'PtfmTDY', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'BlPitchCMeas', 'RotSpeed']
+        
         # Set initial time if it has not been set
         if self.initial_time is None:
             self.initial_time = current_time
@@ -63,7 +63,7 @@ class PredictionClass():
         if len(self.batch_data) >= self.batch_size and current_time % 1 == 0:
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print("Running DOLPHINN with input data frame shape:", data_frame_inputs.shape)
-            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, current_time)
+            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH)
             # print("Predicted PtfmTDY:", y_hat["PtfmTDY"].iloc[-1])
             # print("t_pred:", t_pred.iloc[-1])
                         
