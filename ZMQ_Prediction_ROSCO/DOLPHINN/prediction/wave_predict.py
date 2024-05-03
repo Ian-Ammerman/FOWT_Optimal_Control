@@ -12,15 +12,19 @@ In this example:
 
 Example for plotting for each iteration:
     plt.figure()
-    plt.plot(time_data.iloc[0:t1_idx] + t2, state["PtfmTDZ"][0:t1_idx], color='black', label='Actual')
-    plt.plot(t_pred + t2, y_hat["PtfmTDZ"], color='red', linestyle='-', label='Predicted')
+    plt.plot(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx], color='black', label='Actual')
+    plt.plot(t_pred + t2, y_hat["BlPitchCMeas"], color='red', linestyle='-', label='Predicted')
     plt.xlim((t1-50, t1+50))
     plt.legend()
     plt.show()
-
+ 
 """
 
-def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH):
+# Variable to hold the last figure
+last_fig = None
+
+def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, current_time, plot_figure):
+    global last_fig
     
     # Load the trained model
     dol = DOL()
@@ -29,7 +33,6 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH):
     # Calculate the time span for the prediction
     present_time = round(data_frame_inputs["Time"].iloc[-1] - dol.time_horizon, 4)
 
-    # present_time = 54.9875
     # Use input data frame directly
     data = data_frame_inputs
 
@@ -45,5 +48,21 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH):
 
     # Perform prediction
     t_pred, y_hat = dol.predict(time_data, state, wave, history=0)
+    
+    if plot_figure:
+        plt.ion()  # Turn on interactive plotting
+
+        # Close the previous figure if it exists
+        if last_fig is not None:
+            plt.close(last_fig)
+
+        # Create a new figure and keep track of it
+        last_fig = plt.figure()
+        plt.plot(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx], color='black', label='Actual')
+        plt.plot(t_pred + t2, y_hat["BlPitchCMeas"], color='red', linestyle='-', label='Predicted')
+        plt.xlim((t1 - 50, t1 + 50))
+        plt.legend()
+        plt.show()
+        plt.pause(0.001)  # Pause for a moment to allow the figure to update
 
     return t_pred, y_hat
