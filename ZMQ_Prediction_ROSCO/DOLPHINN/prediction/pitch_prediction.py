@@ -24,7 +24,7 @@ class PredictionClass():
         self.data_frame_inputs = pd.DataFrame()  # Initialize DataFrame
         self.iteration_count = 0  # Initialize the iteration count outside the loop
 
-    def run_simulation(self, current_time, measurements, DOLPHINN_PATH):
+    def run_simulation(self, current_time, measurements, DOLPHINN_PATH, plot_figure):
         self.iteration_count += 1  # Initialize the iteration count outside the loop
 
         if not hasattr(self, 'csv_df'):
@@ -65,7 +65,7 @@ class PredictionClass():
         if len(self.batch_data) >= self.batch_size and current_time % 1 == 0:
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print("Running DOLPHINN with input data frame shape:", data_frame_inputs.shape)
-            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH)
+            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure)
             # print("Predicted Collective Blade Pitch Angle:", self.y_hat["BlPitchCMeas"].iloc[-1])
             # print("t_pred:", self.t_pred.iloc[-1])
                         
