@@ -43,7 +43,7 @@ def buffer(Pred_B, t_pred, current_time, measurements, buffer_duration):
 
     # Print the current time and prediction time when a Pred_B is used
     if last_used_t_pred is not None and current_time % 1 == 0:
-        print(f"Current Time: {current_time}, Last Used Prediction Time: {last_used_t_pred:.0f}")
+        print(f"Current Time: {current_time}, Last Used Prediction Time: {last_used_t_pred:}")
         print(f"Sending predicted blade pitch offset setpoint: {Pred_Delta_B:.3f} ({Pred_Delta_B*180/np.pi:.3f} deg)")
     elif last_used_t_pred is None and current_time % 5 == 0:
         print("Blade Pitch Offset Setpoint:", Pred_Delta_B)
