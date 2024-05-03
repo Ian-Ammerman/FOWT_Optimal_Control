@@ -19,7 +19,7 @@ def buffer(Pred_B, t_pred, current_time, measurements, buffer_duration):
             printed_first_Pred_B = True # Make sure only first Pred_B is printed
             first_delta_received = True  # Set the flag on receiving the first Pred_B
             last_whole_second = int(current_time)  # Initialize countdown start time
-            print(f"First pitch angle offset received and buffered: {Pred_B - measurements["BlPitchCMeas"]} radians at time {current_time}")
+            print(f"First pitch angle offset received and buffered: {Pred_B - measurements['BlPitchCMeas']} radians at time {current_time}")
 
     # Release buffer based on current time and buffer_duration
     while Pred_B_buffer and Pred_B_buffer[0][1] <= current_time:
