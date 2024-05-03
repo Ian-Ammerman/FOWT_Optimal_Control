@@ -8,7 +8,6 @@ from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
 from rosco.toolbox.control_interface import wfc_zmq_server
 from ZMQ_Prediction_ROSCO.DOLPHINN.prediction.pitch_prediction import PredictionClass
 from ZMQ_Prediction_ROSCO.DOLPHINN.prediction.buffer_delta_B import buffer
-from ZMQ_Prediction_ROSCO.DOLPHINN.vmod.dolphinn import DOLPHINN as DOL
 
 class bpcClass:
     def __init__(self, prediction_instance):
@@ -18,7 +17,6 @@ class bpcClass:
         self.this_dir = os.path.dirname(os.path.abspath(__file__))
         self.rosco_dir = os.path.dirname(self.this_dir)
         self.outputs = os.path.join(self.this_dir, 'Sim_Outputs')
-        self.dol = DOL()
         os.makedirs(self.outputs, exist_ok=True)
 
     def run_zmq(self, logfile=None):
@@ -36,14 +34,15 @@ class bpcClass:
 
         # Specify path and load trained DOLPHINN model (Must contain BlPitchCMeas)
         DOLPHINN_PATH = os.path.join("ZMQ_Prediction_ROSCO", "DOLPHINN", "saved_models", "Test_ROSCO_Param", "wave_model")
-        self.dol.load(DOLPHINN_PATH)
+        
+        # Buffer duration
+        buffer_duration = 20
 
         # Get prediction and predicted time
         Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH)
 
         # Buffer prediction until optimal time to send offset to ROSCO
-        Pred_Delta_B = buffer(Pred_B, t_pred, current_time, measurements, self.dol.time_horizon)
-
+        Pred_Delta_B = buffer(Pred_B, t_pred, current_time, measurements, buffer_duration)
 
         YawOffset = 0.0
 
