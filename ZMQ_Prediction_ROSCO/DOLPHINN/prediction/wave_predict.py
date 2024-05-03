@@ -6,24 +6,11 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from vmod.dolphinn import DOLPHINN as DOL
 
-"""
-In this example:
-- load a trained MLSTM model using DOLPHINN on new FC2 data
-
-Example for plotting for each iteration:
-    plt.figure()
-    plt.plot(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx], color='black', label='Actual')
-    plt.plot(t_pred + t2, y_hat["BlPitchCMeas"], color='red', linestyle='-', label='Predicted')
-    plt.xlim((t1-50, t1+50))
-    plt.legend()
-    plt.show()
- 
-"""
 
 # Variable to hold the last figure
 last_fig = None
 
-def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, current_time, plot_figure=False):
+def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure):
     global last_fig
     
     # Load the trained model
@@ -52,17 +39,15 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, current_time, plot_figure=Fal
     if plot_figure:
         plt.ion()  # Turn on interactive plotting
 
-        # Close the previous figure if it exists
         if last_fig is not None:
             plt.close(last_fig)
 
-        # Create a new figure and keep track of it
         last_fig = plt.figure()
         plt.plot(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx], color='black', label='Actual')
         plt.plot(t_pred + t2, y_hat["BlPitchCMeas"], color='red', linestyle='-', label='Predicted')
         plt.xlim((t1 - 50, t1 + 50))
         plt.legend()
         plt.show()
-        plt.pause(0.001)  # Pause for a moment to allow the figure to update
+        plt.pause(0.001) 
 
     return t_pred, y_hat
