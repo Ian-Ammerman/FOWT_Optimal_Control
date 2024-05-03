@@ -32,7 +32,7 @@ class PredictionClass():
             self.csv_df = pd.read_csv(csv_file_path)
         
         required_measurements = ['PtfmTDX', 'PtfmTDZ', 'PtfmTDY', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'BlPitchCMeas', 'RotSpeed']
-        
+
         # Set initial time if it has not been set
         if self.initial_time is None:
             self.initial_time = current_time
@@ -64,7 +64,7 @@ class PredictionClass():
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print("Running DOLPHINN with input data frame shape:", data_frame_inputs.shape)
             self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH)
-            # print("Predicted PtfmTDY:", y_hat["PtfmTDY"].iloc[-1])
+            # print("Predicted Collective Blade Pitch Angle:", y_hat["BlPitchCMeas"].iloc[-1])
             # print("t_pred:", t_pred.iloc[-1])
                         
             if self.csv_saved is False and current_time % 200 == 0:
@@ -74,6 +74,6 @@ class PredictionClass():
                 print(f"SAVED control CSV at t = {current_time}")
 
         if hasattr(self, 'y_hat') and not self.y_hat.empty:
-            return self.y_hat["PtfmTDY"].iloc[-1], self.t_pred.iloc[-1]
+            return self.y_hat["BlPitchCMeas"].iloc[-1], self.t_pred.iloc[-1]
         else:
             return None, None
