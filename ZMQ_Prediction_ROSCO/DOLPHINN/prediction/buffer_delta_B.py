@@ -1,9 +1,12 @@
 from collections import deque
 import numpy as np
+from vmod.dolphinn import DOLPHINN as DOL
+
 
 # Global variables
 Pred_B_buffer = deque()
-buffer_duration = 19  # Delay duration in seconds
+dol = DOL()
+buffer_duration = dol.time_horizon # Delay duration in seconds
 last_used_Pred_B = None  # Initially set to zero
 last_used_t_pred = None  # Initially set to None
 first_delta_received = False
@@ -15,7 +18,7 @@ def buffer(Pred_B, t_pred, current_time, measurements):
 
     # Buffering Pred_B with its predicted time and the time it was predicted
     if Pred_B is not None:
-        Pred_B_buffer.append((Pred_B, current_time + buffer_duration, t_pred))
+        Pred_B_buffer.append((Pred_B, current_time + buffer_duration - 1, t_pred))
         if not first_delta_received and not printed_first_Pred_B:
             printed_first_Pred_B = True # Make sure only first Pred_B is printed
             first_delta_received = True  # Set the flag on receiving the first Pred_B
