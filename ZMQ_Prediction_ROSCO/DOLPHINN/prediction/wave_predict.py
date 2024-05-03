@@ -20,11 +20,7 @@ Example for plotting for each iteration:
 
 """
 
-def run_DOLPHINN(data_frame_inputs, current_time):
-    # Constants and model paths
-    TEST = "2a"
-    DOLPHINN_PATH = os.path.join("ZMQ_Prediction_ROSCO", "DOLPHINN", "saved_models", "2a", "wave_model")
-    DATA_PATH = os.path.join("ZMQ_Prediction_ROSCO", "DOLPHINN", "data", "data_frame_inputs.csv")
+def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH):
     
     # Load the trained model
     dol = DOL()
