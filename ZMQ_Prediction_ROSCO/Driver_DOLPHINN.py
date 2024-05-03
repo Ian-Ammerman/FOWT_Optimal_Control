@@ -37,8 +37,9 @@ class bpcClass:
         
         # Buffer duration
         buffer_duration = 20
-
-        plot_figure = False
+        
+        # Set to True for real time prediction plotting
+        plot_figure = True
 
         # Get prediction and predicted time
         Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH, plot_figure)
