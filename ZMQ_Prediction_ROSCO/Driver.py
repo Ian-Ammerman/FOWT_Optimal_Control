@@ -34,16 +34,15 @@ class bpcClass:
 
     def wfc_controller(self, id, current_time, measurements):
 
-        # Specify path to trained DOLPHINN model
+        # Specify path and load trained DOLPHINN model (Must contain BlPitchCMeas)
         DOLPHINN_PATH = os.path.join("ZMQ_Prediction_ROSCO", "DOLPHINN", "saved_models", "Test_ROSCO_Param", "wave_model")
         self.dol.load(DOLPHINN_PATH)
-        time_horizon = self.dol.time_horizon   
 
         # Get prediction and predicted time
-        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements)
+        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH)
 
         # Buffer prediction until optimal time to send offset to ROSCO
-        Pred_Delta_B = buffer(Pred_B, t_pred, current_time, measurements, time_horizon)
+        Pred_Delta_B = buffer(Pred_B, t_pred, current_time, measurements, self.dol.time_horizon)
 
 
         YawOffset = 0.0
