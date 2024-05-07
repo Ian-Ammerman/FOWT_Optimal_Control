@@ -6,7 +6,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from vmod.dolphinn import DOLPHINN as DOL
 
-
 # Variable to hold the last figure
 last_fig = None
 
@@ -42,12 +41,17 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure):
         if last_fig is not None:
             plt.close(last_fig)
 
-        last_fig = plt.figure()
-        plt.plot(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx], color='black', label='Actual')
-        plt.plot(t_pred + t2, y_hat["BlPitchCMeas"], color='red', linestyle='-', label='Predicted')
+        last_fig = plt.figure(figsize=(10, 6))
+        plt.plot(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx]*180/np.pi*180/np.pi, color='black', label='Actual')
+        plt.plot(t_pred + t2, y_hat["BlPitchCMeas"]*180/np.pi, color='red', linestyle='-', label='Predicted')
         plt.xlim((t1 - 50, t1 + 50))
         plt.legend()
         plt.show()
+
+        # Specify window position
+        fig_manager = plt.get_current_fig_manager()
+        fig_manager.window.wm_geometry("+100+100")  # Position at (x=100, y=100)
+
         plt.pause(0.6) 
 
     return t_pred, y_hat
