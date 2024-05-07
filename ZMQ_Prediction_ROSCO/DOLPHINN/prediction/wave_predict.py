@@ -48,6 +48,6 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure):
         plt.xlim((t1 - 50, t1 + 50))
         plt.legend()
         plt.show()
-        plt.pause(0.001) 
+        plt.pause(0.6) 
 
     return t_pred, y_hat
