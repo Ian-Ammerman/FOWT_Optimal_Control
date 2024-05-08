@@ -16,7 +16,7 @@ marker_predicted = ax.scatter([], [], color='red')
 text_actual = ax.annotate('', xy=(0, 0), xytext=(10,10), textcoords="offset points")
 text_predicted = ax.annotate('', xy=(0, 0), xytext=(0,8), textcoords="offset points")
 
-def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot):
+def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot, current_time):
     global line_actual, line_predicted, marker_actual, marker_predicted, text_actual, text_predicted
     
     # Load the trained model
@@ -48,13 +48,13 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot):
         last_actual_time = time_data.iloc[t1_idx-1] + t2
         last_actual_pitch = state["BlPitchCMeas"].iloc[t1_idx-1] * 180/np.pi
         marker_actual.set_offsets((last_actual_time, last_actual_pitch))
-        marker_actual.set_label('Current BlPitch')
+        marker_actual.set_label(f'Current BlPitch ({current_time}s)')
 
         # Update marker and text for predicted data
         last_pred_time = t_pred.iloc[-1] + t2
         last_pred_pitch = y_hat["BlPitchCMeas"].iloc[-1] * 180/np.pi
         marker_predicted.set_offsets((last_pred_time, last_pred_pitch))
-        marker_predicted.set_label(f'Predicted BlPitch (+{dol.time_horizon}s)')  
+        marker_predicted.set_label(f'Predicted BlPitch (+{current_time + dol.time_horizon}s)')  
 
         ax.set_xlim((t1 - 50, t1 + 50))
         ax.set_ylim((0, 10))
@@ -63,6 +63,8 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot):
         ax.legend()
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles, labels)
+        plt.grid(True)
+        plt.title(f'Collective Blade Pitch Prediction. Wave Time Horizon: {dol.time_horizon}s')
         plt.draw()
         plt.pause(0.1)
 
