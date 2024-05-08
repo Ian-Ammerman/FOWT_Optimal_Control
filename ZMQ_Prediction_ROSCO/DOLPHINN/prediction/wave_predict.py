@@ -6,11 +6,18 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from vmod.dolphinn import DOLPHINN as DOL
 
-# Variable to hold the last figure
-last_fig = None
+# Create a figure and axes outside of your main update function
+plt.ion()  # Turn on interactive mode
+fig, ax = plt.figure(figsize=(10, 6)), plt.axes()
+line_actual, = ax.plot([], [], color='black', label='Measured BlPitch')
+line_predicted, = ax.plot([], [], color='red', linestyle='-', label='Predicted BlPitch')
+marker_actual = ax.scatter([], [], color='black')
+marker_predicted = ax.scatter([], [], color='red')
+text_actual = ax.annotate('', xy=(0, 0), xytext=(10,10), textcoords="offset points")
+text_predicted = ax.annotate('', xy=(0, 0), xytext=(0,8), textcoords="offset points")
 
-def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure):
-    global last_fig
+def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot):
+    global line_actual, line_predicted, marker_actual, marker_predicted, text_actual, text_predicted
     
     # Load the trained model
     dol = DOL()
@@ -27,50 +34,36 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure):
     t1_idx = np.where(np.min(np.abs(data['Time'] - t1)) == np.abs(data['Time'] - t1))[0][0]
     t2_idx = np.where(np.min(np.abs(data['Time'] - (t2 + t1))) == np.abs(data['Time'] - (t2 + present_time)))[0][0]
 
-    # Extract state and wave data up to the relevant time index
     state = data[dol.dof].mul(dol.conversion, axis=1).iloc[:t1_idx]
     time_data = data['Time'].iloc[:t2_idx]
     wave = data['wave'].iloc[:t2_idx]
 
-    # Perform prediction
     t_pred, y_hat = dol.predict(time_data, state, wave, history=0)
     
-    if plot_figure:
-        plt.ion()  # Turn on interactive plotting
+    if update_plot:
+        line_actual.set_data(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx]*180/np.pi * 180/np.pi)
+        line_predicted.set_data(t_pred + t2, y_hat["BlPitchCMeas"]*180/np.pi)
 
-        if last_fig is not None:
-            plt.close(last_fig)
-
-        last_fig = plt.figure(figsize=(10, 6))
-        # Plot the actual data
-        plt.plot(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx]*180/np.pi*180/np.pi, color='black', label='Actual')
-        # Plot the predicted data
-        plt.plot(t_pred + t2, y_hat["BlPitchCMeas"]*180/np.pi, color='red', linestyle='-', label='Predicted')
-        
-        # Add marker at the last data point of the actual data series
+        # Update marker and text for actual data
         last_actual_time = time_data.iloc[t1_idx-1] + t2
         last_actual_pitch = state["BlPitchCMeas"].iloc[t1_idx-1] * 180/np.pi * 180/np.pi
-        plt.scatter(last_actual_time, last_actual_pitch, color='blue')  # Blue marker at last actual point
-        plt.annotate('Current blade pitch', (last_actual_time, last_actual_pitch), textcoords="offset points", xytext=(10,10), ha='center')
-        
-        # Add marker at the last data point of the predicted data series
+        marker_actual.set_offsets((last_actual_time, last_actual_pitch))
+        marker_actual.set_label('Current BlPitch')
+
+        # Update marker and text for predicted data
         last_pred_time = t_pred.iloc[-1] + t2
         last_pred_pitch = y_hat["BlPitchCMeas"].iloc[-1] * 180/np.pi
-        plt.scatter(last_pred_time, last_pred_pitch, color='green')  # Green marker at last predicted point
-        plt.annotate(f'Predicted blade pitch (+{dol.time_horizon}s)', (last_pred_time, last_pred_pitch), textcoords="offset points", xytext=(0,8), ha='center')
-        
-        plt.xlim((t1 - 50, t1 + 50))
-        plt.legend()
-        plt.xlabel("Time [s]")  # Set x-axis label
-        plt.ylabel("Angle [deg]")  # Set y-axis label
-        plt.show()
+        marker_predicted.set_offsets((last_pred_time, last_pred_pitch))
+        marker_predicted.set_label(f'Predicted BlPitch (+{dol.time_horizon}s)')  
 
-        # Specify window position
-        fig_manager = plt.get_current_fig_manager()
-        fig_manager.window.wm_geometry("+100+100")  # Position at (x=100, y=100)
-
-        plt.pause(1)
+        ax.set_xlim((t1 - 50, t1 + 50))
+        ax.set_ylim((0, 10))
+        ax.set_xlabel("Time [s]")
+        ax.set_ylabel("Angle [deg]")
+        ax.legend()
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles, labels)
+        plt.draw()
+        plt.pause(0.1)
 
     return t_pred, y_hat
-    
-
