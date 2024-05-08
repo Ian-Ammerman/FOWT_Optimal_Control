@@ -73,7 +73,7 @@ class run_FAST_ROSCO():
             self.rosco_dir = os.path.realpath(os.path.join(this_dir,'../../../..'))
 
         if not self.tune_case_dir:
-            self.tune_case_dir = os.path.realpath(os.path.join(self.rosco_dir,'ZMQ_Prediction_ROSCO/Tune_Cases'))
+            self.tune_case_dir = os.path.realpath(os.path.join(self.rosco_dir,'project/Tune_Cases'))
 
         if not self.save_dir:
             self.save_dir       = os.path.join(self.rosco_dir,'outputs')

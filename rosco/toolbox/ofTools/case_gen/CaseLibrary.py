@@ -139,7 +139,7 @@ def power_curve(**wind_case_opts):
     else: # default
         # Run conditions
         U = np.arange(4,14.5,.5).tolist()
-        U = np.linspace(3,25,num=16)
+        U = np.linspace(12,25,num=16)
 
     if 'T_max' in wind_case_opts:
         T_max = wind_case_opts['T_max']
@@ -150,8 +150,8 @@ def power_curve(**wind_case_opts):
     case_inputs[("Fst","TMax")] = {'vals':[T_max], 'group':0}
 
     # wind inflow
-    case_inputs[("InflowWind","WindType")] = {'vals':[1], 'group':0}
-    case_inputs[("InflowWind","HWindSpeed")] = {'vals':U, 'group':1}
+    # case_inputs[("InflowWind","WindType")] = {'vals':[1], 'group':0}
+    # case_inputs[("InflowWind","HWindSpeed")] = {'vals':U, 'group':1}
 
     return case_inputs
 

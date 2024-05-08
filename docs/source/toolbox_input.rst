@@ -1230,7 +1230,7 @@ These are pass-through parameters for the DISCON.IN file.  Use with caution. Do 
     Update period at zmq interface to send measurements and wait for
     setpoint [sec.]
 
-    *Default* = 1
+    *Default* = 1.0
 
 :code:`ZMQ_ID` : Float
     Integer identifier of turbine

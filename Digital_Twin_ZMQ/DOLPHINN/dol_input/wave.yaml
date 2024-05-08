@@ -1,0 +1,42 @@
+training_dataset: "/home/hpsauce/miniconda3/ROSCO/ZMQ_Prediction_ROSCO/DOLPHINN/data/TrainingData.csv"
+dof:
+  - "PtfmTDX"
+  - "PtfmTDZ"
+  - "PtfmTDY"
+  - "PtfmRDX"
+  - "PtfmRDY"
+  - "PtfmRDZ"
+  - "BlPitchCMeas"
+  - "RotSpeed"
+unit:
+  - "[m]"
+  - "[m]"
+  - "[m]"
+  - "[rad]"
+  - "[rad]"
+  - "[rad]"
+  - "[rad]"
+  - "[rad/s]"
+conversion:
+  - 1
+  - 1
+  - 1
+  - 0.01745329251
+  - 0.01745329251
+  - 0.01745329251
+  - 0.01745329251
+  - 0.01745329251
+
+time_horizon: 20
+nm: 0.588482
+hidden_layer: 1
+neuron_number: 96
+epochs: 60
+batch_time: 53
+timestep: 1.0
+lr: 0.001
+dropout: 0.0
+train_ratio: 0.50
+valid_ratio: 0.25
+wind_prediction: False
+wave_prediction: True
