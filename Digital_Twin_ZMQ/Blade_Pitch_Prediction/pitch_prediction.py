@@ -27,7 +27,7 @@ class PredictionClass():
 
         if not hasattr(self, 'csv_df'):
             print("Retreiving wave data ...")
-            csv_file_path = os.path.join("Digital_Twin_ZMQ", "DOLPHINN", "data", "WaveData.csv")
+            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "DOLPHINN", "data", "WaveData.csv")
             self.csv_df = pd.read_csv(csv_file_path)
         
         required_measurements = ['PtfmTDX', 'PtfmTDZ', 'PtfmTDY', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'BlPitchCMeas', 'RotSpeed']

@@ -4,7 +4,7 @@ import numpy as np
 import os
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from DOLPHINN.vmod.dolphinn import DOLPHINN as DOL
+from Blade_Pitch_Prediction.DOLPHINN.vmod.dolphinn import DOLPHINN as DOL
 
 # Create a figure and axes outside of your main update function
 plt.ion()  # Turn on interactive mode

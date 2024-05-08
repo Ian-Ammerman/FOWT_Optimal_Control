@@ -17,7 +17,7 @@ class bpcClass:
         # directories
         self.this_dir = os.path.dirname(os.path.abspath(__file__))
         self.rosco_dir = os.path.dirname(self.this_dir)
-        self.outputs = os.path.join(self.this_dir, 'Sim_Outputs')
+        self.outputs = os.path.join('Sim_Outputs')
         os.makedirs(self.outputs, exist_ok=True)
 
     def run_zmq(self, logfile=None):
@@ -34,7 +34,7 @@ class bpcClass:
     def wfc_controller(self, id, current_time, measurements):
 
         # Specify path and load trained DOLPHINN model (Must contain BlPitchCMeas)
-        DOLPHINN_PATH = os.path.join("Digital_Twin_ZMQ", "DOLPHINN", "saved_models", "th10_Hs3_1_Tp8_U12Steady", "wave_model")
+        DOLPHINN_PATH = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "DOLPHINN", "saved_models", "th10_Hs3_1_Tp8_U12Steady", "wave_model")
         config_file_path = os.path.join(DOLPHINN_PATH, 'config.yaml')
         with open(config_file_path, 'r') as file:
             config_data = yaml.safe_load(file)
@@ -50,6 +50,7 @@ class bpcClass:
         # Buffer duration
         buffer_duration = time_horizon
         # Buffer prediction until optimal time to send offset to ROSCO
+
         Pred_Delta_B = buffer(Pred_B, t_pred, current_time, measurements, buffer_duration)
         # Pred_Delta_B = 0.0
         YawOffset = 0.0
