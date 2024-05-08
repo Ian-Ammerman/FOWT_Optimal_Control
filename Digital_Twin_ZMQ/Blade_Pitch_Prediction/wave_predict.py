@@ -54,7 +54,7 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot, current_time):
         last_pred_time = t_pred.iloc[-1] + t2
         last_pred_pitch = y_hat["BlPitchCMeas"].iloc[-1] * 180/np.pi
         marker_predicted.set_offsets((last_pred_time, last_pred_pitch))
-        marker_predicted.set_label(f'Predicted BlPitch (+{current_time + dol.time_horizon}s)')  
+        marker_predicted.set_label(f'Predicted BlPitch ({current_time + dol.time_horizon}s)')  
 
         ax.set_xlim((t1 - 50, t1 + 50))
         ax.set_ylim((0, 10))
