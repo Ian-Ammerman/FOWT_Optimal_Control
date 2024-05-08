@@ -56,14 +56,14 @@ class PredictionClass():
             self.batch_data[update_index][2:] = measurement_values
             popped_row = self.batch_data.pop(0)
 
-        if self.iteration_count % 500 == 0 and len(self.batch_data) < self.batch_size:
+        if self.iteration_count % 200 == 0 and len(self.batch_data) < self.batch_size:
             print(f"Remaining rows until initializing DOLPHINN: {self.batch_size - len(self.batch_data)} (Batch size:{len(self.batch_data)})")
 
         # Check if the last time value is at a whole second
         if len(self.batch_data) >= self.batch_size and current_time % 1 == 0:
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print("Running DOLPHINN with input data frame shape:", data_frame_inputs.shape)
-            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure)
+            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time)
             # print("Predicted Collective Blade Pitch Angle:", self.y_hat["BlPitchCMeas"].iloc[-1])
             # print("t_pred:", self.t_pred.iloc[-1])
                         
