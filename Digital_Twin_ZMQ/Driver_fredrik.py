@@ -1,28 +1,33 @@
 # driver_fredrik.py
 import os
 import zmq
+import time
 import pandas as pd
 import multiprocessing as mp
 from ZMQ_Prediction_ROSCO.FredrikPart.fatigue_damage_RUL_fredrik import RUL_class
 from rosco.toolbox.control_interface import wfc_zmq_server 
 from rosco.toolbox.ofTools.case_gen import CaseLibrary as cl
 from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
-
+from ZMQ_Prediction_ROSCO.FredrikPart.data_monitor import DataMonitor
         
 class BladePitchController:
     def __init__(self):
-        self.rul_instance = RUL_class(emit_callback=self.publish_rul_updates)
+        self.chunk_duration = 3600
+        self.rul_instance = RUL_class(emit_callback=self.publish_rul_updates, chunk_duration=self.chunk_duration)
         self.network_address = "tcp://*:5555"
         self.server = None
         
         self.this_dir = os.path.dirname(os.path.abspath(__file__))
         self.output_dir = os.path.join(self.this_dir, "Outputs")
+        self.input_dir = os.path.join(self.this_dir, "../Outputs")
+        self.output_filename = "updated_simulation_data.csv"
         os.makedirs(self.output_dir, exist_ok=True)
         self.logfile = os.path.join(self.output_dir, os.path.splitext(os.path.basename(__file__))[0] + '.log')
         print("Log file path:", self.logfile)
-        
-        self.data = pd.read_csv('ZMQ_Prediction_ROSCO/FredrikPart/csvfiles/Results24hour_moments.csv')
-        self.last_processed_index = 0  
+
+        self.data_monitor = DataMonitor(self.output_dir, self.output_filename, self.chunk_duration)       
+        self.data_frame = pd.DataFrame()
+        self.last_data_check_time = 10
         
     def run_zmq(self, logfile=None):
         self.context = zmq.Context()
@@ -34,48 +39,45 @@ class BladePitchController:
         self.server.wfc_controller = self.wfc_controller
         self.server.runserver()
             
-    def simulate_real_time_data_stream(self, current_sim_time):
-        new_data = self.data.iloc[self.last_processed_index:]
-        new_data = new_data[new_data['Time'] <= current_sim_time]
-        self.last_processed_index += len(new_data)
-        
-        for _, row in new_data.iterrows():
-            csv_measurements = {
-                'Time': row['Time'],
-                'RootFzb1': row['RootFzb1'],  # Axial shear force, blade 1
-                'RootMxb1': row['RootMxb1'],  # Local bending moment x (edgewise), blade 1
-                'RootMyb1': row['RootMyb1'],  # Local bending moment y (flapwise), blade 1
-                'RootFzb2': row['RootFzb2'],  # Axial shear force, blade 2
-                'RootMxb2': row['RootMxb2'],  # Local bending moment x (edgewise), blade 2
-                'RootMyb2': row['RootMyb2'],  # Local bending moment y (flapwise), blade 2
-                'RootFzb3': row['RootFzb3'],  # Axial shear force, blade 3
-                'RootMxb3': row['RootMxb3'],  # Local bending moment x (edgewise), blade 3
-                'RootMyb3': row['RootMyb3'],  # Local bending moment y (flapwise), blade 3
-                'TwrBsFzt': row['TwrBsFzt'],  # Axial shear force, tower base
-                'TwrBsMxt': row['TwrBsMxt'],  # Local bending moment x (edgewise), tower base
-                'TwrBsMyt': row['TwrBsMyt'],  # Local bending moment y (flapwise), tower base
-            }
-            self.rul_instance.update_measurements_from_csv(current_sim_time, csv_measurements)
+    def update_system_state(self, current_time):
+        # Check if it's time to read new data (every 10 seconds)
+        if current_time - self.last_data_check_time >= self.chunk_duration/10:
+            new_data = self.data_monitor.read_and_filter_data()
+            if not new_data.empty:
+                #print(f"Data received for processing at simulation time: {current_time}")
+                self.data_frame = pd.concat([self.data_frame, new_data], ignore_index=True)
+                self.data_monitor.process_data()  # Process the data if new data was read
+                # Pass each row of new_data to the fatigue analysis
+                for _, row in new_data.iterrows():
+                    self.rul_instance.update_measurements(current_time, row)
+                #if current_time >= 50.0:
+                #    self.inspect_data()
+            else:
+                print("No new data available.")
+            self.last_data_check_time = current_time
+    
+    def inspect_data(self):
+        if not self.data_frame.empty:
+            print("Inspecting data at 50 seconds:")
+            print(self.data_frame.head())  # Print the first few rows for a quick check
+            csv_path = os.path.join(self.output_dir, "data_at_50_seconds.csv")
+            self.data_frame.to_csv(csv_path, index=False)
+            print(f"Data saved to {csv_path} for further inspection.")
 
-    def publish_rul_updates(self, all_rul_values):
-        # Debug print, uncomment to check incoming data structure
-        # print(f"publish_rul_updates called with RUL values: {all_rul_values}")
+
         
-        # Extract each set of RUL values from the dictionary
-        # rul_values_blade_rosco = all_rul_values['rul_values_blade_rosco']
+    def publish_rul_updates(self, all_rul_values):
         rul_values_blade_openfast = all_rul_values['rul_values_blade_openfast']
         rul_values_tower_openfast = all_rul_values['rul_values_tower_openfast']
         
-        # Publish each set of RUL values as a separate JSON message
-        # self.pub_socket.send_json({"rul_values_blade_rosco": rul_values_blade_rosco})
         self.pub_socket.send_json({"rul_values_blade_openfast": rul_values_blade_openfast})
         self.pub_socket.send_json({"rul_values_tower_openfast": rul_values_tower_openfast})
 
     def wfc_controller(self, id, current_time, measurements):
-        #self.rul_instance.update_measurements(current_time, measurements)
-        self.simulate_real_time_data_stream(current_time)  
-    
-        return {'YawOffset': 0.0}  # This is kept to keep wfc going. YawOffset not needed
+        # Call to process any new data that might have been read
+        self.update_system_state(current_time)
+
+        return {'YawOffset': 0.0}
                 
     def sim_openfast(self):
         r = run_FAST_ROSCO()
@@ -88,6 +90,7 @@ class BladePitchController:
             "LoggingLevel": 2,
             "DISCON": {"ZMQ_Mode": 1, "ZMQ_ID": 1}
         }
+        r.controller_params["DISCON"]["ZMQ_UpdatePeriod"] = 0.0125
         r.run_FAST()
         
     def main(self):    
