@@ -4,11 +4,12 @@ import zmq
 import time
 import pandas as pd
 import multiprocessing as mp
-from ZMQ_Prediction_ROSCO.FredrikPart.fatigue_damage_RUL_fredrik import RUL_class
+from ZMQ_Prediction_ROSCO.Fatigue_Estimation.data_monitor import DataMonitor
+from ZMQ_Prediction_ROSCO.Fatigue_Estimation.fatigue_damage_RUL_fredrik import RUL_class
 from rosco.toolbox.control_interface import wfc_zmq_server 
 from rosco.toolbox.ofTools.case_gen import CaseLibrary as cl
 from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
-from ZMQ_Prediction_ROSCO.FredrikPart.data_monitor import DataMonitor
+
         
 class BladePitchController:
     def __init__(self):
