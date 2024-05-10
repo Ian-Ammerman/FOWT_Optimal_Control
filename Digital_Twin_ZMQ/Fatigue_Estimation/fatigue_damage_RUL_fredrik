@@ -1,22 +1,25 @@
 # fatigue_damage_RUL.py
+import os
+import time
 import numpy as np
+import pandas as pd
 import rainflow as rfc
-from ZMQ_Prediction_ROSCO.FredrikPart.real_time_server_fredrik import RealTimeServer_class
+from ZMQ_Prediction_ROSCO.Fatigue_Estimation.real_time_server_fredrik import RealTimeServer_class
 
 # Material properties and SN curve parameters for fatigue analysis
 material_props_blade  = {'thk': 100, 'diameter': 5.2}  
 #sn_curve_params_blade = {'S0': 605, 'b': 0.14}  # Normalized stress 'S0' and slope 'b'
 #sn_curve_params_blade = {'S0': 895, 'b': 0.10}  # Normalized stress 'S0' and slope 'b'
-sn_curve_params_blade = {'S0': 724, 'b': 0.12}  # Normalized stress 'S0' and slope 'b'
+#sn_curve_params_blade = {'S0': 724, 'b': 0.11}  # Normalized stress 'S0' and slope 'b'
+sn_curve_params_blade = {'S0': 412.98, 'b': 0.101}  # Normalized stress 'S0' and slope 'b'
 
 material_props_tower = {'thk': 82.95, 'thk_ref': 25, 'diameter': 10} 
 sn_curve_params_tower = {'K1': 1/(10**12.164), 'beta1': 3, 
                          'stress_lim': 52.639, 'K2': 1/(10**15.606), 'beta2': 5}
 
-chunk_duration = 30 
 
 class RUL_class():
-    def __init__(self, port="5556", emit_callback=None):
+    def __init__(self, port="5556", emit_callback=None, chunk_duration=50):
         """Initialize the RUL class with default port and initial values for data storage and calculation.
         
         Parameters:
@@ -25,11 +28,11 @@ class RUL_class():
         self.port = port
         print(f"RUL_class initialized with emit_callback: {emit_callback}")
         self.emit_callback = emit_callback
+        self.chunk_duration = chunk_duration  # Set the chunk duration here
         self.time_data = []
         self.chunk_start_time = None
-        self.total_observation_time = 0 
-        
-        
+        self.total_observation_time = 0
+
         #self.fatigue_damage_blades_rosco = {'blade1': 0, 'blade2': 0, 'blade3': 0}
         self.fatigue_damage_blades_openfast = {'blade1': 0, 'blade2': 0, 'blade3': 0}
         self.fatigue_damage_tower_openfast = 0
@@ -41,26 +44,63 @@ class RUL_class():
             'blade2': {'RootFzb': [], 'RootMxb': [], 'RootMyb': []},
             'blade3': {'RootFzb': [], 'RootMxb': [], 'RootMyb': []},
         }
-   
-    def update_measurements_from_csv(self, current_time, csv_measurements):
+
+        self.csv_save_interval = 25  # Save CSV every 500 seconds
+        self.next_save_time = 25
+        
+    def update_measurements(self, current_time, data):
+        #print("CSV Measurements received:", csv_measurements)
+
         if self.chunk_start_time is None:
             self.chunk_start_time = current_time
             
-        self.time_data.append(current_time)  # Ensure all timestamps are collected
+        self.time_data.append(current_time)  
+        #print("Length of Time Data:", len(self.time_data))
 
-        self.csv_bending_moment_tower['TwrBsFzt'].append(csv_measurements.get('TwrBsFzt', 0))
-        self.csv_bending_moment_tower['TwrBsMxt'].append(csv_measurements.get('TwrBsMxt', 0))
-        self.csv_bending_moment_tower['TwrBsMyt'].append(csv_measurements.get('TwrBsMyt', 0))
+        self.csv_bending_moment_tower['TwrBsFzt'].append(data.get('TwrBsFzt', 0))
+        self.csv_bending_moment_tower['TwrBsMxt'].append(data.get('TwrBsMxt', 0))
+        self.csv_bending_moment_tower['TwrBsMyt'].append(data.get('TwrBsMyt', 0))
 
         for blade_num in range(1, 4):
             blade_key = f'blade{blade_num}'
-            self.csv_bending_moment_blades[blade_key]['RootFzb'].append(csv_measurements.get(f'RootFzb{blade_num}', 0))
-            self.csv_bending_moment_blades[blade_key]['RootMxb'].append(csv_measurements.get(f'RootMxb{blade_num}', 0))
-            self.csv_bending_moment_blades[blade_key]['RootMyb'].append(csv_measurements.get(f'RootMyb{blade_num}', 0))
-
-        if current_time - self.chunk_start_time >= chunk_duration:
+            self.csv_bending_moment_blades[blade_key]['RootFzb'].append(data.get(f'RootFzb{blade_num}', 0))
+            self.csv_bending_moment_blades[blade_key]['RootMxb'].append(data.get(f'RootMxb{blade_num}', 0))
+            self.csv_bending_moment_blades[blade_key]['RootMyb'].append(data.get(f'RootMyb{blade_num}', 0))
+        
+        if current_time - self.chunk_start_time >= self.chunk_duration:
             self.process_chunk(current_time)
+    """       
+        if current_time >= self.next_save_time:
+            self.save_data_to_csv()
+            self.next_save_time = current_time + self.csv_save_interval  # Schedule next save
 
+            
+    def save_data_to_csv(self):
+        data_to_save = {
+            'Time': self.time_data,
+            'RootFzb1': self.csv_bending_moment_blades['blade1']['RootFzb'],
+            'RootMxb1': self.csv_bending_moment_blades['blade1']['RootMxb'],
+            'RootMyb1': self.csv_bending_moment_blades['blade1']['RootMyb'],
+            'RootFzb2': self.csv_bending_moment_blades['blade2']['RootFzb'],
+            'RootMxb2': self.csv_bending_moment_blades['blade2']['RootMxb'],
+            'RootMyb2': self.csv_bending_moment_blades['blade2']['RootMyb'],
+            'RootFzb3': self.csv_bending_moment_blades['blade3']['RootFzb'],
+            'RootMxb3': self.csv_bending_moment_blades['blade3']['RootMxb'],
+            'RootMyb3': self.csv_bending_moment_blades['blade3']['RootMyb'],
+            'TwrBsFzt': self.csv_bending_moment_tower['TwrBsFzt'],
+            'TwrBsMxt': self.csv_bending_moment_tower['TwrBsMxt'],
+            'TwrBsMyt': self.csv_bending_moment_tower['TwrBsMyt']
+        }
+
+        # Create a DataFrame
+        df = pd.DataFrame(data_to_save)
+        # Generate a timestamped filename
+        file_path = os.path.join('/Users/fredrikfleslandselheim/ROSCO/ZMQ_Prediction_ROSCO/FredrikPart/csvfiles/measurementssaved.csv')
+        
+        # Save DataFrame to CSV
+        df.to_csv(file_path, index=False)
+        print(f"Data saved to CSV at: {file_path}")
+    """
     def process_chunk(self, current_time):
         """Process the current chunk of data, calculate stress, fatigue damage, and update RUL estimate."""
         print(f"Processing chunk at time: {current_time}")
@@ -70,9 +110,9 @@ class RUL_class():
         rul_values_tower_openfast = {}
         
         if self.time_data:
-                observed_chunk_duration = current_time - self.chunk_start_time
-                self.total_observation_time += observed_chunk_duration
-                print(f"Observed Chunk Duration: {observed_chunk_duration}, Total Observed Time blades: {self.total_observation_time}")
+            observed_chunk_duration = current_time - self.chunk_start_time
+            self.total_observation_time += observed_chunk_duration
+            print(f"Observed Chunk Duration: {observed_chunk_duration}, Total Observed Time blades: {self.total_observation_time}")
     
         # Calculate for each blade root using OpenFAST data
         for blade_num in range(1, 4):
@@ -174,8 +214,6 @@ class RUL_class():
         return sigma_total_mpa
 
     def calculate_fatigue_damage_blades(self, sigma_total_mpa, sn_curve_params_blade):
-        #print(f"Calculating fatigue damage for blades with total stress: {sigma_total_mpa}")
-
         """Calculate fatigue damage for a given stress sequence using the SN curve parameters and material properties.
         
         Parameters:
@@ -186,6 +224,7 @@ class RUL_class():
         Returns:
         - fatigue_damage_chunk: Fatigue damage calculated for the given stress sequence.
         """
+        
         fatigue_damage_chunk = 0
         S0, b = sn_curve_params_blade.values()
 
@@ -199,7 +238,7 @@ class RUL_class():
 
         return fatigue_damage_chunk
 
-    def calculate_stress_tower(self, axial_force, bending_moment_x, bending_moment_y, material_props_tower):
+    def calculate_stress_tower(self, axial_force, moment_sideside_x, moment_foreaft_y, material_props_tower):
         #print(f"Calculating stress for tower with axial force: {axial_force}, moments x: {bending_moment_x}, moments y: {bending_moment_y}")
 
         """Calculate the total stress from axial and bending moments.
@@ -224,8 +263,8 @@ class RUL_class():
         
         # Stress calculations
         sigma_axial = axial_force / A  *1000                     # Convert axial force from kN to N 
-        M_x = bending_moment_x  *1000                            # Convert side-side bending moment from kNm to Nm 
-        M_y = bending_moment_y  *1000                            # Convert fore-aft bending moment from kNm to Nm
+        M_x = moment_sideside_x  *1000                            # Convert side-side bending moment from kNm to Nm 
+        M_y = moment_foreaft_y  *1000                            # Convert fore-aft bending moment from kNm to Nm
         sigma_bending_x = M_x / I_xx * r_outer_m * np.cos(theta)
         sigma_bending_y = M_y / I_yy * r_outer_m * np.sin(theta)
 
