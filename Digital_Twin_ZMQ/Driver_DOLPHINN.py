@@ -45,15 +45,15 @@ class bpcClass:
         plot_figure = True # True: Activate real time prediction plotting. False: Deactivate
         Pred_Saturation = False # True: Saturate prediction offset (Avoid too big angle prediction offset)
         saturation_treshold = 2*np.pi/180 # Define the treshold of prediction offset [rad]
-        prediction_training_offset = 0.4 # Defines the offset for the trained model, found from training_results [deg]
+        pred_error = 0.4 # Defines the offset for the trained model, found from training_results [deg]
         buffer_duration = time_horizon # Defines the buffer duration for the prediction before sending offset
 
         # Get prediction and predicted time
-        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon, prediction_training_offset)
+        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon, pred_error)
 
         # Buffer prediction until optimal time to send offset to ROSCO
         if Prediction == True:
-            Pred_Delta_B = Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, prediction_training_offset)
+            Pred_Delta_B = Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_error)
             Pred_Delta_B = Saturate(Pred_Delta_B, Pred_Saturation, saturation_treshold)
         elif Prediction == False: 
             Pred_Delta_B = 0.0
