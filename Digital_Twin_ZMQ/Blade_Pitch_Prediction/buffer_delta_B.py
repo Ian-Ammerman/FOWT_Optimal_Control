@@ -9,7 +9,7 @@ first_delta_received = False
 printed_first_Pred_B = False
 last_whole_second = None  # Track the last whole second for countdown
 
-def buffer(Pred_B, t_pred, current_time, measurements, buffer_duration):
+def Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, prediction_offset):
     global Pred_B_buffer, last_used_Pred_B, last_used_t_pred, first_delta_received, printed_first_Pred_B, last_whole_second
 
     # Buffering Pred_B with its predicted time and the time it was predicted
@@ -28,7 +28,8 @@ def buffer(Pred_B, t_pred, current_time, measurements, buffer_duration):
 
     # Use the last released Pred_B as the control pitch command
     if last_used_Pred_B is not None:
-        Pred_Delta_B = last_used_Pred_B - measurements['BlPitchCMeas']
+        Pred_Delta_B_0 = last_used_Pred_B - measurements['BlPitchCMeas']
+        Pred_Delta_B = Pred_Delta_B_0 + prediction_offset*np.pi/180 # Adding offset in radians
         if current_time % 10 == 0:
             print(f"Current Time: {current_time}. Prediction Time: {t_pred}. Time offset: {current_time - t_pred}")
     else:
