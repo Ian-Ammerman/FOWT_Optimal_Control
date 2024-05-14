@@ -1,34 +1,31 @@
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from Blade_Pitch_Prediction.DOLPHINN.vmod.dolphinn import DOLPHINN as DOL
 
-# Create a figure and axes outside of your main update function
-plt.ion()  # Turn on interactive mode
+# Initialize the figure and axes
+plt.ion()
 fig, ax = plt.figure(figsize=(10, 6)), plt.axes()
-line_actual, = ax.plot([], [], color='black', label='Measured BlPitch')
-line_predicted, = ax.plot([], [], color='red', linestyle='-', label='Predicted BlPitch')
-marker_actual = ax.scatter([], [], color='black')
-marker_predicted = ax.scatter([], [], color='red')
-text_actual = ax.annotate('', xy=(0, 0), xytext=(10,10), textcoords="offset points")
-text_predicted = ax.annotate('', xy=(0, 0), xytext=(0,8), textcoords="offset points")
+line_actual, = ax.plot([], [], color='blue', label='Measured BlPitch')
+line_predicted, = ax.plot([], [], color='#3CB371', linestyle='-', label='Predicted BlPitch')
+marker_actual = ax.scatter([], [], color='blue', alpha=0.5)
+marker_predicted = ax.scatter([], [], color='#3CB371', alpha=0.5)
+old_predictions = []  # List to store old prediction lines
+plotted_times = set()  # Set to store times for which history has been plotted
+last_stippled_time = None  # Track the last time a stippled line was added
 
-def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot, current_time):
-    global line_actual, line_predicted, marker_actual, marker_predicted, text_actual, text_predicted
+def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot, current_time, prediction_offset):
+    global line_actual, line_predicted, marker_actual, marker_predicted, old_predictions, plotted_times, last_stippled_time
     
     # Load the trained model
     dol = DOL()
     dol.load(DOLPHINN_PATH)
 
-    # Calculate the time span for the prediction
-    present_time = round(data_frame_inputs["Time"].iloc[-1] - dol.time_horizon, 4)
-
     # Use input data frame directly
     data = data_frame_inputs 
-
+    present_time = round(data_frame_inputs["Time"].iloc[-1] - dol.time_horizon, 4)
     t1 = present_time
     t2 = dol.time_horizon
     t1_idx = np.where(np.min(np.abs(data['Time'] - t1)) == np.abs(data['Time'] - t1))[0][0]
@@ -41,9 +38,20 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot, current_time):
     t_pred, y_hat = dol.predict(time_data, state, wave, history=0)
     
     if update_plot:
-        line_actual.set_data(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx]*180/np.pi)
-        line_predicted.set_data(t_pred + t2, y_hat["BlPitchCMeas"]*180/np.pi)
+        # Convert current predicted line to stippled and add to old predictions if sufficient time has passed
+        if last_stippled_time is None or current_time - last_stippled_time >= 10:  # adjust interval as needed
+            if line_predicted.get_xdata().size > 0:
+                old_line = ax.plot(line_predicted.get_xdata(), line_predicted.get_ydata(), linestyle=':', color='#3CB371')[0]
+                old_predictions.append(old_line)
+            last_stippled_time = current_time
 
+        # Clear current prediction line data
+        line_predicted.set_data([], [])
+
+        # Set new data for current prediction
+        line_predicted.set_data(t_pred + t2, y_hat["BlPitchCMeas"]*180/np.pi + prediction_offset)
+        line_actual.set_data(time_data.iloc[0:t1_idx] + t2, state["BlPitchCMeas"][0:t1_idx]*180/np.pi)
+        
         # Update marker and text for actual data
         last_actual_time = time_data.iloc[t1_idx-1] + t2
         last_actual_pitch = state["BlPitchCMeas"].iloc[t1_idx-1] * 180/np.pi
@@ -52,7 +60,7 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot, current_time):
 
         # Update marker and text for predicted data
         last_pred_time = t_pred.iloc[-1] + t2
-        last_pred_pitch = y_hat["BlPitchCMeas"].iloc[-1] * 180/np.pi
+        last_pred_pitch = y_hat["BlPitchCMeas"].iloc[-1] * 180/np.pi + prediction_offset
         marker_predicted.set_offsets((last_pred_time, last_pred_pitch))
         marker_predicted.set_label(f'Predicted BlPitch ({current_time + dol.time_horizon}s)')  
 
