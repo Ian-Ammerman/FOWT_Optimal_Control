@@ -22,13 +22,14 @@ class PredictionClass():
         self.data_frame_inputs = pd.DataFrame()  # Initialize DataFrame
         self.iteration_count = 0  # Initialize the iteration count outside the loop
 
-    def run_simulation(self, current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon):
+    def run_simulation(self, current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon, prediction_offset):
         self.iteration_count += 1  # Initialize the iteration count outside the loop
 
         if not hasattr(self, 'csv_df'):
             print("Retreiving wave data ...")
             csv_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "DOLPHINN", "data", "WaveData.csv")
             self.csv_df = pd.read_csv(csv_file_path)
+
         
         required_measurements = ['PtfmTDX', 'PtfmTDZ', 'PtfmTDY', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'BlPitchCMeas', 'RotSpeed']
 
@@ -63,11 +64,11 @@ class PredictionClass():
         if len(self.batch_data) >= self.batch_size and current_time % 1 == 0:
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print("Running DOLPHINN with input data frame shape:", data_frame_inputs.shape)
-            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time)
+            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, prediction_offset)
             # print("Predicted Collective Blade Pitch Angle:", self.y_hat["BlPitchCMeas"].iloc[-1])
             # print("t_pred:", self.t_pred.iloc[-1])
                         
-            if self.csv_saved is False and current_time % 200 == 0:
+            if self.csv_saved is False and current_time % 1000 == 0:
                 self.csv_saved = True
                 output_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "Control_Data", f"Control_Data_T{current_time}.csv")
                 data_frame_inputs.to_csv(output_file_path, index=False)
