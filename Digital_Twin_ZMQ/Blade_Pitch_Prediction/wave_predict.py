@@ -8,8 +8,10 @@ from Blade_Pitch_Prediction.DOLPHINN.vmod.dolphinn import DOLPHINN as DOL
 # Initialize the figure and axes
 plt.ion()
 fig, ax = plt.figure(figsize=(10, 6)), plt.axes()
-line_actual, = ax.plot([], [], color='blue', label='Measured BlPitch')
-line_predicted, = ax.plot([], [], color='#3CB371', linestyle='-', label='Predicted BlPitch')
+line_actual, = ax.plot([], [], color='blue', label='Measured BlPitch (ROSCO)')
+line_predicted, = ax.plot([], [], color='#3CB371', linestyle='-', label=f'Predicted BlPitch')
+# Add placeholder for prediction history
+line_history, = ax.plot([], [], color='#3CB371', linestyle=(0, (1, 2)), label='Prediction history')  
 marker_actual = ax.scatter([], [], color='blue', alpha=0.5)
 marker_predicted = ax.scatter([], [], color='#3CB371', alpha=0.5)
 old_predictions = []  # List to store old prediction lines
@@ -17,7 +19,7 @@ plotted_times = set()  # Set to store times for which history has been plotted
 last_stippled_time = None  # Track the last time a stippled line was added
 
 def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot, current_time, prediction_offset):
-    global line_actual, line_predicted, marker_actual, marker_predicted, old_predictions, plotted_times, last_stippled_time
+    global line_actual, line_predicted, marker_actual, marker_predicted, old_predictions, plotted_times, last_stippled_time, line_history
     
     # Load the trained model
     dol = DOL()
@@ -41,7 +43,7 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, update_plot, current_time, pr
         # Convert current predicted line to stippled and add to old predictions if sufficient time has passed
         if last_stippled_time is None or current_time - last_stippled_time >= 10:  # adjust interval as needed
             if line_predicted.get_xdata().size > 0:
-                old_line = ax.plot(line_predicted.get_xdata(), line_predicted.get_ydata(), linestyle=':', color='#3CB371')[0]
+                old_line = ax.plot(line_predicted.get_xdata(), line_predicted.get_ydata(), linestyle=(0, (1, 2)), color='#3CB371')[0]
                 old_predictions.append(old_line)
             last_stippled_time = current_time
 
