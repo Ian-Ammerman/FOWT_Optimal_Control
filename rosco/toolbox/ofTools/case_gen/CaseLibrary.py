@@ -104,6 +104,12 @@ def base_op_case():
     case_inputs[('ServoDyn', 'PCMode')] = {'vals': [5], 'group': 0}
     case_inputs[('ServoDyn', 'HSSBrMode')] = {'vals': [5], 'group': 0}
     case_inputs[('ServoDyn', 'YCMode')] = {'vals': [5], 'group': 0}    
+    
+    # HydroDyn
+    case_inputs[("HydroDyn","WaveHs")] = {'vals': [8.1], 'group': 0}
+    case_inputs[("HydroDyn","WaveTp")] = {'vals': [12.8], 'group': 0}
+    case_inputs[("HydroDyn", "WaveDir")] = {'vals': [0], 'group': 0}
+
 
     # AeroDyn
     if False:
@@ -312,22 +318,98 @@ def turb_bts(**wind_case_opts):
         TMax            TODO: someday make all TMaxs TMax
         wind_inputs (list of string wind inputs filenames)
     '''
+    TMax = wind_case_opts.get('TMax', 720)
+    wind_filename = wind_case_opts.get('wind_filename', None)
+    # Full path mappings for wind files
+    wind_file_paths = {
+        "TurbSim_v2_12mtps.bts": "/Users/fredrikfleslandselheim/ROSCO/project/Test_Cases/IEA-15-240-RWT-UMaineSemi/Wind_Files/TurbSim_v2_12mtps.bts",
+        "TurbSim_v2_14mtps.bts": "/Users/fredrikfleslandselheim/ROSCO/project/Test_Cases/IEA-15-240-RWT-UMaineSemi/Wind_Files/TurbSim_v2_14mtps.bts",
+        "TurbSim_v2_16mtps.bts": "/Users/fredrikfleslandselheim/ROSCO/project/Test_Cases/IEA-15-240-RWT-UMaineSemi/Wind_Files/TurbSim_v2_16mtps.bts",
+        "TurbSim_v2_18mtps.bts": "/Users/fredrikfleslandselheim/ROSCO/project/Test_Cases/IEA-15-240-RWT-UMaineSemi/Wind_Files/TurbSim_v2_18mtps.bts",
+        "TurbSim_v2_20mtps.bts": "/Users/fredrikfleslandselheim/ROSCO/project/Test_Cases/IEA-15-240-RWT-UMaineSemi/Wind_Files/TurbSim_v2_20mtps.bts",
+        "TurbSim_v2_22mtps.bts": "/Users/fredrikfleslandselheim/ROSCO/project/Test_Cases/IEA-15-240-RWT-UMaineSemi/Wind_Files/TurbSim_v2_22mtps.bts"
+    }
 
-    if 'TMax' in wind_case_opts:
-        TMax = wind_case_opts['TMax']
-    else:
-        TMax = 720
+    if not wind_filename:
+        raise Exception('Define wind_filename when using turb_bts case generator')
 
-    if 'wind_filenames' not in wind_case_opts:
-        raise Exception('Define wind_filenames when using turb_bts case generator')
+    # Map short name to full path
+    full_wind_filename = wind_file_paths.get(wind_filename)
+    if not full_wind_filename:
+        raise FileNotFoundError(f"Cannot find TurbSim file: {wind_filename}")
+
+    print(f"Using wind file: {full_wind_filename}")
 
     # wind inflow
     case_inputs = base_op_case()
-    case_inputs[("Fst","TMax")] = {'vals':[TMax], 'group':0}
-    case_inputs[("InflowWind","WindType")] = {'vals':[3], 'group':0}
-    case_inputs[("InflowWind","FileName_BTS")] = {'vals':wind_case_opts['wind_filenames'], 'group':1}
+    case_inputs[("Fst", "TMax")] = {'vals': [TMax], 'group': 0}
+    case_inputs[("InflowWind", "WindType")] = {'vals': [3], 'group': 0}
+    case_inputs[("InflowWind", "FileName_BTS")] = {'vals': [full_wind_filename], 'group': 1}
 
     return case_inputs
+
+
+def custom_wind_wave_case(**wind_case_opts):
+    run_dir = wind_case_opts.get('run_dir', '.')
+    TMax = wind_case_opts.get('TMax', 2401)  # Total simulation time in seconds.
+    
+    # Define the mapping from simplified names to full filenames
+    wind_file_mapping = {
+        "12": "12mtps.bts",
+        "14": "14mtps.bts",
+        "16": "16mtps.bts",
+        "18": "18mtps.bts",
+        "20": "20mtps.bts",
+        "22": "22mtps.bts"
+    }
+    
+    # Get the simplified wind speed name
+    wind_speed_name = wind_case_opts.get('turb_wind_speed', "12")
+    
+    # Map to the full filename
+    if wind_speed_name in wind_file_mapping:
+        wind_file_name = wind_file_mapping[wind_speed_name]
+    else:
+        raise ValueError(f"Invalid wind speed name: {wind_speed_name}")
+
+    wind_file_path = f"/Users/fredrikfleslandselheim/ROSCO/project/Test_Cases/IEA-15-240-RWT-UMaineSemi/Wind_Files/{wind_file_name}"
+    
+    if not os.path.exists(wind_file_path):
+        raise FileNotFoundError(f"Cannot find specified wind file: {wind_file_path}")
+    print(f"Using wind file: {wind_file_path}")
+
+    wave_height = wind_case_opts.get('wave_height', 8.0) 
+    peak_period = wind_case_opts.get('peak_period', 10.0) 
+    wave_direction = wind_case_opts.get('wave_direction', 0) 
+    
+    # Get the wind type if provided, default to 3
+    wind_type = wind_case_opts.get('wind_type', 3)
+    # Get the horizontal wind speed if provided
+    h_wind_speed = wind_case_opts.get('HWindSpeed', 12.0)
+
+    # Initialize the base case setup
+    case_inputs = base_op_case()
+    case_inputs[("Fst", "TMax")] = {'vals': [TMax], 'group': 0}
+
+    # Set the wind type and file for the entire simulation
+    case_inputs[("InflowWind", "WindType")] = {'vals': [wind_type], 'group': 1}
+    case_inputs[("InflowWind", "FileName_BTS")] = {'vals': [wind_file_path], 'group': 1}
+    case_inputs[("InflowWind", "HWindSpeed")] = {'vals': [h_wind_speed], 'group': 1}
+
+
+    # Set the wave parameters for the entire simulation
+    case_inputs[("HydroDyn", "WaveHs")] = {'vals': [wave_height], 'group': 2}
+    case_inputs[("HydroDyn", "WaveTp")] = {'vals': [peak_period], 'group': 2}
+    case_inputs[("HydroDyn", "WaveDir")] = {'vals': [wave_direction], 'group': 2}
+    # Set the 2nd order wave parameters for the entire simulation
+    case_inputs[("HydroDyn", "WvDiffQTF")] = {'vals': [wind_case_opts.get('WvDiffQTF', "True")], 'group': 2}
+    case_inputs[("HydroDyn", "WvSumQTF")] = {'vals': [wind_case_opts.get('WvSumQTF', "True")], 'group': 2}
+   
+    print(f"Case options in custom_wind_wave_case: {wind_case_opts}")
+    
+    return case_inputs
+
+
 
 def user_hh(**wind_case_opts):
     '''
