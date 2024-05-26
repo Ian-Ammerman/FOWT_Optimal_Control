@@ -8,8 +8,7 @@ from rosco.toolbox.ofTools.case_gen import CaseLibrary as cl
 from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
 from rosco.toolbox.control_interface import wfc_zmq_server
 from Digital_Twin_ZMQ.Blade_Pitch_Prediction.pitch_prediction import PredictionClass
-from Digital_Twin_ZMQ.Blade_Pitch_Prediction.buffer_delta_B import Buffer
-from Digital_Twin_ZMQ.Blade_Pitch_Prediction.Saturate import Saturate
+from Digital_Twin_ZMQ.Blade_Pitch_Prediction.prediction_functions import Buffer, Saturate
 
 import yaml
 
@@ -51,8 +50,13 @@ class bpcClass:
         pred_freq = 1 # Defines frequency of calling prediction model
         buffer_duration = time_horizon - 1.0125 # Defines the buffer duration for the prediction before sending offset
         weighting = True
+
+        # Save measurements and prediction as csv
+        save_csv = True
+        save_csv_time = 1000
+
         # Get prediction and predicted time
-        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon, pred_error, pred_freq)
+        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon, pred_error, pred_freq, save_csv, save_csv_time)
         # Buffer prediction until optimal time to send offset to ROSCO
         if Prediction: 
             Pred_Delta_B = Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_error, time_horizon) 
