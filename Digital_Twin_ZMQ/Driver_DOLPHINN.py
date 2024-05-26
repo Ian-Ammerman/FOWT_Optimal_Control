@@ -78,7 +78,7 @@ class bpcClass:
 
         return setpoints
 
-    def sim_openfast(self):
+    def sim_openfast_turbulence(self):
         r = run_FAST_ROSCO()
         r.tuning_yaml = "IEA15MW_FOCAL.yaml"
         run_dir = os.path.join(self.output_dir, "Sim_Results")
@@ -105,6 +105,26 @@ class bpcClass:
         print("Final case options:", r.wind_case_opts)
         r.controller_params = {"LoggingLevel": 2, "DISCON": {"ZMQ_Mode": 1, "ZMQ_ID": 1, "ZMQ_UpdatePeriod": 0.0125}}
         r.run_FAST()
+
+    def sim_openfast():
+        r = run_FAST_ROSCO()
+        r.tuning_yaml = "IEA15MW_FOCAL.yaml"
+        run_dir = os.path.join(self.output_dir, "Sim_Results")
+        r.save_dir = run_dir
+        r.wind_case_fcn = cl.power_curve    
+
+        r.wind_case_opts = {
+            "U": [12.5],
+            "TMax": 1020,
+        }
+        r.save_dir = run_dir
+        r.controller_params = {}
+        r.controller_params["DISCON"] = {}
+        r.controller_params["LoggingLevel"] = 2
+        r.controller_params["DISCON"]["ZMQ_Mode"] = 1
+        r.controller_params["DISCON"]["ZMQ_ID"] = 2
+        r.run_FAST()
+
         
     def main(self):
         logfile = os.path.join(self.output_dir, os.path.splitext(os.path.basename(__file__))[0] + '.log')
