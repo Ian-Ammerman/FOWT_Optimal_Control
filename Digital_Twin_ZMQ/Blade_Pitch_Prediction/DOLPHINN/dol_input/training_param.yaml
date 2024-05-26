@@ -1,0 +1,42 @@
+BlPitch_training_offset: 0.8028462227582875
+batch_time: 53
+conversion:
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+dof:
+- PtfmTDX
+- PtfmTDZ
+- PtfmTDY
+- PtfmRDX
+- PtfmRDY
+- PtfmRDZ
+- BlPitchCMeas
+- RotSpeed
+dropout: 0.2
+epochs: 9
+hidden_layer: 1
+lr: 0.0003
+neuron_number: 96
+nm: 0.588482
+time_horizon: 20
+timestep: 1.0
+train_ratio: 0.7
+training_dataset: /Users/fredrikfleslandselheim/ROSCO/Digital_Twin_ZMQ/Blade_Pitch_Prediction/DOLPHINN/data/TrainingData_Hs_2_75_Tp_6.csv
+unit:
+- '[m]'
+- '[m]'
+- '[m]'
+- '[deg]'
+- '[deg]'
+- '[deg]'
+- '[deg]'
+- '[deg/s]'
+valid_ratio: 0.15
+wave_prediction: true
+wind_prediction: false
