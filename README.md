@@ -35,15 +35,8 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
 ### Prediction Model Usage with OpenFAST:
 
 - Configure the `Driver.py` script with the desired load case, model, and simulation settings.
-- Run the main driver script:
-    ```bash
-    python Driver.py
-    ```
-- To run a simulation with Load Case 2, the `Driver.py` script should be configured as follows in the `__init__`:
-    ```python
-    self.Load_Case = 2
-     ```
-- Specyfing prediction model configuration during simulation in the `wfc_controller`:
+
+1. Prediction model configuration during simulation in the `wfc_controller` in `Driver.py`:
 
 - Specify trained MLSTM-model:
     ```python
@@ -73,6 +66,16 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
     ```python
     pred_error = 1.4 # [deg]
      ```
+    
+  2. To run a simulation with Load Case 2, the `Driver.py` script should be configured as follows in the `__init__`:
+    ```python
+    self.Load_Case = 2
+     ```
+
+  3. Run the main driver script:
+  ```bash
+  python Driver.py
+  ```
 
 #### MLSTM model training:
 
