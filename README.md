@@ -21,18 +21,51 @@ The primary objective is to set the framework for future applications for implem
 The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of scripts and configurations:
 - `Driver.py`: Main script to configure and run the OpenFAST simulation with the prediction model.
 - `pitch_prediction.py`: Contains the logic for accumulating data batches and interfacing with the MLSTM model.
-- `prediction_functions.py`: Utility functions for buffering and saturating prediction offsets.
+- `prediction_functions.py`: Utility functions such as buffering\saturating prediction offsets, plotting and saving data. 
 - `wave_predict.py`: Script developed in collaboration with Yuksel R. Alkarem for wave prediction.
 - `DOLPHINN`: An MLSTM framework developed by Yuksel R. Alkarem for predicting FOWT behavior based on incoming wave data.
-## Usage
+- 
+## Prediction Model Usage with OpenFAST:
 
 1. Configure the `Driver.py` script with the desired load case, model, and simulation settings.
 2. Run the main driver script:
     ```bash
     python Driver.py
     ```
-
-### Example
-To run a simulation with Load Case 2, the `Driver.py` script should be configured as follows:
+To run a simulation with Load Case 2, the `Driver.py` script should be configured as follows in the `__init__`:
 ```python
 self.Load_Case = 2
+ ```
+Specyfing prediction model configuration during simulation in the `wfc_controller`:
+
+Specify trained MLSTM-model:
+```python
+MLSTM_MODEL_NAME = TrainingData_Hs_2_75_Tp_6
+ ```
+
+Make sure that the `WAVE_DATA_FILE` is a csv-timeseries, matching the sea state specified in Load Case:
+```python
+WAVE_DATA_FILE = WaveData_LC2
+ ```
+To send offset between blade pitch MLSTM-prediction and actual blade pitch angle:
+```python
+Prediction = True 
+ ```
+
+For real time plotting:
+```python
+plot_figure = True
+ ```
+
+To saturate offset between prediction and actual measurement:
+```python
+Pred_Saturation = True
+ ```
+
+If observing an amplitude offset between prediction and measurement, an error may be defined to correct the predictions:
+```python
+pred_error = 1.4 # [deg]
+ ```
+
+
+
