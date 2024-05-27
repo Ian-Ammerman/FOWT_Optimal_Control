@@ -42,12 +42,12 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
 
 5. Specify trained MLSTM-model:
     ```python
-    MLSTM_MODEL_NAME = TrainingData_Hs_2_75_Tp_6
+    MLSTM_MODEL_NAME = TrainingData_Hs_2_75_Tp_6 # Trained MLSTM model
      ```
 
 6. Make sure that the `WAVE_DATA_FILE` is a csv-timeseries, matching the sea state specified in Load Case:
     ```python
-    WAVE_DATA_FILE = WaveData_LC2
+    WAVE_DATA_FILE = WaveData_LC2 # Example wave file for LC2
      ```
 7. To send offset between blade pitch MLSTM-prediction and actual blade pitch angle:
     ```python
@@ -68,6 +68,12 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
     ```python
     pred_error = 1.4 # [deg]
      ```
+
+### MLSTM model training:
+
+In order to train a custom MLSTM-model, this is done by running the following script:
+
+`/ROSCO/Digital_Twin_ZMQ/Blade_Pitch_Prediction/DOLPHINN/examples/01a_wave_train.py`
 
 
 
