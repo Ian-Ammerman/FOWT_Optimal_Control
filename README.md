@@ -16,10 +16,12 @@ This project integrates an MLSTM model with OpenFAST and ROSCO to predict the fu
 
 The primary objective is to set the framework for future applications for implementing MLSTM-prediction in the ROSCO controller during simulation, using Yuksel R. Alkarem's predictive model. For this specific example, the aim is to reduce wave-induced motions, thereby decreasing structural fatigue and increasing the remaining useful life (RUL) of the FOWT by predicting future collective blade pitch angle based on incoming wave data, and sending setpoints to the ROSCO controller. 
 
-## Architecture
+## Blade Pitch Prediction Architecture
 
 The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of scripts and configurations:
+
 - `Driver.py`: Main script to configure and run the OpenFAST simulation with the prediction model.
+- `Blade_Pitch_Prediction`: Folder containing prediction model scripts, as listed below.
 - `pitch_prediction.py`: Contains the logic for accumulating data batches and interfacing with the MLSTM model.
 - `prediction_functions.py`: Utility functions such as buffering\saturating prediction offsets, plotting and saving data. 
 - `wave_predict.py`: Script developed in collaboration with Yuksel R. Alkarem for wave prediction.
