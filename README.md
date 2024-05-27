@@ -80,7 +80,7 @@ In order to train a custom MLSTM-model, this is done by running the following sc
 
 `/ROSCO/Digital_Twin_ZMQ/Blade_Pitch_Prediction/DOLPHINN/examples/01a_wave_train.py`
 
-Specifyi training data and parameters in:
+Specify training data and parameters in:
 
 `/ROSCO/Digital_Twin_ZMQ/Blade_Pitch_Prediction/DOLPHINN/dol_input/training_param.yaml`
 
