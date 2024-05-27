@@ -4,6 +4,7 @@ import os
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from collections import deque
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 def Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_error, time_horizon):
@@ -65,7 +66,7 @@ def Saturate(Pred_Delta_B, Pred_Saturation, Delta_B_treshold):
     return Pred_Delta_B
 
 
-def save_prediction_csv(current_time, t_pred, y_hat, pred_error, prediction_history):
+def save_prediction_csv(t_pred, y_hat, pred_error, prediction_history):
     print("Saving results to csv")
     prediction_results_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "prediction_results", "PREDICTION_1000_ACTIVE.csv")
     prediction_history_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "prediction_results", "PRED_HISTORY_1000_ACTIVE.csv")
@@ -80,44 +81,45 @@ def save_prediction_csv(current_time, t_pred, y_hat, pred_error, prediction_hist
     # Save prediction history
     prediction_history.to_csv(prediction_history_path, index=False)
 
-def active_pred_plot(t_pred, y_hat, pred_error, data_frame_inputs, current_time, dol, time_data, t1_idx, t2):
-    # Initialize the figure and axes
-    plt.ion()
-    fig, ax = plt.figure(figsize=(10, 6)), plt.axes()
-    line_actual, = ax.plot([], [], color='blue', label='Measured BlPitch (ROSCO)')
-    line_predicted, = ax.plot([], [], color='#3CB371', linestyle='-', label='Predicted BlPitch')
-    line_history, = ax.plot([], [], color='#3CB371', linestyle="--", label='Prediction history')  
-    marker_actual = ax.scatter([], [], color='blue', alpha=0.5)
-    marker_predicted = ax.scatter([], [], color='#3CB371', alpha=0.5)
-    old_predictions = []  # List to store old prediction lines
-    plotted_times = set()  # Set to store times for which history has been plotted
-    last_stippled_time = None  # Track the last time a stippled line was added
+
+def active_pred_plot(t_pred, y_hat, pred_error, data_frame_inputs, current_time, dol, time_data, t1_idx, t2, t1, fig, ax):
+    # Initialize or update the plot elements
+    if not hasattr(active_pred_plot, 'initialized'):
+        active_pred_plot.line_actual, = ax.plot([], [], color='blue', label='Measured BlPitch (ROSCO)')
+        active_pred_plot.line_predicted, = ax.plot([], [], color='#3CB371', linestyle='-', label='Predicted BlPitch')
+        active_pred_plot.line_history, = ax.plot([], [], color='#3CB371', linestyle="--", label='Prediction history')
+        active_pred_plot.marker_actual = ax.scatter([], [], color='blue', alpha=0.5)
+        active_pred_plot.marker_predicted = ax.scatter([], [], color='#3CB371', alpha=0.5)
+        active_pred_plot.old_predictions = []  # List to store old prediction lines
+        active_pred_plot.plotted_times = set()  # Set to store times for which history has been plotted
+        active_pred_plot.last_stippled_time = None  # Track the last time a stippled line was added
+        active_pred_plot.initialized = True
 
     # Convert current predicted line to stippled and add to old predictions if sufficient time has passed
-    if last_stippled_time is None or current_time - last_stippled_time >= 10:  # adjust interval as needed
-        if line_predicted.get_xdata().size > 0:
-            old_line = ax.plot(line_predicted.get_xdata(), line_predicted.get_ydata(), linestyle="--", color='#3CB371')[0]
-            old_predictions.append(old_line)
-        last_stippled_time = current_time
+    if active_pred_plot.last_stippled_time is None or current_time - active_pred_plot.last_stippled_time >= 10:  # adjust interval as needed
+        if active_pred_plot.line_predicted.get_xdata().size > 0:
+            old_line = ax.plot(active_pred_plot.line_predicted.get_xdata(), active_pred_plot.line_predicted.get_ydata(), linestyle="--", color='#3CB371')[0]
+            active_pred_plot.old_predictions.append(old_line)
+        active_pred_plot.last_stippled_time = current_time
 
     # Clear current prediction line data
-    line_predicted.set_data([], [])
+    active_pred_plot.line_predicted.set_data([], [])
 
     # Set new data for current prediction
-    line_predicted.set_data(t_pred + t2, y_hat["BlPitchCMeas"] + pred_error)
-    line_actual.set_data(time_data.iloc[0:t1_idx] + t2, data_frame_inputs["BlPitchCMeas"].iloc[:t1_idx]*180/np.pi)
+    active_pred_plot.line_predicted.set_data(t_pred + t2, y_hat["BlPitchCMeas"] + pred_error)
+    active_pred_plot.line_actual.set_data(time_data.iloc[0:t1_idx] + t2, data_frame_inputs["BlPitchCMeas"].iloc[:t1_idx]*180/np.pi)
     
     # Update marker and text for actual data
     last_actual_time = time_data.iloc[t1_idx-1] + t2
     last_actual_pitch = data_frame_inputs["BlPitchCMeas"].iloc[t1_idx-1] * 180/np.pi
-    marker_actual.set_offsets((last_actual_time, last_actual_pitch))
-    marker_actual.set_label(f'Current BlPitch ({current_time}s)')
+    active_pred_plot.marker_actual.set_offsets((last_actual_time, last_actual_pitch))
+    active_pred_plot.marker_actual.set_label(f'Current BlPitch ({current_time}s)')
 
     # Update marker and text for predicted data
     last_pred_time = t_pred.iloc[-1] + t2
     last_pred_pitch = y_hat["BlPitchCMeas"].iloc[-1] + pred_error
-    marker_predicted.set_offsets((last_pred_time, last_pred_pitch))
-    marker_predicted.set_label(f'Predicted BlPitch ({current_time + dol.time_horizon}s)')  
+    active_pred_plot.marker_predicted.set_offsets((last_pred_time, last_pred_pitch))
+    active_pred_plot.marker_predicted.set_label(f'Predicted BlPitch ({current_time + dol.time_horizon}s)')  
 
     ax.set_xlim((t1 - 50, t1 + 50))
     ax.set_ylim((0, 10))
