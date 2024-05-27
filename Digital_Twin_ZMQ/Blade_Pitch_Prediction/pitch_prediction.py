@@ -27,7 +27,7 @@ class PredictionClass():
 
         if not hasattr(self, 'csv_df'):
             print("Retrieving wave data ...")
-            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "DOLPHINN", "data", "Input_Waves", "WaveData.csv")
+            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "Input_Waves", "WaveData_Hs1_Tp4_5.csv")
             self.csv_df = pd.read_csv(csv_file_path)
 
         required_measurements = ['PtfmTDX', 'PtfmTDZ', 'PtfmTDY', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'BlPitchCMeas', 'RotSpeed']
@@ -64,7 +64,7 @@ class PredictionClass():
         if len(self.batch_data) >= self.batch_size and current_time % pred_freq == 0:
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print("Running DOLPHINN with input data frame shape:", data_frame_inputs.shape)
-            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, pred_error, save_csv, csv_save_time)
+            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, pred_error, save_csv, save_csv_time)
                         
             if not self.csv_saved and current_time == 1000:
                 self.control_csv_saved = True
@@ -73,7 +73,7 @@ class PredictionClass():
                 data_frame_inputs.to_csv(output_file_path, index=False)
                 print(f"SAVED control CSV at t = {current_time}")
 
-            if current_time == save_csv_time and save_csv == True:
+            if current_time == save_csv_time and save_csv:
                 full_measurements_df = pd.DataFrame(self.full_measurements, columns=['Time'] + required_measurements)
                 full_output_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "prediction_results", f"measurements_{current_time}_ACTIVE.csv")
                 full_measurements_df.to_csv(full_output_file_path, index=False)
