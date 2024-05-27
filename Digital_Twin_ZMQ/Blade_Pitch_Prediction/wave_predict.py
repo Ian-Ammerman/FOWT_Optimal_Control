@@ -11,18 +11,10 @@ from Digital_Twin_ZMQ.Blade_Pitch_Prediction.prediction_functions import save_pr
 # Initialize the figure and axes
 plt.ion()
 fig, ax = plt.figure(figsize=(10, 6)), plt.axes()
-line_actual, = ax.plot([], [], color='blue', label='Measured BlPitch (ROSCO)')
-line_predicted, = ax.plot([], [], color='#3CB371', linestyle='-', label='Predicted BlPitch')
-line_history, = ax.plot([], [], color='#3CB371', linestyle="--", label='Prediction history')  
-marker_actual = ax.scatter([], [], color='blue', alpha=0.5)
-marker_predicted = ax.scatter([], [], color='#3CB371', alpha=0.5)
-old_predictions = []  # List to store old prediction lines
-plotted_times = set()  # Set to store times for which history has been plotted
-last_stippled_time = None  # Track the last time a stippled line was added
 
 prediction_history = pd.DataFrame(columns=['Time', 'Predicted_BlPitchCMeas'])  # DataFrame to store prediction history
 
-def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, pred_error, save_csv, csv_save_time):
+def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, pred_error, save_csv, save_csv_time):
     global prediction_history
     
     # Load the trained model
@@ -43,12 +35,12 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, pr
 
     t_pred, y_hat = dol.predict(time_data, state, wave, history=0)
 
-    if update_plot:
-        active_pred_plot(t_pred, y_hat, pred_error, data_frame_inputs, current_time, dol, time_data, t1_idx, t2)
+    if plot_figure:
+        active_pred_plot(t_pred, y_hat, pred_error, data_frame_inputs, current_time, dol, time_data, t1_idx, t2, t1, fig, ax)
 
     # Save data to CSV files when current_time is 1000
-    if current_time == 1000:
-        save_prediction_csv(current_time, t_pred, y_hat, pred_error, prediction_history)
+    if current_time == save_csv_time and save_csv:
+        save_prediction_csv(t_pred, y_hat, pred_error, prediction_history)
 
     # Store the prediction history
     history_data = pd.DataFrame({
