@@ -24,7 +24,7 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
 - `prediction_functions.py`: Utility functions such as buffering\saturating prediction offsets, plotting and saving data. 
 - `wave_predict.py`: Script developed in collaboration with Yuksel R. Alkarem for wave prediction.
 - `DOLPHINN`: An MLSTM framework developed by Yuksel R. Alkarem for predicting FOWT behavior based on incoming wave data.
-- 
+  
 ## Prediction Model Usage with OpenFAST:
 
 1. Configure the `Driver.py` script with the desired load case, model, and simulation settings.
