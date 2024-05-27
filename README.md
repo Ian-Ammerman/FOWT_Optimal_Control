@@ -14,7 +14,7 @@ This repository contains the implementation of a predictive control framework fo
 
 This project integrates an MLSTM model with OpenFAST and ROSCO to predict the future response of a FOWT. The prediction model aims to provide a time advantage to blade actuators by predicting future states based on wave elevation data and current FOWT measurements.
 
-The primary objective is to reduce wave-induced motions, thereby decreasing structural fatigue and increasing the remaining useful life (RUL) of the FOWT. This work also establishes a framework for future applications of prediction models in real-time simulations and operations.
+The primary objective is to set the framework for future applications for implementing MLSTM-prediction in the ROSCO controller during simulation, using Yuksel R. Alkarem's predictive model. For this specific example, the aim is to reduce wave-induced motions, thereby decreasing structural fatigue and increasing the remaining useful life (RUL) of the FOWT by predicting future collective blade pitch angle based on incoming wave data, and sending setpoints to the ROSCO controller. 
 
 ## Architecture
 
@@ -23,7 +23,7 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
 - `pitch_prediction.py`: Contains the logic for accumulating data batches and interfacing with the MLSTM model.
 - `prediction_functions.py`: Utility functions for buffering and saturating prediction offsets.
 - `wave_predict.py`: Script developed in collaboration with Yuksel R. Alkarem for wave prediction.
-
+- `DOLPHINN`: An MLSTM framework developed by Yuksel R. Alkarem for predicting FOWT behavior based on incoming wave data.
 ## Usage
 
 1. Configure the `Driver.py` script with the desired load case, model, and simulation settings.
