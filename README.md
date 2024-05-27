@@ -33,10 +33,9 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
 - `DOLPHINN`: An MLSTM framework developed by Yuksel R. Alkarem for predicting FOWT behavior based on incoming wave data.
   
 ### Prediction Model Usage with OpenFAST:
+1. Configure the `Driver.py` script with the desired load case, model, and simulation settings.
 
-- Configure the `Driver.py` script with the desired load case, model, and simulation settings.
-
-1. Prediction model configuration during simulation in the `wfc_controller` in `Driver.py`:
+Prediction model configuration during simulation in the `wfc_controller` in `Driver.py`:
 
 - Specify trained MLSTM-model:
     ```python
@@ -67,15 +66,15 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
     pred_error = 1.4 # [deg]
      ```
     
-  2. To run a simulation with Load Case 2, the `Driver.py` script should be configured as follows in the `__init__`:
-    ```python
-    self.Load_Case = 2
-     ```
+2. To run a simulation with Load Case 2, the `Driver.py` script should be configured as follows in the `__init__`:
+  ```python
+  self.Load_Case = 2
+   ```
 
-  3. Run the main driver script:
-  ```bash
-  python Driver.py
-  ```
+3. Run the main driver script:
+```bash
+python Driver.py
+```
 
 #### MLSTM model training:
 
