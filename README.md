@@ -34,42 +34,42 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
   
 ### Prediction Model Usage with OpenFAST:
 
-1. Configure the `Driver.py` script with the desired load case, model, and simulation settings.
-2. Run the main driver script:
+- Configure the `Driver.py` script with the desired load case, model, and simulation settings.
+- Run the main driver script:
     ```bash
     python Driver.py
     ```
-3. To run a simulation with Load Case 2, the `Driver.py` script should be configured as follows in the `__init__`:
+- To run a simulation with Load Case 2, the `Driver.py` script should be configured as follows in the `__init__`:
     ```python
     self.Load_Case = 2
      ```
-4. Specyfing prediction model configuration during simulation in the `wfc_controller`:
+- Specyfing prediction model configuration during simulation in the `wfc_controller`:
 
-5. Specify trained MLSTM-model:
+- Specify trained MLSTM-model:
     ```python
     MLSTM_MODEL_NAME = TrainingData_Hs_2_75_Tp_6 # Trained MLSTM model
      ```
 
-6. Make sure that the `WAVE_DATA_FILE` is a csv-timeseries, matching the sea state specified in Load Case:
+- Make sure that the `WAVE_DATA_FILE` is a csv-timeseries, matching the sea state specified in Load Case:
     ```python
     WAVE_DATA_FILE = WaveData_LC2 # Example wave file for LC2
      ```
-7. To send offset between blade pitch MLSTM-prediction and actual blade pitch angle:
+- To send offset between blade pitch MLSTM-prediction and actual blade pitch angle:
     ```python
     Prediction = True 
      ```
     
-8.  For real time prediction plotting:
+-  For real time prediction plotting:
     ```python
     plot_figure = True
      ```
 
-9. To saturate offset between prediction and actual measurement:
+- To saturate offset between prediction and actual measurement:
     ```python
     Pred_Saturation = True
      ```
 
-10. If observing an amplitude offset between prediction and measurement, an error may be defined to correct the predictions:
+- If observing an amplitude offset between prediction and measurement, an error may be defined to correct the predictions:
     ```python
     pred_error = 1.4 # [deg]
      ```
