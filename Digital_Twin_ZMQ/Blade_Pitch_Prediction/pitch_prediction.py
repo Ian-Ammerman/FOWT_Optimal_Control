@@ -22,12 +22,12 @@ class PredictionClass():
         self.iteration_count = 0  # Initialize the iteration count outside the loop
         self.full_measurements = []  # To store all measurements for all timesteps
 
-    def run_simulation(self, current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon, pred_error, pred_freq, save_csv, save_csv_time):
+    def run_simulation(self, current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon, pred_error, pred_freq, save_csv, save_csv_time, WAVE_DATA_FILE):
         self.iteration_count += 1  # Initialize the iteration count outside the loop
 
         if not hasattr(self, 'csv_df'):
             print("Retrieving wave data ...")
-            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "Input_Waves", "WaveData_Hs1_Tp4_5.csv")
+            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "Input_Waves", WAVE_DATA_FILE)
             self.csv_df = pd.read_csv(csv_file_path)
 
         required_measurements = ['PtfmTDX', 'PtfmTDZ', 'PtfmTDY', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'BlPitchCMeas', 'RotSpeed']
