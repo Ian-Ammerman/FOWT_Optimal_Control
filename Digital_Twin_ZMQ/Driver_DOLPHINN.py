@@ -9,7 +9,6 @@ from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
 from rosco.toolbox.control_interface import wfc_zmq_server
 from Digital_Twin_ZMQ.Blade_Pitch_Prediction.pitch_prediction import PredictionClass
 from Digital_Twin_ZMQ.Blade_Pitch_Prediction.prediction_functions import Buffer, Saturate
-
 import yaml
 
 class bpcClass:
@@ -19,7 +18,7 @@ class bpcClass:
         # directories
         self.this_dir = os.path.dirname(os.path.abspath(__file__))
         self.rosco_dir = os.path.dirname(self.this_dir)
-        self.output_dir = os.path.join('Sim_output_dir')
+        self.output_dir = os.path.join(self.this_dir, "Outputs/Driver_DOLPHINN")
         os.makedirs(self.output_dir, exist_ok=True)
 
     def run_zmq(self, logfile=None):
@@ -35,7 +34,7 @@ class bpcClass:
 
     def wfc_controller(self, id, current_time, measurements):
         # Specify path and load trained DOLPHINN model (Must contain BlPitchCMeas)
-        DOLPHINN_PATH = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "DOLPHINN", "saved_models", "TrainingData_Hs_2_75_Tp_6", "wave_model")
+        DOLPHINN_PATH = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "DOLPHINN", "saved_models", "StdParams_14400", "wave_model")
         config_file_path = os.path.join(DOLPHINN_PATH, 'config.yaml')
         with open(config_file_path, 'r') as file:
             config_data = yaml.safe_load(file)
@@ -43,10 +42,10 @@ class bpcClass:
 
         #### Prediction Model Configuration ####
         Prediction = False # True: Sends prediction offset to ROSCO. False: Deactivate (Pred_Delta_B = 0.0)
-        plot_figure = False # True: Activate real time prction plotting. False: Deactivate
+        plot_figure = True # True: Activate real time prction plotting. False: Deactivate
         Pred_Saturation = False # True: Saturate prediction offset (Avoid too big angle prediction offset)
         saturation_treshold = 2*np.pi/180 # Define the treshold of prediction offset [rad]
-        pred_error = 1.4 # Defines the offset for the trained model, found from training_results [deg]
+        pred_error = 0.0 #3.5 # Defines the offset for the trained model, found from training_results [deg]
         pred_freq = 1 # Defines frequency of calling prediction model
         buffer_duration = time_horizon - 1.0125 # Defines the buffer duration for the prediction before sending offset
         weighting = True
@@ -78,7 +77,7 @@ class bpcClass:
 
         return setpoints
 
-    def sim_openfast_turbulence(self):
+    def sim_openfast_custom(self):
         r = run_FAST_ROSCO()
         r.tuning_yaml = "IEA15MW_FOCAL.yaml"
         run_dir = os.path.join(self.output_dir, "Sim_Results")
@@ -86,12 +85,12 @@ class bpcClass:
         r.wind_case_fcn = cl.custom_wind_wave_case    
         
         r.wind_case_opts = {
-            "TMax": 1020,            # Total run time (sec)    
+            "TMax": 1100,            # Total run time (sec)    
             "wave_height": 1.0,      # WaveHs (meters)       
             "peak_period": 4.5,      # WaveTp (meters)       
             "wave_direction": 0,       # WaveDir (degrees)  
-            "WvDiffQTF": "False",       # 2nd order wave diffraction term
-            "WvSumQTF": "False"         # 2nd order wave sum-frequency term
+            "WvDiffQTF": "True",       # 2nd order wave diffraction term
+            "WvSumQTF": "True"         # 2nd order wave sum-frequency term
         }  
         self.steady_wind = True
         if self.steady_wind:
@@ -100,13 +99,16 @@ class bpcClass:
         else:
             print("Setting options for turbulent wind")
             r.wind_case_opts.update({"turb_wind_speed": "20" })             # TurbSim Full-Field   (m/s) 
-
+        
+        # Set WaveTMax to TMax + 500
+        r.wind_case_opts["WaveTMax"] = r.wind_case_opts["TMax"] + 200
         # Print the updated case options to verify
+        
         print("Final case options:", r.wind_case_opts)
         r.controller_params = {"LoggingLevel": 2, "DISCON": {"ZMQ_Mode": 1, "ZMQ_ID": 1, "ZMQ_UpdatePeriod": 0.0125}}
         r.run_FAST()
-
-    def sim_openfast():
+        
+    def sim_openfast(self):
         r = run_FAST_ROSCO()
         r.tuning_yaml = "IEA15MW_FOCAL.yaml"
         run_dir = os.path.join(self.output_dir, "Sim_Results")
@@ -131,7 +133,7 @@ class bpcClass:
     
         # Start the existing processes
         p1 = mp.Process(target=self.run_zmq, args=(logfile,))
-        p2 = mp.Process(target=self.sim_openfast)
+        p2 = mp.Process(target=self.sim_openfast_custom)
 
         p1.start()
         p2.start()
