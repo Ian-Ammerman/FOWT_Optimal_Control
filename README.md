@@ -1,4 +1,4 @@
-#  Digital Twin Framework for Real-Time RUL Estimation and Predictive Control of Floating Offshore Wind Turbines
+RUL Estimation and Predictive Control of Floating Offshore Wind Turbines
 
 ## Part 1: Fatigue model for RUL Estimation and Monitoring
 
