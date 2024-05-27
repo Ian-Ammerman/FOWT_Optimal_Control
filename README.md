@@ -72,8 +72,8 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
 ### MLSTM model training:
 
 In order to train a custom MLSTM-model, this is done by running the following script:
-
 `/ROSCO/Digital_Twin_ZMQ/Blade_Pitch_Prediction/DOLPHINN/examples/01a_wave_train.py`
 
-
+Specifying training data and parameters is done in
+`/ROSCO/Digital_Twin_ZMQ/Blade_Pitch_Prediction/DOLPHINN/dol_input/training_param.yaml`
 
