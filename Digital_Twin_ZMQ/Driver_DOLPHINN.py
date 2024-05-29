@@ -38,7 +38,7 @@ class bpcClass:
 
         # This code is created for BlPitchCMeas Setpoint. However, other DOFs may be selected:
         # FOWT Measurement for Prediction and monitoring - Choose between BlPitchCMeas, PtfmTDX, PtfmTDZ, PtfmTDY, PtfmRDX, PtfmRDY and PtfmRDZ
-        FOWT_pred_state = 'PtfmTDX'
+        FOWT_pred_state = 'BlPitchCMeas'
 
         # Specify path and load trained DOLPHINN model (Must contain BlPitchCMeas)
         MLSTM_MODEL_NAME = 'TrainingData_Hs_2_75_Tp_6'
@@ -58,21 +58,24 @@ class bpcClass:
         plot_figure = True  # True: Activate real time prediction plotting. False: Deactivate
         Pred_Saturation = False  # True: Saturate prediction offset (Avoid too big angle prediction offset)
         saturation_threshold = 2 * np.pi / 180  # Define the threshold of prediction offset [rad]
-        pred_error = 0.0  # Defines the offset for the trained model, found from training_results [deg]
         pred_freq = 1  # Defines frequency of calling prediction model
         buffer_duration = time_horizon - 1.0125  # Defines the buffer duration for the prediction before sending offset
         weighting = 1  # Weighting = 1 for standard calculated offset
         save_csv = True  # Save csv for prediction and measurements
         save_csv_time = 1000  # Specify time for saving csv [s]
+        pitch_prediction_error_deg = 3.7
+
+        # Add specified prediction error offset in degrees if coll. blade pitch angle is chosen as FOWT_pred_state
+        BlPitchC_Meas_pred_error = pitch_prediction_error_deg if FOWT_pred_state == "BlPitchCMeas" else 0.0
 
         # Get prediction and predicted time
         Pred_B, t_pred = self.prediction_instance.run_simulation(
             current_time, measurements, plot_figure, time_horizon,
-            pred_error, pred_freq, save_csv, save_csv_time, FUTURE_WAVE_FILE, FOWT_pred_state, MLSTM_MODEL_NAME)
+            BlPitchC_Meas_pred_error, pred_freq, save_csv, save_csv_time, FUTURE_WAVE_FILE, FOWT_pred_state, MLSTM_MODEL_NAME)
 
         # If Blade pitch is predicted: Buffer blade pitch prediction until optimal time to send offset to ROSCO
         if Prediction and FOWT_pred_state == 'BlPitchCMeas': 
-            Pred_Delta_B = Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_error, time_horizon) 
+            Pred_Delta_B = Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, BlPitchC_Meas_pred_error, time_horizon) 
             Pred_Delta_B = Saturate(Pred_Delta_B, Pred_Saturation, saturation_threshold)
         else: 
             Pred_Delta_B = 0.0
