@@ -120,10 +120,16 @@ def active_pred_plot(t_pred, y_hat, pred_error, data_frame_inputs, current_time,
     active_pred_plot.marker_predicted.set_offsets((last_pred_time, last_pred_state))
     active_pred_plot.marker_predicted.set_label(f'Predicted {FOWT_pred_state} ({current_time + dol.time_horizon}s)')  
 
+    # Determine y_label based on the FOWT_pred_state value
+    if FOWT_pred_state in ["BlPitchCMeas", "PtfmRDX", "PtfmRDY", "PtfmRDZ"]:
+        y_label = "Angle [deg]"
+    else:
+        y_label = "[m]"
+
     ax.set_xlim((t1 - 50, t1 + 50))
-    ax.set_ylim((0, 10))
+    # ax.set_ylim((0, 10))
     ax.set_xlabel("Time [s]")
-    ax.set_ylabel("Angle [deg]")
+    ax.set_ylabel(y_label)
     ax.legend()
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, labels)
