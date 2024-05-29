@@ -37,6 +37,10 @@ The MLSTM-WRP model is integrated with OpenFAST and ROSCO through a series of sc
 
 Prediction model configuration during simulation in the `wfc_controller` in `Driver.py`:
 
+- Specify which FOWT state to use for prediction and monitoring. Choosing "BlPitchCMeas" allows for Buffer and Saturate-initiation, while other DOFS only provide prediction and monitoring:
+    ```python
+    FOWT_pred_state = 'BlPitchCMeas'
+     ``` 
 - Specify trained MLSTM-model:
     ```python
     MLSTM_MODEL_NAME = TrainingData_Hs_2_75_Tp_6 # Trained MLSTM model
