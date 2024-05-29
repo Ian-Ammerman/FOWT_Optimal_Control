@@ -38,14 +38,15 @@ class bpcClass:
 
         # This code is created for BlPitchCMeas Setpoint. However, other DOFs may be selected:
         # FOWT Measurement for Prediction and monitoring - Choose between BlPitchCMeas, PtfmTDX, PtfmTDZ, PtfmTDY, PtfmRDX, PtfmRDY and PtfmRDZ
-        FOWT_pred_state = 'BlPitchCMeas'
+        FOWT_pred_state = 'PtfmTDX'
 
         # Specify path and load trained DOLPHINN model (Must contain BlPitchCMeas)
         MLSTM_MODEL_NAME = 'TrainingData_Hs_2_75_Tp_6'
 
         # Specify incoming wave data file name
-        FUTURE_WAVE_FILE = f"WaveData_LC{self.Load_Case}.csv"
-        
+        # FUTURE_WAVE_FILE = f"WaveData_LC{self.Load_Case}.csv"
+        FUTURE_WAVE_FILE = f"WaveData.csv"
+
         # Retrieve time horizon from trained model
         config_file_path = os.path.join(self.this_dir, "Prediction_Model", "DOLPHINN", "saved_models", f"{MLSTM_MODEL_NAME}", "wave_model", 'config.yaml')
         with open(config_file_path, 'r') as file:
