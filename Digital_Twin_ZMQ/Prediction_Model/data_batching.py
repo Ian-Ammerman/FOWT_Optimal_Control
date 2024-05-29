@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from Digital_Twin_ZMQ.Blade_Pitch_Prediction.wave_predict import run_DOLPHINN
 
 class PredictionClass():
     def __init__(self):
@@ -22,12 +21,15 @@ class PredictionClass():
         self.iteration_count = 0  # Initialize the iteration count outside the loop
         self.full_measurements = []  # To store all measurements for all timesteps
 
-    def run_simulation(self, current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon, pred_error, pred_freq, save_csv, save_csv_time, WAVE_DATA_FILE):
+    def run_simulation(self, current_time, measurements, plot_figure, time_horizon, pred_error, pred_freq, save_csv, save_csv_time, WAVE_DATA_FILE, FOWT_pred_state, MLSTM_MODEL_NAME):
+        from Digital_Twin_ZMQ.Prediction_Model.wave_predict import run_DOLPHINN
+        DOLPHINN_PATH  = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "DOLPHINN", "saved_models", MLSTM_MODEL_NAME, "wave_model")
+        
         self.iteration_count += 1  # Initialize the iteration count outside the loop
 
         if not hasattr(self, 'csv_df'):
             print("Retrieving wave data ...")
-            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "Input_Waves", WAVE_DATA_FILE)
+            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "Input_Waves", WAVE_DATA_FILE)
             self.csv_df = pd.read_csv(csv_file_path)
 
         required_measurements = ['PtfmTDX', 'PtfmTDZ', 'PtfmTDY', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'BlPitchCMeas', 'RotSpeed']
@@ -69,17 +71,17 @@ class PredictionClass():
             if not self.csv_saved and current_time == 1000:
                 self.control_csv_saved = True
                 # Save only the required_measurements along with the Time column
-                output_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "Control_Data", f"Control_Data_T{current_time}_active.csv")
+                output_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "Control_Data", f"Control_Data_T{current_time}_active.csv")
                 data_frame_inputs.to_csv(output_file_path, index=False)
                 print(f"SAVED control CSV at t = {current_time}")
 
             if current_time == save_csv_time and save_csv:
                 full_measurements_df = pd.DataFrame(self.full_measurements, columns=['Time'] + required_measurements)
-                full_output_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "prediction_results", f"measurements_{current_time}_ACTIVE.csv")
+                full_output_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "prediction_results", f"measurements_{current_time}_ACTIVE.csv")
                 full_measurements_df.to_csv(full_output_file_path, index=False)
                 print(f"SAVED measurements at t = {current_time}")
 
         if hasattr(self, 'y_hat') and not self.y_hat.empty:
-            return self.y_hat["BlPitchCMeas"].iloc[-1], self.t_pred.iloc[-1]
+            return self.y_hat[f"{FOWT_pred_state}"].iloc[-1], self.t_pred.iloc[-1]
         else:
             return None, None
