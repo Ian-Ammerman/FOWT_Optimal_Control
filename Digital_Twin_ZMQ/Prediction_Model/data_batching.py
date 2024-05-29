@@ -24,7 +24,7 @@ class PredictionClass():
 
     def run_simulation(self, current_time, measurements, plot_figure, time_horizon, pred_error, pred_freq, save_csv, save_csv_time, FUTURE_WAVE_FILE, FOWT_pred_state, MLSTM_MODEL_NAME):
         from Digital_Twin_ZMQ.Prediction_Model.wave_predict import run_DOLPHINN
-        DOLPHINN_PATH  = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "DOLPHINN", "saved_models", MLSTM_MODEL_NAME, "wave_model")
+        DOLPHINN_PATH  = os.path.join(self.this_dir, "DOLPHINN", "saved_models", MLSTM_MODEL_NAME, "wave_model")
 
         self.iteration_count += 1  # Initialize the iteration count outside the loop
 
@@ -67,18 +67,18 @@ class PredictionClass():
         if len(self.batch_data) >= self.batch_size and current_time % pred_freq == 0:
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print("Running DOLPHINN with input data frame shape:", data_frame_inputs.shape)
-            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, pred_error, save_csv, save_csv_time)
+            self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, pred_error, save_csv, save_csv_time, FOWT_pred_state)
                         
             if not self.csv_saved and current_time == 1000:
                 self.control_csv_saved = True
                 # Save only the required_measurements along with the Time column
-                output_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "Control_Data", f"Control_Data_T{current_time}_active.csv")
+                output_file_path = os.path.join(self.this_dir, "Control_Data", f"Control_Data_T{current_time}_active.csv")
                 data_frame_inputs.to_csv(output_file_path, index=False)
                 print(f"SAVED control CSV at t = {current_time}")
 
             if current_time == save_csv_time and save_csv:
                 full_measurements_df = pd.DataFrame(self.full_measurements, columns=['Time'] + required_measurements)
-                full_output_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "prediction_results", f"measurements_{current_time}_ACTIVE.csv")
+                full_output_file_path = os.path.join(self.this_dir, "prediction_results", f"measurements_{current_time}_ACTIVE.csv")
                 full_measurements_df.to_csv(full_output_file_path, index=False)
                 print(f"SAVED measurements at t = {current_time}")
 
