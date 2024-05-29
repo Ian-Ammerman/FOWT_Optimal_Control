@@ -7,6 +7,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
 class PredictionClass():
     def __init__(self):
+        self.this_dir = os.path.dirname(os.path.abspath(__file__))
         self.port = "5556"
         self.batch_data = []  # To store incoming data temporarily with a fixed max length        
         self.batch_size = 6000  # Number of rows or timesteps per batch
@@ -29,7 +30,7 @@ class PredictionClass():
 
         if not hasattr(self, 'csv_df'):
             print("Retrieving wave data ...")
-            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "Incoming_Waves", FUTURE_WAVE_FILE)
+            csv_file_path = os.path.join(self.this_dir, "Incoming_Waves", FUTURE_WAVE_FILE)
             self.csv_df = pd.read_csv(csv_file_path)
 
         required_measurements = ['PtfmTDX', 'PtfmTDZ', 'PtfmTDY', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'BlPitchCMeas', 'RotSpeed']
