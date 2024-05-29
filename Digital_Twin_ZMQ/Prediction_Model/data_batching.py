@@ -29,7 +29,7 @@ class PredictionClass():
         self.iteration_count += 1  # Initialize the iteration count outside the loop
 
         if not hasattr(self, 'csv_df'):
-            print("Retrieving wave data ...")
+            print("Retrieving incoming wave data ...")
             csv_file_path = os.path.join(self.this_dir, "Incoming_Waves", FUTURE_WAVE_FILE)
             self.csv_df = pd.read_csv(csv_file_path)
 
