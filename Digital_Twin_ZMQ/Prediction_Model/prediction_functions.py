@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Buffer prediction setpoint and sending at optimized time. Only used for FOWT_pred_state = BlPitchCMeas
 def Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_error, time_horizon):
     # Global variables
     Pred_B_buffer = deque()
@@ -65,28 +66,26 @@ def Saturate(Pred_Delta_B, Pred_Saturation, Delta_B_treshold):
             Pred_Delta_B = -Delta_B_treshold
     return Pred_Delta_B
 
-
-def save_prediction_csv(t_pred, y_hat, pred_error, prediction_history):
+def save_prediction_csv(t_pred, y_hat, pred_error, prediction_history, FOWT_pred_state):
     print("Saving results to csv")
-    prediction_results_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "prediction_results", "PREDICTION_1000_ACTIVE.csv")
-    prediction_history_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "prediction_results", "PRED_HISTORY_1000_ACTIVE.csv")
+    prediction_results_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "prediction_results", "PREDICTION_1000_ACTIVE.csv")
+    prediction_history_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "prediction_results", "PRED_HISTORY_1000_ACTIVE.csv")
     
     # Save prediction results
     prediction_results = pd.DataFrame({
         'Time': t_pred + pred_error,
-        'Predicted_BlPitchCMeas': y_hat["BlPitchCMeas"] + pred_error
+        f'Predicted_{FOWT_pred_state}': y_hat[f"{FOWT_pred_state}"] + pred_error
     })
     prediction_results.to_csv(prediction_results_path, index=False)
     
     # Save prediction history
     prediction_history.to_csv(prediction_history_path, index=False)
 
-
-def active_pred_plot(t_pred, y_hat, pred_error, data_frame_inputs, current_time, dol, time_data, t1_idx, t2, t1, fig, ax):
+def active_pred_plot(t_pred, y_hat, pred_error, data_frame_inputs, current_time, dol, time_data, t1_idx, t2, t1, fig, ax, FOWT_pred_state):
     # Initialize or update the plot elements
     if not hasattr(active_pred_plot, 'initialized'):
-        active_pred_plot.line_actual, = ax.plot([], [], color='blue', label='Measured BlPitch (ROSCO)')
-        active_pred_plot.line_predicted, = ax.plot([], [], color='#3CB371', linestyle='-', label='Predicted BlPitch')
+        active_pred_plot.line_actual, = ax.plot([], [], color='blue', label=f'Measured {FOWT_pred_state} (ROSCO)')
+        active_pred_plot.line_predicted, = ax.plot([], [], color='#3CB371', linestyle='-', label=f'Predicted {FOWT_pred_state}')
         active_pred_plot.line_history, = ax.plot([], [], color='#3CB371', linestyle="--", label='Prediction history')
         active_pred_plot.marker_actual = ax.scatter([], [], color='blue', alpha=0.5)
         active_pred_plot.marker_predicted = ax.scatter([], [], color='#3CB371', alpha=0.5)
@@ -106,20 +105,20 @@ def active_pred_plot(t_pred, y_hat, pred_error, data_frame_inputs, current_time,
     active_pred_plot.line_predicted.set_data([], [])
 
     # Set new data for current prediction
-    active_pred_plot.line_predicted.set_data(t_pred + t2, y_hat["BlPitchCMeas"] + pred_error)
-    active_pred_plot.line_actual.set_data(time_data.iloc[0:t1_idx] + t2, data_frame_inputs["BlPitchCMeas"].iloc[:t1_idx]*180/np.pi)
+    active_pred_plot.line_predicted.set_data(t_pred + t2, y_hat[f"{FOWT_pred_state}"] + pred_error)
+    active_pred_plot.line_actual.set_data(time_data.iloc[0:t1_idx] + t2, data_frame_inputs[f"{FOWT_pred_state}"].iloc[:t1_idx]*180/np.pi)
     
     # Update marker and text for actual data
     last_actual_time = time_data.iloc[t1_idx-1] + t2
-    last_actual_pitch = data_frame_inputs["BlPitchCMeas"].iloc[t1_idx-1] * 180/np.pi
-    active_pred_plot.marker_actual.set_offsets((last_actual_time, last_actual_pitch))
-    active_pred_plot.marker_actual.set_label(f'Current BlPitch ({current_time}s)')
+    last_actual_state = data_frame_inputs[f"{FOWT_pred_state}"].iloc[t1_idx-1] * 180/np.pi
+    active_pred_plot.marker_actual.set_offsets((last_actual_time, last_actual_state))
+    active_pred_plot.marker_actual.set_label(f'Current {FOWT_pred_state} ({current_time}s)')
 
     # Update marker and text for predicted data
     last_pred_time = t_pred.iloc[-1] + t2
-    last_pred_pitch = y_hat["BlPitchCMeas"].iloc[-1] + pred_error
-    active_pred_plot.marker_predicted.set_offsets((last_pred_time, last_pred_pitch))
-    active_pred_plot.marker_predicted.set_label(f'Predicted BlPitch ({current_time + dol.time_horizon}s)')  
+    last_pred_state = y_hat[f"{FOWT_pred_state}"].iloc[-1] + pred_error
+    active_pred_plot.marker_predicted.set_offsets((last_pred_time, last_pred_state))
+    active_pred_plot.marker_predicted.set_label(f'Predicted {FOWT_pred_state} ({current_time + dol.time_horizon}s)')  
 
     ax.set_xlim((t1 - 50, t1 + 50))
     ax.set_ylim((0, 10))
@@ -129,6 +128,6 @@ def active_pred_plot(t_pred, y_hat, pred_error, data_frame_inputs, current_time,
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, labels)
     plt.grid(True)
-    plt.title(f'Collective Blade Pitch Prediction. Wave Time Horizon: {dol.time_horizon}s')
+    plt.title(f'{FOWT_pred_state} Prediction. Wave Time Horizon: {dol.time_horizon}s')
     plt.draw()
     plt.pause(0.1)
