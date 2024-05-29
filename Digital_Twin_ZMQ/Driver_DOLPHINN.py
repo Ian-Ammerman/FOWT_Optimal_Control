@@ -7,8 +7,6 @@ import multiprocessing as mp
 from rosco.toolbox.ofTools.case_gen import CaseLibrary as cl
 from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
 from rosco.toolbox.control_interface import wfc_zmq_server
-from Digital_Twin_ZMQ.Blade_Pitch_Prediction.pitch_prediction import PredictionClass
-from Digital_Twin_ZMQ.Blade_Pitch_Prediction.prediction_functions import Buffer, Saturate
 import yaml
 
 class bpcClass:
@@ -22,8 +20,6 @@ class bpcClass:
         os.makedirs(self.output_dir, exist_ok=True)
 
         # Specify Load Case (1, 2, 3)
-        # LC1: Hs: 1.0, Tp: 4.5 -- LC2: Hs: 2.0, Tp: 5.5 -- LC3: Hs: 3.5, Tp: 6.5
-        # Wind speed is 12.5 for all cases
         self.Load_Case = 2
 
     def run_zmq(self, logfile=None):
@@ -38,48 +34,54 @@ class bpcClass:
         server.runserver()
 
     def wfc_controller(self, id, current_time, measurements):
-        # Specify Load Case in __init__ (1, 2, 3)
+        # SPECIFY LOAD CASE # IN __INIT__
+
+        # This code is created for BlPitchCMeas Setpoint. However, other DOFs may be selected:
+        # FOWT Measurement for Prediction and monitoring - Choose between BlPitchCMeas, PtfmTDX, PtfmTDZ, PtfmTDY, PtfmRDX, PtfmRDY and PtfmRDZ
+        FOWT_pred_state = 'BlPitchCMeas'
 
         # Specify path and load trained DOLPHINN model (Must contain BlPitchCMeas)
-        MLSTM_MODEL_NAME = TrainingData_Hs_2_75_Tp_6
+        MLSTM_MODEL_NAME = 'TrainingData_Hs_2_75_Tp_6'
 
         # Specify incoming wave data file name
-        WAVE_DATA_FILE = f"WaveData_LC{self.Load_Case}.csv"
+        FUTURE_WAVE_FILE = f"WaveData_LC{self.Load_Case}.csv"
         
-        # Retreive time horizon from trained model
-        config_file_path = os.path.join("Digital_Twin_ZMQ", "Blade_Pitch_Prediction", "DOLPHINN", "saved_models", f"{MLSTM_MODEL_NAME}", "wave_model", 'config.yaml')
+        # Retrieve time horizon from trained model
+        config_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "DOLPHINN", "saved_models", f"{MLSTM_MODEL_NAME}", "wave_model", 'config.yaml')
         with open(config_file_path, 'r') as file:
             config_data = yaml.safe_load(file)
         time_horizon = config_data['time_horizon']
 
         #### Prediction Model Configuration ####
-        Prediction = False # True: Sends prediction offset to ROSCO. False: Deactivate (Pred_Delta_B = 0.0)
-        plot_figure = True # True: Activate real time prction plotting. False: Deactivate
-        Pred_Saturation = False # True: Saturate prediction offset (Avoid too big angle prediction offset)
-        saturation_treshold = 2*np.pi/180 # Define the treshold of prediction offset [rad]
-        pred_error = 0.0 #3.5 # Defines the offset for the trained model, found from training_results [deg]
-        pred_freq = 1 # Defines frequency of calling prediction model
-        buffer_duration = time_horizon - 1.0125 # Defines the buffer duration for the prediction before sending offset
-        weighting = 1 # Weighting = 1 for standard calculated offset
-        save_csv = True # Save csv for prediction and measurements
-        save_csv_time = 1000 # Specify time for saving csv [s]
+        Prediction = False  # True: Sends prediction offset to ROSCO. False: Deactivate (Pred_Delta_B = 0.0)
+        plot_figure = True  # True: Activate real time prediction plotting. False: Deactivate
+        Pred_Saturation = False  # True: Saturate prediction offset (Avoid too big angle prediction offset)
+        saturation_threshold = 2 * np.pi / 180  # Define the threshold of prediction offset [rad]
+        pred_error = 0.0  # Defines the offset for the trained model, found from training_results [deg]
+        pred_freq = 1  # Defines frequency of calling prediction model
+        buffer_duration = time_horizon - 1.0125  # Defines the buffer duration for the prediction before sending offset
+        weighting = 1  # Weighting = 1 for standard calculated offset
+        save_csv = True  # Save csv for prediction and measurements
+        save_csv_time = 1000  # Specify time for saving csv [s]
 
         # Get prediction and predicted time
-        Pred_B, t_pred = self.prediction_instance.run_simulation(current_time, measurements, DOLPHINN_PATH, plot_figure, time_horizon, pred_error, pred_freq, save_csv, save_csv_time, WAVE_DATA_FILE)
+        Pred_B, t_pred = self.prediction_instance.run_simulation(
+            current_time, measurements, plot_figure, time_horizon,
+            pred_error, pred_freq, save_csv, save_csv_time, FUTURE_WAVE_FILE, FOWT_pred_state, MLSTM_MODEL_NAME)
 
-        # Buffer prediction until optimal time to send offset to ROSCO
-        if Prediction: 
+        # If Blade pitch is predicted: Buffer blade pitch prediction until optimal time to send offset to ROSCO
+        if Prediction and FOWT_pred_state == 'BlPitchCMeas': 
             Pred_Delta_B = Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_error, time_horizon) 
-            Pred_Delta_B = Saturate(Pred_Delta_B, Pred_Saturation, saturation_treshold)
+            Pred_Delta_B = Saturate(Pred_Delta_B, Pred_Saturation, saturation_threshold)
         else: 
             Pred_Delta_B = 0.0
 
         # Set control setpoints
         setpoints = {}
         setpoints["ZMQ_YawOffset"] = 0.0
-        setpoints['ZMQ_PitOffset(1)'] = Pred_Delta_B * W
-        setpoints['ZMQ_PitOffset(2)'] = Pred_Delta_B * W
-        setpoints['ZMQ_PitOffset(3)'] = Pred_Delta_B * W
+        setpoints['ZMQ_PitOffset(1)'] = Pred_Delta_B * weighting
+        setpoints['ZMQ_PitOffset(2)'] = Pred_Delta_B * weighting
+        setpoints['ZMQ_PitOffset(3)'] = Pred_Delta_B * weighting
 
         return setpoints
 
@@ -106,10 +108,9 @@ class bpcClass:
             "wave_height": wave_height,      # WaveHs (meters)       
             "peak_period": peak_period,      # WaveTp (meters)       
             "wave_direction": 0,       # WaveDir (degrees)  
-            "WvDiffQTF": "True",       # 2nd order wave diffraction term
-            "WvSumQTF": "True"         # 2nd order wave sum-frequency term
+            "WvDiffQTF": "False",       # 2nd order wave diffraction term
+            "WvSumQTF": "False"         # 2nd order wave sum-frequency term
         }  
-
 
         self.steady_wind = True
         if self.steady_wind:
@@ -162,8 +163,9 @@ class bpcClass:
         p2.join()
 
 if __name__ == "__main__":
+    from Digital_Twin_ZMQ.Prediction_Model.data_batching import PredictionClass
+    from Digital_Twin_ZMQ.Prediction_Model.prediction_functions import Buffer, Saturate
+
     prediction_instance = PredictionClass()
     bpc = bpcClass(prediction_instance)
     bpc.main()
-
-    
