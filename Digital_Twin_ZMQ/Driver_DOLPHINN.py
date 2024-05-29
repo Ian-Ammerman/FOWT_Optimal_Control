@@ -47,7 +47,7 @@ class bpcClass:
         FUTURE_WAVE_FILE = f"WaveData_LC{self.Load_Case}.csv"
         
         # Retrieve time horizon from trained model
-        config_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "DOLPHINN", "saved_models", f"{MLSTM_MODEL_NAME}", "wave_model", 'config.yaml')
+        config_file_path = os.path.join(self.this_dir, "Prediction_Model", "DOLPHINN", "saved_models", f"{MLSTM_MODEL_NAME}", "wave_model", 'config.yaml')
         with open(config_file_path, 'r') as file:
             config_data = yaml.safe_load(file)
         time_horizon = config_data['time_horizon']
