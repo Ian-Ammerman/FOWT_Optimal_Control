@@ -21,15 +21,15 @@ class PredictionClass():
         self.iteration_count = 0  # Initialize the iteration count outside the loop
         self.full_measurements = []  # To store all measurements for all timesteps
 
-    def run_simulation(self, current_time, measurements, plot_figure, time_horizon, pred_error, pred_freq, save_csv, save_csv_time, WAVE_DATA_FILE, FOWT_pred_state, MLSTM_MODEL_NAME):
+    def run_simulation(self, current_time, measurements, plot_figure, time_horizon, pred_error, pred_freq, save_csv, save_csv_time, FUTURE_WAVE_FILE, FOWT_pred_state, MLSTM_MODEL_NAME):
         from Digital_Twin_ZMQ.Prediction_Model.wave_predict import run_DOLPHINN
         DOLPHINN_PATH  = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "DOLPHINN", "saved_models", MLSTM_MODEL_NAME, "wave_model")
-        
+
         self.iteration_count += 1  # Initialize the iteration count outside the loop
 
         if not hasattr(self, 'csv_df'):
             print("Retrieving wave data ...")
-            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "Input_Waves", WAVE_DATA_FILE)
+            csv_file_path = os.path.join("Digital_Twin_ZMQ", "Prediction_Model", "Incoming_Waves", FUTURE_WAVE_FILE)
             self.csv_df = pd.read_csv(csv_file_path)
 
         required_measurements = ['PtfmTDX', 'PtfmTDZ', 'PtfmTDY', 'PtfmRDX', 'PtfmRDY', 'PtfmRDZ', 'BlPitchCMeas', 'RotSpeed']
