@@ -1,4 +1,5 @@
 import os
+import time
 import pandas as pd
 from io import StringIO
 
@@ -8,7 +9,6 @@ class DataMonitor:
         self.output_dir = os.path.join(input_dir)
         os.makedirs(self.output_dir, exist_ok=True)
         self.output_file_path = os.path.join(self.output_dir, output_filename)
-
         self.file_path = os.path.join(input_dir, "Sim_Results", "IEA15MW_FOCAL", "custom_wind_wave_case", "base", "IEA15MW_FOCAL_0.out")
         self.columns_to_keep = ['Time', 'RootFzb1', 'RootFzb2', 'RootFzb3', 'RootMxb1', 'RootMxb2', 'RootMxb3', 'RootMyb1', 'RootMyb2', 'RootMyb3', 'TwrBsFzt', 'TwrBsMxt', 'TwrBsMyt']
         self.last_read_position = 0
