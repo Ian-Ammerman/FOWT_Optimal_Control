@@ -17,7 +17,7 @@ sn_curve_params_tower = {'K1': 1/(10**12.164), 'beta1': 3,
 
 
 class RUL_class():
-    def __init__(self, port="5556", emit_callback=None, chunk_duration=50):
+    def __init__(self, port="5556", emit_callback=None, chunk_duration=50, nominal_design_life_years=20):
         """Initialize the RUL class with default port and initial values for data storage and calculation.
         
         Parameters:
@@ -27,11 +27,13 @@ class RUL_class():
         print(f"RUL_class initialized with emit_callback: {emit_callback}")
         self.emit_callback = emit_callback
         self.chunk_duration = chunk_duration  # Set the chunk duration here
+        self.nominal_design_life_years = nominal_design_life_years  # Set nominal design life
+        
         self.time_data = []
         self.chunk_start_time = None
         self.total_observation_time = 0
         
-        self.initial_rul_years = 20
+        self.initial_rul_years = nominal_design_life_years
         self.fatigue_damage_blades_openfast = {'blade1': 0, 'blade2': 0, 'blade3': 0}
         self.fatigue_damage_tower_openfast = 0
 
@@ -119,7 +121,7 @@ class RUL_class():
             observed_chunk_duration = current_time - self.chunk_start_time
             self.total_observation_time += observed_chunk_duration
             print(f"Observed Chunk Duration: {observed_chunk_duration}, Total Observed Time blades: {self.total_observation_time}")
-    
+
         # Calculate for each blade root using OpenFAST data
         for blade_num in range(1, 4):
             blade_key = f'blade{blade_num}'
@@ -132,11 +134,11 @@ class RUL_class():
             fatigue_damage_chunk = self.calculate_fatigue_damage_blades(stress_mpa, sn_curve_params_blade)
             self.fatigue_damage_blades_openfast[blade_key] += fatigue_damage_chunk
             
-            RUL_blades_openfast = self.estimate_RUL(self.fatigue_damage_blades_openfast[blade_key], self.total_observation_time)
+            RUL_blades_openfast = self.estimate_RUL(self.fatigue_damage_blades_openfast[blade_key])
             rul_values_blade_openfast[f'OpenFAST_RUL_{blade_key}'] = RUL_blades_openfast
             fatigue_values_blade_openfast[f'Fatigue_{blade_key}'] = self.fatigue_damage_blades_openfast[blade_key]
             blade_info_lines_openfast.append(f"OpenFAST - {blade_key}, Fatigue Damage: {self.fatigue_damage_blades_openfast[blade_key]:.2e}, RUL: {rul_values_blade_openfast[f'OpenFAST_RUL_{blade_key}']:.6f} years")
-            
+        
         # Calculate for tower base using OpenFAST data
         TwrBsFzt = np.array(self.bending_moment_tower['TwrBsFzt'])
         TwrBsMxt = np.array(self.bending_moment_tower['TwrBsMxt'])
@@ -146,7 +148,7 @@ class RUL_class():
         fatigue_damage_chunk = self.calculate_fatigue_damage_tower(stress_mpa, sn_curve_params_tower, material_props_tower)
         self.fatigue_damage_tower_openfast += fatigue_damage_chunk
         
-        RUL_tower_openfast = self.estimate_RUL(self.fatigue_damage_tower_openfast, self.total_observation_time)
+        RUL_tower_openfast = self.estimate_RUL(self.fatigue_damage_tower_openfast)
         rul_values_tower_openfast['OpenFAST_RUL_Tower'] = RUL_tower_openfast
         fatigue_values_tower_openfast['Fatigue_Tower'] = self.fatigue_damage_tower_openfast
         tower_info_lines_openfast.append(f"OpenFAST - Tower, Fatigue Damage: {self.fatigue_damage_tower_openfast:.2e}, RUL: {RUL_tower_openfast:.6f} years")
@@ -323,14 +325,12 @@ class RUL_class():
         
         return FD
         
-    def estimate_RUL(self, fatigue_damage, total_time_observed):
-        print(f"Estimating RUL with cumulative fatigue damage: {fatigue_damage} and total time observed: {total_time_observed}")
-
-        """Estimate the Remaining Useful Life (RUL) based on cumulative fatigue damage and total time observed.
+    def estimate_RUL(self, fatigue_damage):
+        """Estimate the Remaining Useful Life (RUL) based on cumulative fatigue damage and nominal design life.
         
         Parameters:
         - fatigue_damage: Cumulative fatigue damage.
-        - total_time_observed: Total time observed in seconds.
+        - nominal_design_life_years: Nominal design life in years.
         
         Returns:
         - RUL_years: Estimated remaining useful life in years. If fatigue damage is not positive, returns an error message.
@@ -339,8 +339,7 @@ class RUL_class():
         if fatigue_damage <= 0: 
             return "RUL cannot be estimated yet or fatigue damage calculation is incorrect."
         
-        RUL_seconds = (1 - fatigue_damage) * total_time_observed / fatigue_damage
-        RUL_years = RUL_seconds / (365.25 * 24 * 3600)            # Convert seconds to years
+        RUL_years = (1 - fatigue_damage) * self.nominal_design_life_years
         return RUL_years
 
 if __name__ == "__main__":
