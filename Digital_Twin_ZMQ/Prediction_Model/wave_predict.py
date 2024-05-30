@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 import os
-
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Digital_Twin_ZMQ.Prediction_Model.DOLPHINN.vmod.dolphinn import DOLPHINN as DOL
 from Digital_Twin_ZMQ.Prediction_Model.prediction_functions import save_prediction_csv, active_pred_plot
