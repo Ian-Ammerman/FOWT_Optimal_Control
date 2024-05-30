@@ -14,6 +14,7 @@ class PredictionClass():
         self.file_generation_count = 0  # Initialize a counter for file generation
         self.t_pred = pd.DataFrame()
         self.y_hat = pd.DataFrame()
+        self.present_state = None
         self.has_run_once = False  # Flag to check if simulation has run once
         self.csv_saved = False  # Flag to check if the CSV has been saved once
         self.initial_time = None
@@ -68,7 +69,6 @@ class PredictionClass():
             data_frame_inputs = pd.DataFrame(self.batch_data, columns=['Time', 'wave'] + required_measurements)
             print("Running DOLPHINN with input data frame shape:", data_frame_inputs.shape)
             self.t_pred, self.y_hat = run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, pred_error, save_csv, save_csv_time, FOWT_pred_state)
-                        
             if not self.csv_saved and current_time == 1000:
                 self.control_csv_saved = True
                 # Save only the required_measurements along with the Time column
@@ -82,7 +82,9 @@ class PredictionClass():
                 full_measurements_df.to_csv(full_output_file_path, index=False)
                 print(f"SAVED measurements at t = {current_time}")
 
+            self.data_frame_inputs = data_frame_inputs  # Ensure data_frame_inputs is assigned
+
         if hasattr(self, 'y_hat') and not self.y_hat.empty:
-            return self.y_hat[f"{FOWT_pred_state}"].iloc[-1], self.t_pred.iloc[-1]
+            return self.y_hat, self.t_pred
         else:
             return None, None
