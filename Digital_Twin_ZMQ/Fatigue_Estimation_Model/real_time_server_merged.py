@@ -23,7 +23,7 @@ class RealTimeServer_class:
             'current_time': "",
             'Pred_Delta_B': [],
             'RotSpeed': [],
-            'HorWindV': [],
+            'WE_Vw': [],
             'VS_GenPwr': []
         }
         self.register_routes()
@@ -65,7 +65,7 @@ class RealTimeServer_class:
         self.emit_pred_update(self.latest_pred_data['current_time'], 'current_time')
         self.emit_pred_update(self.latest_pred_data['Pred_Delta_B'], 'Pred_Delta_B')
         self.emit_pred_update(self.latest_pred_data['RotSpeed'], 'RotSpeed')
-        self.emit_pred_update(self.latest_pred_data['HorWindV'], 'HorWindV')
+        self.emit_pred_update(self.latest_pred_data['WE_Vw'], 'WE_Vw')
         self.emit_pred_update(self.latest_pred_data['VS_GenPwr'], 'VS_GenPwr')
 
     def start_zmq_listener(self):
@@ -114,8 +114,8 @@ class RealTimeServer_class:
         if 'RotSpeed' in message:
             self.update_pred_data('RotSpeed', message['RotSpeed'])
             #print(f"Received Pred_Delta_B data: {message['Pred_Delta_B']}")
-        if 'HorWindV' in message:
-            self.update_pred_data('HorWindV', message['HorWindV'])
+        if 'WE_Vw' in message:
+            self.update_pred_data('WE_Vw', message['WE_Vw'])
             #print(f"Received Pred_Delta_B data: {message['Pred_Delta_B']}")
         if 'VS_GenPwr' in message:
             self.update_pred_data('VS_GenPwr', message['VS_GenPwr'])
