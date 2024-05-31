@@ -39,7 +39,7 @@ class CombinedController:
         self.data_frame = pd.DataFrame()
         self.last_data_check_time = 10
 
-    def run_zmq(self):
+    def run_zmq(self, logfile=None):
         self.context = zmq.Context()
         self.pub_socket = self.context.socket(zmq.PUB)
         self.pub_socket.bind("tcp://*:5556") 
