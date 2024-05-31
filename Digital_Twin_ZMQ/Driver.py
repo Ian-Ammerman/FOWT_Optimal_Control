@@ -19,18 +19,19 @@ from Live_Monitoring.real_time_server import RealTimeServer_class
 
 class CombinedController:
     def __init__(self):
+        
         self.this_dir = os.path.dirname(os.path.abspath(__file__))
+        self.rosco_dir = os.path.dirname(self.this_dir)
         self.output_dir = os.path.join(self.this_dir, "Outputs/Driver_Fatigue")
         self.input_dir = os.path.join(self.this_dir, "../Outputs/Driver_Fatigue")
-        self.csv_file_path = os.path.join(self.output_dir, 'rul_values.csv')
         os.makedirs(self.output_dir, exist_ok=True)
-        self.logfile = os.path.join(self.output_dir, os.path.splitext(os.path.basename(__file__))[0] + '.log')
-        print("Log file path:", self.logfile)
-        self.network_address = "tcp://*:5555"
-        
         self.Load_Case = 2
+
+        self.network_address = "tcp://*:5555"
         self.chunk_duration = 20
         self.nominal_design_life = 20
+        self.logfile = os.path.join(self.output_dir, os.path.splitext(os.path.basename(__file__))[0] + '.log')
+        self.csv_file_path = os.path.join(self.output_dir, 'rul_values.csv')
         
         self.prediction_instance = PredictionClass()
         self.rul_instance = RUL_class(emit_callback=self.publish_rul_updates, chunk_duration=self.chunk_duration, nominal_design_life_years=self.nominal_design_life)
@@ -197,7 +198,7 @@ class CombinedController:
 
     def main(self):
         processes = [
-            mp.Process(target=self.run_zmq),
+            mp.Process(target=self.run_zmq, args=(self.logfile,)),
             mp.Process(target=self.sim_openfast_custom),
         ]
 
