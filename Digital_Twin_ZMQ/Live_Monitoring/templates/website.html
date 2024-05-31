@@ -74,11 +74,11 @@
         .openfast-blade2-box { border-left: 5px solid #8e44ad; }
         .openfast-blade3-box { border-left: 5px solid #e67e22; }
         .openfast-tower-box { border-left: 5px solid #95a5a6; }
-        .predicted-state-box { border-left: 5px solid #16a085; }
-        .prediction-time-box { border-left: 5px solid #16a085; }
-        .current-state-box { border-left: 5px solid #16a085; }
-        .current-time-box { border-left: 5px solid #16a085; }
-        .pred-delta-box { border-left: 5px solid #16a085; }
+        .predicted-state-box { border-left: 5px solid #16a085; background-color: #CCFFE5;}
+        .prediction-time-box { border-left: 5px solid #16a085;  background-color: #CCFFE5;}
+        .current-state-box { border-left: 5px solid #16a085;  background-color: #CEEAFF;}
+        .current-time-box { border-left: 5px solid #16a085;  background-color: #CEEAFF;}
+        .pred-delta-box { border-left: 5px solid #16a085; background-color: #CEEAFF; }
         
         .chart-container {
             width: 100%;
@@ -174,16 +174,16 @@
         </div>
         <div class="subtitle">Prediction Model: Coll. Blade Pitch Angle Prediction</div>
         <div class="rul-container">
-            <div id="current_state" class="parameter current-state-box">Current Coll. BlPitch: <span id="present_state_value">--</span> deg.</div>
-            <div id="predicted_state" class="parameter predicted-state-box">Predicted Coll. BlPitch: <span id="pred_b_value">--</span> deg.</div> 
-        </div>
-        <div class="rul-container">
-            <div id="Pred_B_Buffered" class="parameter pred-delta-box">Buffered Prediction: <span id="Pred_B_Buffered_value">--</span> deg.</div>
-            <div id="pred_delta_b" class="parameter pred-delta-box">Buffered Prediction Offset: <span id="pred_delta_b_value">--</span> deg.</div>
-        </div>
-        <div class="rul-container">
             <div id="current_time" class="parameter current-time-box">Current Time: <span id="current_time_value">--</span> s</div>
             <div id="prediction_time" class="parameter prediction-time-box">Predicted Time: <span id="t_pred_value">--</span> s</div>
+        </div>
+        <div class="rul-container">
+            <div id="current_state" class="parameter current-state-box">Current Coll. BlPitch: <span id="present_state_value">--</span> deg</div>
+            <div id="predicted_state" class="parameter predicted-state-box">Predicted Coll. BlPitch: <span id="pred_b_value">--</span> deg</div> 
+        </div>
+        <div class="rul-container">
+            <div id="Pred_B_Buffered" class="parameter pred-delta-box">Buffered Prediction: <span id="Pred_B_Buffered_value">--</span> deg</div>
+            <div id="pred_delta_b" class="parameter pred-delta-box">Buffered Prediction Offset: <span id="pred_delta_b_value">--</span> deg</div>
         </div>
         <div class="operational-data">
             <h4>Live Operation Data:</h4>
