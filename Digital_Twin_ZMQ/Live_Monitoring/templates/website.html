@@ -47,9 +47,8 @@
             display: flex;
             justify-content: space-evenly;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-            padding: 10px;
+            gap: 5px;
+            padding: 5px;
             width: 100%;
             box-sizing: border-box;
         }
@@ -147,8 +146,8 @@
             font-size: 1.2em;
             position: absolute;
             top: 100px;
-            right: 20px; /* Move more to the right */
-            width: 250px;
+            right: 10px; /* Move more to the right */
+            width: 200px;
         }
         .operational-data h3 {
             margin-top: 0;
@@ -162,7 +161,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="title">Digital Twin: Live Monitoring</div>
+        <div class="title">VolturnUS-S 15-MW Digital Twin: Live Monitoring</div>
         <div class="subtitle">Fatigue Model: Remaining Useful Life Estimation</div>
         <div class="chart-container">
             <canvas id="rulChart"></canvas>
@@ -175,16 +174,19 @@
         </div>
         <div class="subtitle">Prediction Model: Coll. Blade Pitch Angle Prediction</div>
         <div class="rul-container">
-            <div id="predicted_state" class="parameter predicted-state-box">Predicted Coll. BlPitch: <span id="pred_b_value">--</span> deg.</div> 
             <div id="current_state" class="parameter current-state-box">Current Coll. BlPitch: <span id="present_state_value">--</span> deg.</div>
-            <div id="pred_delta_b" class="parameter pred-delta-box">Present Time Prediction Offset: <span id="pred_delta_b_value">--</span> deg.</div>
+            <div id="predicted_state" class="parameter predicted-state-box">Predicted Coll. BlPitch: <span id="pred_b_value">--</span> deg.</div> 
         </div>
         <div class="rul-container">
-            <div id="prediction_time" class="parameter prediction-time-box">Predicted Time: <span id="t_pred_value">--</span> s</div>
+            <div id="Pred_B_Buffered" class="parameter pred-delta-box">Buffered Prediction: <span id="Pred_B_Buffered_value">--</span> deg.</div>
+            <div id="pred_delta_b" class="parameter pred-delta-box">Buffered Prediction Offset: <span id="pred_delta_b_value">--</span> deg.</div>
+        </div>
+        <div class="rul-container">
             <div id="current_time" class="parameter current-time-box">Current Time: <span id="current_time_value">--</span> s</div>
+            <div id="prediction_time" class="parameter prediction-time-box">Predicted Time: <span id="t_pred_value">--</span> s</div>
         </div>
         <div class="operational-data">
-            <h3>Live Operational Data:</h3>
+            <h5>Live Operational Data:</h5>
             <div id="WE_Vw" class="data-row"><span id="WE_Vw_value">--</span></div>
             <div id="RotSpeed" class="data-row"><span id="RotSpeed_value">--</span></div>
             <div id="VS_GenPwr" class="data-row"><span id="VS_GenPwr_value">--</span></div>
@@ -244,13 +246,17 @@
                         elementId = 'pred_delta_b_value';
                         formattedValue = parseFloat(values).toFixed(2);
                         break;
+                    case 'Pred_B_Buffered':
+                        elementId = 'Pred_B_Buffered_value';
+                        formattedValue = parseFloat(values).toFixed(2);
+                        break;
                     case 'RotSpeed':
                         elementId = 'RotSpeed';
                         formattedValue = "Rotor speed: " + parseFloat(values).toFixed(2) + "rpm";
                         break;
                     case 'WE_Vw':
                         elementId = 'WE_Vw';
-                        formattedValue = "Est. wind speed: " + parseFloat(values).toFixed(2) + "m/s";
+                        formattedValue = "Wind speed: " + parseFloat(values).toFixed(2) + "m/s";
                         break;
                     case 'VS_GenPwr':
                         elementId = 'VS_GenPwr';
