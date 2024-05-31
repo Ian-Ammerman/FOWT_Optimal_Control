@@ -181,7 +181,7 @@
         </div>
         <div class="operational-data">
             <h3>Live Operational Data:</h3>
-            <div id="HorWindV" class="data-row"><span id="HorWindV_value">--</span></div>
+            <div id="WE_Vw" class="data-row"><span id="WE_Vw_value">--</span></div>
             <div id="RotSpeed" class="data-row"><span id="RotSpeed_value">--</span></div>
             <div id="VS_GenPwr" class="data-row"><span id="VS_GenPwr_value">--</span></div>
         </div>
@@ -244,9 +244,9 @@
                         elementId = 'RotSpeed';
                         formattedValue = "Rotor speed: " + parseFloat(values).toFixed(2) + "rpm";
                         break;
-                    case 'HorWindV':
-                        elementId = 'HorWindV';
-                        formattedValue = "Wind speed: " + parseFloat(values).toFixed(2) + "m/s";
+                    case 'WE_Vw':
+                        elementId = 'WE_Vw';
+                        formattedValue = "Est. wind speed: " + parseFloat(values).toFixed(2) + "m/s";
                         break;
                     case 'VS_GenPwr':
                         elementId = 'VS_GenPwr';
