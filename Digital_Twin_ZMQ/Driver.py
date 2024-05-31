@@ -12,8 +12,10 @@ from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
 from rosco.toolbox.control_interface import wfc_zmq_server
 from Prediction_Model.data_batching import PredictionClass
 from Prediction_Model.prediction_functions import Buffer, Saturate
-from Fatigue_Estimation.data_monitor import DataMonitor
-from Fatigue_Estimation.fatigue_damage_RUL import RUL_class
+from Fatigue_Estimation_Model.data_collecting import DataMonitor
+from Fatigue_Estimation_Model.fatigue_damage_RUL import RUL_class
+from Live_Monitoring.real_time_server import RealTimeServer_class
+
 
 class CombinedController:
     def __init__(self):
@@ -35,7 +37,7 @@ class CombinedController:
         self.rul_instance = RUL_class(emit_callback=self.publish_rul_updates, chunk_duration=self.chunk_duration, nominal_design_life_years=self.nominal_design_life)
         self.output_filename = "updated_simulation_data.csv"
 
-        self.data_monitor = DataMonitor(self.output_dir, self.output_filename, self.chunk_duration)       
+        self.data_collecting = DataMonitor(self.output_dir, self.output_filename, self.chunk_duration)       
         self.data_frame = pd.DataFrame()
         self.last_data_check_time = 10
 
@@ -51,10 +53,10 @@ class CombinedController:
 
     def wfc_controller(self, id, current_time, measurements):
         self.update_system_state(current_time, save_to_csv=True)
-        setpoints = self.calculate_setpoints(current_time, measurements)
+        setpoints = self.prediction_setpoints(current_time, measurements)
         return setpoints
 
-    def calculate_setpoints(self, current_time, measurements):
+    def prediction_setpoints(self, current_time, measurements):
         FOWT_pred_state = 'BlPitchCMeas'
         MLSTM_MODEL_NAME = 'TrainingData_Hs_2_75_Tp_6'
         FUTURE_WAVE_FILE = f"WaveData.csv"
@@ -123,11 +125,11 @@ class CombinedController:
 
     def update_system_state(self, current_time, save_to_csv=False, csv_file_path=None):
         if current_time - self.last_data_check_time >= self.chunk_duration/10:
-            new_data = self.data_monitor.read_and_filter_data()
+            new_data = self.data_collecting.read_and_filter_data()
             if not new_data.empty: 
                 print(f"Data received for processing at simulation time: {current_time}")
                 self.data_frame = pd.concat([self.data_frame, new_data], ignore_index=True)
-                self.data_monitor.process_data()  # Process the data if new data was read
+                self.data_collecting.process_data()  # Process the data if new data was read
                 # Pass each row of new_data to the fatigue analysis
                 for _, row in new_data.iterrows():
                     path_to_save = csv_file_path if csv_file_path else self.csv_file_path
@@ -208,3 +210,4 @@ class CombinedController:
 if __name__ == "__main__":
     controller = CombinedController()
     controller.main()
+    real_time_server_instance = RealTimeServer_class()

@@ -1,14 +1,9 @@
 # fatigue_damage_RUL.py
 import os
-import sys
 import time
 import numpy as np
 import pandas as pd
 import rainflow as rfc
-from Fatigue_Estimation.real_time_server_merged import RealTimeServer_class
-from pathlib import Path
-import os
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
 # Material properties and SN curve parameters for fatigue analysis
 material_props_blade  = {'thk': 100, 'diameter': 5.2}  
@@ -18,7 +13,6 @@ sn_curve_params_blade = {'S0': 404.33, 'b': 0.133}   # Normalized stress 'S0' an
 material_props_tower = {'thk': 82.95, 'thk_ref': 25, 'diameter': 10} 
 sn_curve_params_tower = {'K1': 1/(10**12.164), 'beta1': 3, 
                          'stress_lim': 52.639, 'K2': 1/(10**15.606), 'beta2': 5}
-
 
 class RUL_class():
     def __init__(self, port="5556", emit_callback=None, chunk_duration=50, nominal_design_life_years=20):
@@ -47,6 +41,7 @@ class RUL_class():
             'blade2': {'RootFzb': [], 'RootMxb': [], 'RootMyb': []},
             'blade3': {'RootFzb': [], 'RootMxb': [], 'RootMyb': []},
         }
+        self.blade_pitch = {'BlPitchCMeas': []}
         
         self.csv_file_path = os.path.join("Digital_Twin_ZMQ", "Outputs", "rul_values.csv")
         print(f"CSV file path set to: {self.csv_file_path}")
@@ -59,7 +54,7 @@ class RUL_class():
             self.chunk_start_time = current_time
             
         self.time_data.append(current_time)   
-        #print("Length of Time Data:", len(self.time_data))
+        self.blade_pitch['BlPitchCMeas'].append(data.get('BlPitchCMeas', 0))
 
         self.bending_moment_tower['TwrBsFzt'].append(data.get('TwrBsFzt', 0))
         self.bending_moment_tower['TwrBsMxt'].append(data.get('TwrBsMxt', 0))
@@ -134,7 +129,9 @@ class RUL_class():
             RootMxb = np.array(self.bending_moment_blades[blade_key]['RootMxb'])
             RootMyb = np.array(self.bending_moment_blades[blade_key]['RootMyb'])
             
-            stress_mpa = self.calculate_stress_blades(RootFzb, RootMxb, RootMyb, material_props_blade)
+            BlPitchCMeas = np.array(self.blade_pitch['BlPitchCMeas'])
+            
+            stress_mpa = self.calculate_stress_blades(RootFzb, RootMxb, RootMyb, BlPitchCMeas, material_props_blade)
             fatigue_damage_chunk = self.calculate_fatigue_damage_blades(stress_mpa, sn_curve_params_blade)
             self.fatigue_damage_blades_openfast[blade_key] += fatigue_damage_chunk
             
@@ -194,11 +191,12 @@ class RUL_class():
             self.bending_moment_blades[blade_key] = {'RootFzb': [], 'RootMxb': [], 'RootMyb': []}
 
         # Reset OpenFAST tower measurements
-        #for key in self.bending_moment_tower.keys():
-        #    self.bending_moment_tower[key] = []
         self.bending_moment_tower = {'TwrBsFzt': [], 'TwrBsMxt': [], 'TwrBsMyt': []}
-
-    def calculate_stress_blades(self, RootFzb, RootMxb, RootMyb, material_props_blade):
+        
+        # Reset blade pitch measurements
+        self.blade_pitch = {'BlPitchCMeas': []}
+        
+    def calculate_stress_blades(self, RootFzb, RootMxb_edgewise, RootMyb_flapwise, BlPitchCMeas, material_props_blade):
         """Calculate the total stress from axial and bending moments.
 
         Parameters:
@@ -210,7 +208,7 @@ class RUL_class():
         - sigma_total_mpa: Total stress in megapascals (MPa).
         """
         #print(f"Calculating stress for blades with axial force: {axial_force}, moments x: {bending_moment_x}, moments y: {bending_moment_y}")
-
+        #print(f"BlPitchCMeas data: {BlPitchCMeas}")
         # Material and geometric properties
         thk_mm, diameter_m = material_props_blade['thk'], material_props_blade['diameter']
         thk_m = thk_mm / 1000                                    # Convert thickness to meters
@@ -222,14 +220,14 @@ class RUL_class():
         I_yy = I_xx = np.pi / 4 * (r_outer_m**4 - r_inner_m**4)  # Moment of inertia
 
         # Stress calculations
-        sigma_axial = RootFzb / A       * 1000                   # Convert axial stress from kN to N  
-        M_x = RootMxb                   * 1000                   # Convert edgewise moment from kN to N                             
-        M_y = RootMyb                   * 1000                   # Convert flapwise moment from kN to N      
-        sigma_bending_x = M_x * r_outer_m / I_xx * np.sin(theta)
-        sigma_bending_y = M_y * r_outer_m / I_yy * np.cos(theta)
+        N_z = RootFzb / A               * 1000                   # Convert axial stress from kN to N  
+        bending_x = RootMxb_edgewise    * 1000                   # Convert edgewise moment from kN to N                             
+        bending_y = RootMyb_flapwise    * 1000                   # Convert flapwise moment from kN to N      
+        M_x = bending_x * r_outer_m / I_xx * np.sin(theta + BlPitchCMeas)
+        M_y = bending_y * r_outer_m / I_yy * np.cos(theta + BlPitchCMeas)
 
         # Total stress
-        sigma_total = sigma_axial + sigma_bending_x + sigma_bending_y
+        sigma_total = N_z + M_x + M_y
         sigma_total_mpa = sigma_total / 1e6                      # Convert to MPa
         return sigma_total_mpa
 
@@ -348,4 +346,3 @@ class RUL_class():
 
 if __name__ == "__main__":
     RUL_instance = RUL_class()
-    real_time_server_instance = RealTimeServer_class()

@@ -214,7 +214,7 @@
                         var element = document.getElementById(valueId);
                         if (element) {
                             var rul = values[index];
-                            element.textContent = rul !== null ? parseFloat(rul).toFixed(2) + ' years' : 'N/A';
+                            element.textContent = rul !== null ? parseFloat(rul).toFixed(3) + ' years' : 'N/A';
                         }
                     });
                 }
@@ -331,7 +331,7 @@
                     var element = document.getElementById(elementId);
                     if (element) {
                         if (value !== undefined && value !== 'N/A') {
-                            element.textContent = parseFloat(value).toFixed(2) + ' years';
+                            element.textContent = parseFloat(value).toFixed(3) + ' years';
                         } else {
                             element.textContent = 'N/A';
                         }
@@ -413,6 +413,7 @@
                         scales: {
                             y: {
                                 beginAtZero: false,
+                                max: 21,
                                 min: 15,
                                 ticks: {
                                     stepSize: 1

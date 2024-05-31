@@ -60,7 +60,7 @@ class bpcClass:
         saturation_threshold = 2 * np.pi / 180  # Define the threshold of prediction offset [rad]
         pred_freq = 1  # Defines frequency of calling prediction model
         buffer_duration = time_horizon - 1.0125  # Defines the buffer duration for the prediction before sending offset
-        weighting = 1  # Weighting = 1 for standard calculated offset
+        K_pred = 1  # K_pred = 1 for standard calculated offset
         save_csv = True  # Save csv for prediction and measurements
         save_csv_time = 1000  # Specify time for saving csv [s]
         pitch_prediction_error_deg = 3.7
@@ -83,9 +83,9 @@ class bpcClass:
         # Set control setpoints
         setpoints = {}
         setpoints["ZMQ_YawOffset"] = 0.0
-        setpoints['ZMQ_PitOffset(1)'] = Pred_Delta_B * weighting
-        setpoints['ZMQ_PitOffset(2)'] = Pred_Delta_B * weighting
-        setpoints['ZMQ_PitOffset(3)'] = Pred_Delta_B * weighting
+        setpoints['ZMQ_PitOffset(1)'] = Pred_Delta_B * K_pred
+        setpoints['ZMQ_PitOffset(2)'] = Pred_Delta_B * K_pred
+        setpoints['ZMQ_PitOffset(3)'] = Pred_Delta_B * K_pred
 
         return setpoints
 
