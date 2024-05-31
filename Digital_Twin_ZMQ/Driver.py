@@ -58,6 +58,7 @@ class CombinedController:
     def prediction_setpoints(self, current_time, measurements):
         FOWT_pred_state = 'BlPitchCMeas'
         MLSTM_MODEL_NAME = 'TrainingData_Hs_2_75_Tp_6'
+        # FUTURE_WAVE_FILE = f"WaveData_LC{self.Load_Case}.csv"
         FUTURE_WAVE_FILE = f"WaveData.csv"
 
         config_file_path = os.path.join(self.this_dir, "Prediction_Model", "DOLPHINN", "saved_models", f"{MLSTM_MODEL_NAME}", "wave_model", 'config.yaml')
