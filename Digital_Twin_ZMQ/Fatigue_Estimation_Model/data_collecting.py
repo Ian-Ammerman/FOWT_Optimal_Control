@@ -3,19 +3,18 @@ import time
 import pandas as pd
 from io import StringIO
 
-class DataMonitor:
-    def __init__(self, input_dir, output_filename, chunk_duration):
+class DataCollect:
+    def __init__(self, input_dir, chunk_duration):
         self.input_dir = input_dir
         self.output_dir = os.path.join(input_dir)
         os.makedirs(self.output_dir, exist_ok=True)
-        self.output_file_path = os.path.join(self.output_dir, output_filename)
         self.file_path = os.path.join(input_dir, "Sim_Results", "IEA15MW_FOCAL", "custom_wind_wave_case", "base", "IEA15MW_FOCAL_0.out")
         self.columns_to_keep = ['Time', 'RootFzb1', 'RootFzb2', 'RootFzb3', 'RootMxb1', 'RootMxb2', 'RootMxb3', 'RootMyb1', 'RootMyb2', 'RootMyb3', 'TwrBsFzt', 'TwrBsMxt', 'TwrBsMyt']
         self.last_read_position = 0
         self.data_list = []
         self.data_frame = pd.DataFrame(columns=self.columns_to_keep)
         self.chunk_duration = chunk_duration
-        print(f"DataMonitor initialized with directory: {self.input_dir}, output file: {self.output_file_path}, and chunk duration: {self.chunk_duration}")
+        print(f"DataCollect initialized with directory: {self.input_dir} and chunk duration: {self.chunk_duration}")
 
     def file_is_valid(self):
         is_valid = os.path.isfile(self.file_path) and os.path.getsize(self.file_path) > 0
@@ -63,8 +62,7 @@ class DataMonitor:
 if __name__ == '__main__':
     this_dir = os.path.dirname(os.path.abspath(__file__))
     input_dir = os.path.join(this_dir, "../Outputs")
-    output_filename = "updated_simulation_data.csv"
-    generator = DataMonitor(input_dir, output_filename, chunk_duration=100)
+    generator = DataCollect(input_dir, chunk_duration=100)
     new_data = generator.read_and_filter_data()
     if not new_data.empty:
         print("Data processed for current time.")
