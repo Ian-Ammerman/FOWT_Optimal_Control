@@ -41,7 +41,7 @@ def run_DOLPHINN(data_frame_inputs, DOLPHINN_PATH, plot_figure, current_time, pr
 
     # Save data to CSV files when current_time is 1000
     if current_time == save_csv_time and save_csv:
-        save_prediction_csv(t_pred, y_hat, pred_error, prediction_history)
+        save_prediction_csv(t_pred, y_hat, pred_error, prediction_history, FOWT_pred_state)
 
     # Store the prediction history
     history_data = pd.DataFrame({
