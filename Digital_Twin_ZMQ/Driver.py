@@ -106,7 +106,8 @@ class CombinedController:
         else:
             Pred_Delta_B_Setpoint = 0.0
         
-        RotSpeed = measurements["RotSpeed"]
+        RotSpeed = measurements["RotSpeed"] * 60 / (2 * np.pi) # rad/s to rpm
+
         WE_Vw = measurements["WE_Vw"]
         VS_GenPwr = measurements["VS_GenPwr"]
         if y_hat_raw is not None and FOWT_pred_state == 'BlPitchCMeas':
