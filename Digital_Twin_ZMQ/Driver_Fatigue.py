@@ -11,7 +11,7 @@ from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
         
 class BladePitchController:
     def __init__(self):
-        self.chunk_duration = 600        # seconds
+        self.chunk_duration = 3600        # seconds
         self.nominal_design_life = 20    # years
         self.rul_instance = RUL_class(emit_callback=self.publish_rul_updates, chunk_duration=self.chunk_duration, nominal_design_life_years=self.nominal_design_life)
         self.network_address = "tcp://*:5555"
@@ -41,7 +41,7 @@ class BladePitchController:
         self.server.wfc_controller = self.wfc_controller
         self.server.runserver()
             
-    def update_system_state(self, current_time, save_to_csv=False, csv_file_path=None):
+    def update_system_state(self, current_time, bl_pitch_c_meas, save_to_csv=False, csv_file_path=None):
         if current_time - self.last_data_check_time >= self.chunk_duration/10:
             new_data = self.data_monitor.read_and_filter_data()
             if not new_data.empty:
@@ -51,6 +51,7 @@ class BladePitchController:
                 # Pass each row of new_data to the fatigue analysis
                 for _, row in new_data.iterrows():
                     path_to_save = csv_file_path if csv_file_path else self.csv_file_path
+                    row['BlPitchCMeas'] = bl_pitch_c_meas
                     self.rul_instance.update_measurements(current_time, row, save_to_csv, path_to_save)
                 #if current_time >= 50.0:
                 #    self.inspect_data()
@@ -76,9 +77,10 @@ class BladePitchController:
 
     def wfc_controller(self, id, current_time, measurements):
         # Call to process any new data that might have been read
+        bl_pitch_c_meas = measurements.get('BlPitchCMeas')
         self.RUL = True
         if self.RUL:
-            self.update_system_state(current_time, save_to_csv=True)
+            self.update_system_state(current_time, bl_pitch_c_meas, save_to_csv=True)
 
         return {'YawOffset': 0.0}
 
@@ -90,10 +92,10 @@ class BladePitchController:
         r.wind_case_fcn = cl.custom_wind_wave_case    
         
         r.wind_case_opts = {
-            "TMax": 15000,            # Total run time (sec)    
-            "wave_height": 8.0,      # WaveHs (meters)       
-            "peak_period": 12.0,      # WaveTp (meters)       
-            "wave_direction": 0,       # WaveDir (degrees)  
+            "TMax": 86400+600,            # Total run time (sec)    
+            "wave_height": 3.5,      # WaveHs (meters)       
+            "peak_period": 6.5,      # WaveTp (meters)       
+            "wave_direction": 10,       # WaveDir (degrees)  
             "WvDiffQTF": "True",       # 2nd order wave diffraction term
             "WvSumQTF": "True"         # 2nd order wave sum-frequency term
         } 
@@ -103,7 +105,7 @@ class BladePitchController:
             r.wind_case_opts.update({"wind_type": 1, "HWindSpeed": 10.5 })  # Horizontal windspeed (m/s)
         else:
             print("Setting options for turbulent wind")
-            r.wind_case_opts.update({"wind_type": 3, "turb_wind_speed": "22" })             # TurbSim Full-Field   (m/s) 
+            r.wind_case_opts.update({"wind_type": 3, "turb_wind_speed": "16" })             # TurbSim Full-Field   (m/s) 
        
         r.wind_case_opts["WaveTMax"] = r.wind_case_opts["TMax"] + 200
 
