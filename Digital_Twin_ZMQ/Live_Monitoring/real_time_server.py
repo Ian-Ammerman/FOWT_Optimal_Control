@@ -22,6 +22,7 @@ class RealTimeServer_class:
             'present_state_web': [],
             'current_time': "",
             'Pred_Delta_B': [],
+            'Pred_B_Buffered': [],
             'RotSpeed': [],
             'WE_Vw': [],
             'VS_GenPwr': []
@@ -64,6 +65,7 @@ class RealTimeServer_class:
         self.emit_pred_update(self.latest_pred_data['present_state_web'], 'present_state_web')
         self.emit_pred_update(self.latest_pred_data['current_time'], 'current_time')
         self.emit_pred_update(self.latest_pred_data['Pred_Delta_B'], 'Pred_Delta_B')
+        self.emit_pred_update(self.latest_pred_data['Pred_B_Buffered'], 'Pred_B_Buffered')
         self.emit_pred_update(self.latest_pred_data['RotSpeed'], 'RotSpeed')
         self.emit_pred_update(self.latest_pred_data['WE_Vw'], 'WE_Vw')
         self.emit_pred_update(self.latest_pred_data['VS_GenPwr'], 'VS_GenPwr')
@@ -110,6 +112,9 @@ class RealTimeServer_class:
             #print(f"Received current time data: {message['current_time']}")
         if 'Pred_Delta_B' in message:
             self.update_pred_data('Pred_Delta_B', message['Pred_Delta_B'])
+            #print(f"Received Pred_Delta_B data: {message['Pred_Delta_B']}")
+        if 'Pred_B_Buffered' in message:
+            self.update_pred_data('Pred_B_Buffered', message['Pred_B_Buffered'])
             #print(f"Received Pred_Delta_B data: {message['Pred_Delta_B']}")
         if 'RotSpeed' in message:
             self.update_pred_data('RotSpeed', message['RotSpeed'])
