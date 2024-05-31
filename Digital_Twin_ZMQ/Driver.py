@@ -98,7 +98,7 @@ class CombinedController:
 
 
         if FOWT_pred_state == 'BlPitchCMeas':
-            Pred_Delta_B = Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, BlPitchCMeas_pred_error, time_horizon)
+            Pred_Delta_B, Pred_B_Buffered = Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, BlPitchCMeas_pred_error, time_horizon, Prediction)
             Pred_Delta_B = Saturate(Pred_Delta_B, Pred_Saturation, saturation_threshold)
             if Prediction:
                 Pred_Delta_B_setpoint = Pred_Delta_B
@@ -106,14 +106,14 @@ class CombinedController:
                 Pred_Delta_B_setpoint = 0.0
         else:
             Pred_Delta_B_Setpoint = 0.0
-
+        
         RotSpeed = measurements["RotSpeed"]
         WE_Vw = measurements["WE_Vw"]
         VS_GenPwr = measurements["VS_GenPwr"]
         if y_hat_raw is not None and FOWT_pred_state == 'BlPitchCMeas':
-            self.publish_prediction(Pred_B + BlPitchCMeas_pred_error, t_pred, current_time, present_state_web, time_horizon, Pred_Delta_B, RotSpeed, WE_Vw, VS_GenPwr)
+            self.publish_prediction(Pred_B + BlPitchCMeas_pred_error, t_pred, current_time, present_state_web, time_horizon, Pred_Delta_B, Pred_B_Buffered, RotSpeed, WE_Vw, VS_GenPwr)
         else:
-            self.publish_prediction(Pred_B, t_pred, current_time, present_state_web, time_horizon, Pred_Delta_B, RotSpeed, WE_Vw, VS_GenPwr)
+            self.publish_prediction(Pred_B, t_pred, current_time, present_state_web, time_horizon, Pred_Delta_B, Pred_B_Buffered, RotSpeed, WE_Vw, VS_GenPwr)
 
         setpoints = {
             "ZMQ_YawOffset": 0.0,
@@ -147,12 +147,12 @@ class CombinedController:
         self.pub_socket.send_json({"rul_values_tower_openfast": rul_values_tower_openfast})
 
 
-    def publish_prediction(self, Pred_B, t_pred, current_time, present_state_web, time_horizon, Pred_Delta_B, RotSpeed, WE_Vw, VS_GenPwr):
+    def publish_prediction(self, Pred_B, t_pred, current_time, present_state_web, time_horizon, Pred_Delta_B, Pred_B_Buffered, RotSpeed, WE_Vw, VS_GenPwr):
         Pred_Delta_B = Pred_Delta_B * 180 / np.pi
         current_time = current_time - time_horizon - 1
-        self.pub_socket.send_json({"Pred_B": Pred_B, "t_pred": t_pred, "present_state_web": present_state_web, "current_time": current_time,"Pred_Delta_B": Pred_Delta_B, "RotSpeed": RotSpeed, "WE_Vw": WE_Vw,"VS_GenPwr": VS_GenPwr})
+        self.pub_socket.send_json({"Pred_B": Pred_B, "t_pred": t_pred, "present_state_web": present_state_web, "current_time": current_time,"Pred_Delta_B": Pred_Delta_B, "Pred_B_Buffered": Pred_B_Buffered, "RotSpeed": RotSpeed, "WE_Vw": WE_Vw,"VS_GenPwr": VS_GenPwr})
         if current_time % 10 == 0:
-            print(f"Published prediction updates: Pred_B: {Pred_B}, t_pred: {t_pred}, present state: {present_state_web}, current time: {current_time}, Pred_Delta_B: {Pred_Delta_B}, RotSpeed: {RotSpeed}, WE_Vw: {WE_Vw}, VS_GenPwr: {VS_GenPwr}")
+            print(f"Published prediction updates: Pred_B: {Pred_B}, t_pred: {t_pred}, present state: {present_state_web}, current time: {current_time}, Pred_Delta_B: {Pred_Delta_B}, Pred_B_Buffered: {Pred_B_Buffered}, RotSpeed: {RotSpeed}, WE_Vw: {WE_Vw}, VS_GenPwr: {VS_GenPwr}")
 
     def sim_openfast_custom(self):
         print(f"Running custom OpenFAST configuration with Load Case {self.Load_Case}")
