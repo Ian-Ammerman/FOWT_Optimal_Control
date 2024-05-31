@@ -8,7 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Buffer prediction setpoint and sending at optimized time. Only used for FOWT_pred_state = BlPitchCMeas
-def Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_error, time_horizon):
+def Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_error, time_horizon, Prediction):
     # Initialize function attributes if they don't exist
     if not hasattr(Buffer, 'Pred_B_buffer'):
         Buffer.Pred_B_buffer = deque()
@@ -36,8 +36,10 @@ def Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_err
     if Buffer.last_used_Pred_B is not None:
         Pred_Delta_B_0 = Buffer.last_used_Pred_B * np.pi/180 - measurements['BlPitchCMeas']
         Pred_Delta_B = Pred_Delta_B_0 + pred_error*np.pi/180 # Adding offset in radians
+        Pred_B_Buffered = Buffer.last_used_Pred_B + pred_error
     else:
         Pred_Delta_B = 0.0
+        Pred_B_Buffered = 0.0
 
     # Countdown for the first Pred_B in the buffer
     if Buffer.first_delta_received:
@@ -53,11 +55,12 @@ def Buffer(Pred_B, t_pred, current_time, measurements, buffer_duration, pred_err
         Time_Buffer = current_time - Buffer.last_used_t_pred
         Time_Advantage = time_horizon - Time_Buffer
         print(f"Current Time: {current_time}, Last Used Prediction Time: {Buffer.last_used_t_pred}, Prediction buffered for: {Time_Buffer:.4f}s (Time advantage: {Time_Advantage:.4f}s)")
-        print(f"Sending predicted blade pitch offset setpoint: {Pred_Delta_B:.3f} ({Pred_Delta_B*180/np.pi:.3f} deg)")
+        if Prediction:
+            print(f"Sending predicted blade pitch offset setpoint: {Pred_Delta_B:.3f} ({Pred_Delta_B*180/np.pi:.3f} deg)")
     elif Buffer.last_used_t_pred is None and current_time % 5 == 0:
         print("Blade Pitch Offset Setpoint:", Pred_Delta_B)
 
-    return Pred_Delta_B
+    return Pred_Delta_B, Pred_B_Buffered
 
 
 # Delta_B saturation to avoid too big prediction offset
