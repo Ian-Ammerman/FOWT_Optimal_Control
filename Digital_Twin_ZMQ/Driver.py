@@ -12,7 +12,7 @@ from rosco.toolbox.ofTools.case_gen.run_FAST import run_FAST_ROSCO
 from rosco.toolbox.control_interface import wfc_zmq_server
 from Prediction_Model.data_batching import PredictionClass
 from Prediction_Model.prediction_functions import Buffer, Saturate
-from Fatigue_Estimation_Model.data_collecting import DataMonitor
+from Fatigue_Estimation_Model.data_collecting import DataCollect
 from Fatigue_Estimation_Model.fatigue_damage_RUL import RUL_class
 from Live_Monitoring.real_time_server import RealTimeServer_class
 
@@ -35,9 +35,8 @@ class CombinedController:
         
         self.prediction_instance = PredictionClass()
         self.rul_instance = RUL_class(emit_callback=self.publish_rul_updates, chunk_duration=self.chunk_duration, nominal_design_life_years=self.nominal_design_life)
-        self.output_filename = "updated_simulation_data.csv"
 
-        self.data_collecting = DataMonitor(self.output_dir, self.output_filename, self.chunk_duration)       
+        self.data_collecting = DataCollect(self.output_dir, self.chunk_duration)       
         self.data_frame = pd.DataFrame()
         self.last_data_check_time = 10
 
