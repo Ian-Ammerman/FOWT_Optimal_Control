@@ -6,13 +6,14 @@
     <title>Real-Time Operation Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body, html {
             height: 100%;
             margin: 0;
-            font-family: 'Helvetica Neue', sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
+            font-family: 'Barlow', sans-serif;
+            background-color: #ffffff;
+            color: #fffcae;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -28,27 +29,27 @@
         }
 
         .title {
-            font-size: 1.55vw;
+            font-size: 2em;
             margin-top: 0.5px;
             margin-bottom: 20px;
             font-weight: bold;
-            color: #16a085;
+            color: #505050;
         }
 
         .subtitle {
-            font-size: 1vw;
+            font-size: 1.2em;
             margin-top: 10px;
             margin-bottom: 10px;
             font-weight: bold;
-            color: #16a085;
+            color: #474747;
         }
         
         .rul-container {
             display: flex;
             justify-content: space-evenly;
             flex-wrap: wrap;
-            gap: 5px;
-            padding: 5px;
+            gap: 15px;
+            padding: 10px;
             width: 100%;
             box-sizing: border-box;
         }
@@ -56,44 +57,57 @@
         .parameter {
             flex: 1 1 calc(25% - 10px);
             min-width: 250px;
-            background-color: #ffffff;
-            padding: 10px;
-            border: 1px solid #d0d7de;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border: 1px solid #4b515d;
             border-radius: 10px;
-            color: #333;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
             text-align: center;
         }
 
         .parameter:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
 
-        .openfast-blade1-box { border-left: 5px solid #0073e6; }
-        .openfast-blade2-box { border-left: 5px solid #8e44ad; }
-        .openfast-blade3-box { border-left: 5px solid #e67e22; }
-        .openfast-tower-box { border-left: 5px solid #95a5a6; }
-        .predicted-state-box { border-left: 5px solid #16a085; background-color: #CCFFE5;}
-        .prediction-time-box { border-left: 5px solid #16a085;  background-color: #CCFFE5;}
-        .current-state-box { border-left: 5px solid #16a085;  background-color: #CEEAFF;}
-        .current-time-box { border-left: 5px solid #16a085;  background-color: #CEEAFF;}
-        .pred-delta-box { border-left: 5px solid #16a085; background-color: #CEEAFF; }
+        .openfast-blade1-box { border-left: 5px solid #1f77b4; }
+        .openfast-blade2-box { border-left: 5px solid #9467bd; }
+        .openfast-blade3-box { border-left: 5px solid #ff7f0e; }
+        .openfast-tower-box { border-left: 5px solid #e0ff70; }
+        .predicted-state-box { border-left: 5px solid #3ed67e;}
+        .prediction-time-box { border-left: 5px solid #3ed67e;}
+        .current-state-box { border-left: 5px solid #41d9df;}
+        .current-time-box { border-left: 5px solid #41d9df;}
+        .pred-delta-box { border-left: 5px solid #41d9df;}
         
         .chart-container {
             width: 100%;
             max-width: 100%;
-            height: 40vh;
+            height: 20vh;
             position: relative;
             margin: 0 auto 20px;
-            background-color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.5);
             border-radius: 10px;
             padding: 20px;
             box-sizing: border-box;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
         }
 
-        #rulChart {
+        .chart-container-pitch {
+            width: 100%;
+            max-width: 100%;
+            height: 30vh;
+            position: relative;
+            margin: 0 auto 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        #rulChart, #pitchAngleChart {
             width: 100%;
             height: 100%;
         }
@@ -113,13 +127,13 @@
         .bottom-offset {
             width: 80%;
             max-width: 500px;
-            background-color: #16a085;
+            background-color: #45a29e;
             color: white;
             padding: 10px;
             margin: 20px auto;
             text-align: center;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
         }
 
         .connection-status {
@@ -127,31 +141,32 @@
             left: 0;
             right: 0;
             bottom: 0;
-            padding: 2px;
+            padding: 5px;
             color: white;
-            background-color: gray;
+            background-color: green;
             text-align: center;
             border-radius: 0 0 0 0;
         }
 
 
         .operational-data {
-            background-color: #eef7ee;
-            border: 1px solid #ddd;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid #4b515d;
             border-radius: 8px;
             padding: 10px;
             margin-top: 20px;
-            text-align: right;
-            color: #4CAF50;
-            font-size: 1.2em;
+            text-align: left;
+            color: #ffffff;
+            font-size: 1em;
             position: absolute;
             top: 100px;
             right: 10px; /* Move more to the right */
             width: 200px;
         }
-        .operational-data h3 {
+        .operational-data h4 {
             margin-top: 0;
             margin-bottom: 10px;
+            font-size: 1.2em;
         }
         .data-row {
             margin-bottom: 10px;
@@ -175,7 +190,7 @@
         <div class="subtitle">Prediction Model: Coll. Blade Pitch Angle Prediction</div>
         <div class="rul-container">
             <div id="current_time" class="parameter current-time-box">Current Time: <span id="current_time_value">--</span> s</div>
-            <div id="prediction_time" class="parameter prediction-time-box">Predicted Time: <span id="t_pred_value">--</span> s</div>
+            <div id="prediction_time" class="parameter prediction-time-box">Prediction Valid at Time: <span id="t_pred_value">--</span> s</div>
         </div>
         <div class="rul-container">
             <div id="current_state" class="parameter current-state-box">Current Coll. BlPitch: <span id="present_state_value">--</span> deg</div>
@@ -194,6 +209,7 @@
         
         <div id="connection_status" class="connection-status">Connected</div>
         <script>
+            
             document.addEventListener('DOMContentLoaded', function() {
                 var socket = io.connect('http://localhost:5005', {
                     reconnection: true,
@@ -216,56 +232,58 @@
                         var element = document.getElementById(valueId);
                         if (element) {
                             var rul = values[index];
-                            element.textContent = rul !== null ? parseFloat(rul).toFixed(3) + ' years' : 'N/A';
+                            element.textContent = rul !== null ? parseFloat(rul).toFixed(5) + ' years' : 'N/A';
                         }
                     });
                 }
 
                 function updatePredictionValues(type, values) {
-                let elementId;
-                let formattedValue;
+                    let elementId;
+                    let formattedValue;
 
-                switch (type) {
-                    case 'Pred_B':
-                        elementId = 'pred_b_value';
-                        formattedValue = parseFloat(values).toFixed(2);
-                        break;
-                    case 't_pred':
-                        elementId = 't_pred_value';
-                        formattedValue = Math.round(values);
-                        break;
-                    case 'present_state_web':
-                        elementId = 'present_state_value';
-                        formattedValue = parseFloat(values).toFixed(2);
-                        break;
-                    case 'current_time':
-                        elementId = 'current_time_value';
-                        formattedValue = parseFloat(values).toFixed(1);
-                        break;
-                    case 'Pred_Delta_B':
-                        elementId = 'pred_delta_b_value';
-                        formattedValue = parseFloat(values).toFixed(2);
-                        break;
-                    case 'Pred_B_Buffered':
-                        elementId = 'Pred_B_Buffered_value';
-                        formattedValue = parseFloat(values).toFixed(2);
-                        break;
-                    case 'RotSpeed':
-                        elementId = 'RotSpeed';
-                        formattedValue = "Rotor speed: " + parseFloat(values).toFixed(2) + "rpm";
-                        break;
-                    case 'WE_Vw':
-                        elementId = 'WE_Vw';
-                        formattedValue = "Wind speed: " + parseFloat(values).toFixed(2) + "m/s";
-                        break;
-                    case 'VS_GenPwr':
-                        elementId = 'VS_GenPwr';
-                        formattedValue = "Gen. power: " + (parseFloat(values) / 1000000).toFixed(2) + 'MW';
-                        break;
-                    default:
-                        console.error('Unknown type for prediction update:', type);
-                        return;
-                }
+                    switch (type) {
+                        case 'Pred_B':
+                            elementId = 'pred_b_value';
+                            formattedValue = parseFloat(values).toFixed(2);
+                            updatePitchAngleChart(values, 'pred_b');
+                            break;
+                        case 't_pred':
+                            elementId = 't_pred_value';
+                            formattedValue = Math.round(values);
+                            break;
+                        case 'present_state_web':
+                            elementId = 'present_state_value';
+                            formattedValue = parseFloat(values).toFixed(2);
+                            updatePitchAngleChart(values, 'present_state');
+                            break;
+                        case 'current_time':
+                            elementId = 'current_time_value';
+                            formattedValue = parseFloat(values).toFixed(1);
+                            break;
+                        case 'Pred_Delta_B':
+                            elementId = 'pred_delta_b_value';
+                            formattedValue = parseFloat(values).toFixed(2);
+                            break;
+                        case 'Pred_B_Buffered':
+                            elementId = 'Pred_B_Buffered_value';
+                            formattedValue = parseFloat(values).toFixed(2);
+                            break;
+                        case 'RotSpeed':
+                            elementId = 'RotSpeed_value';
+                            formattedValue = "Rotor speed: " + parseFloat(values).toFixed(2) + "rpm";
+                            break;
+                        case 'WE_Vw':
+                            elementId = 'WE_Vw_value';
+                            formattedValue = "Wind speed: " + parseFloat(values).toFixed(2) + "m/s";
+                            break;
+                        case 'VS_GenPwr':
+                            elementId = 'VS_GenPwr_value';
+                            formattedValue = "Gen. power: " + (parseFloat(values) / 1000000).toFixed(2) + 'MW';
+                            break;
+                        default:
+                            console.error('Unknown type for prediction update:', type);
+                            return;
+                    }
 
                     var element = document.getElementById(elementId);
                     if (element) {
@@ -337,7 +355,7 @@
                     var element = document.getElementById(elementId);
                     if (element) {
                         if (value !== undefined && value !== 'N/A') {
-                            element.textContent = parseFloat(value).toFixed(3) + ' years';
+                            element.textContent = parseFloat(value).toFixed(5) + ' years';
                         } else {
                             element.textContent = 'N/A';
                         }
@@ -390,25 +408,25 @@
                             {
                                 label: 'Blade 1',
                                 data: [],
-                                borderColor: '#0073e6',
+                                borderColor: '#1f77b4',
                                 tension: 0.1
                             },
                             {
                                 label: 'Blade 2',
                                 data: [],
-                                borderColor: '#8e44ad',
+                                borderColor: '#9467bd',
                                 tension: 0.1
                             },
                             {
                                 label: 'Blade 3',
                                 data: [],
-                                borderColor: '#e67e22',
+                                borderColor: '#ff7f0e',
                                 tension: 0.1
                             },
                             {
                                 label: 'Tower',
                                 data: [],
-                                borderColor: '#95a5a6',
+                                borderColor: '#e0ff70',
                                 tension: 0.1
                             }
                         ]
@@ -419,15 +437,143 @@
                         scales: {
                             y: {
                                 beginAtZero: false,
-                                max: 21,
-                                min: 15,
+                                max: 20,
+                                min: 19.99980 ,
                                 ticks: {
-                                    stepSize: 1
+                                    stepSize: 1,
+                                    color: '#ffffff'
+                                },
+                                grid: {
+                                    color: '#ffffff'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#c5c6c7'
+                                },
+                                grid: {
+                                    color: '#ffffff'  // Change this value to the desired grid color for x-axis
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff'
                                 }
                             }
                         }
                     }
                 });
+
+                var ctxPitch = document.getElementById('pitchAngleChart').getContext('2d');
+                var pitchAngleChart = new Chart(ctxPitch, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Coll. Blade Pitch Angle',
+                                data: [],
+                                borderColor: '#2685FF',
+                                tension: 3, // Lower tension for less curve
+                                pointRadius: 0
+                            },
+                            {
+                                label: 'Predicted Coll. Blade Pitch Angle',
+                                data: [],
+                                borderColor: '#99FF99', // Color for predicted values
+                                tension: 3, // Lower tension for less curve
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        animation: {
+                            duration: 0
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                min: 6.5, // Set the minimum value as needed
+                                suggestedMax: 7.5, // Set the maximum value as needed
+                                ticks: {
+                                    color: '#ffffff'
+                                },
+                                grid: {
+                                    color: '#ffffff'
+                                }
+                            },
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                ticks: {
+                                    color: '#c5c6c7',
+                                    callback: function(value, index, values) {
+                                        return value.toFixed(1) + 's';
+                                    },
+                                    // This ensures fixed grid lines and labels
+                                    stepSize: 0.5,
+                                    maxTicksLimit: 10,
+                                    autoSkip: false
+                                },
+                                grid: {
+                                    color: '#ffffff'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                let updateCount = 0;
+
+                function updatePitchAngleChart(angle, type) {
+                    if (!pitchAngleChart || !pitchAngleChart.data || !pitchAngleChart.data.datasets) {
+                        return;
+                    }
+
+                    updateCount++;
+
+                    if (updateCount % 1 === 0) {
+                        const currentTime = parseFloat(document.getElementById('current_time_value').textContent);
+
+                        if (type === 'present_state') {
+                            // Add the new data point at the correct y-position for present state
+                            pitchAngleChart.data.datasets[0].data.push({ x: currentTime, y: angle });
+
+                            // Remove old data points to keep only the points within the currentTime - 5 to currentTime range
+                            pitchAngleChart.data.datasets[0].data = pitchAngleChart.data.datasets[0].data.filter(
+                                point => point.x >= currentTime - 5
+                            );
+                        } else if (type === 'pred_b') {
+                            const futureTime = currentTime + 20;
+
+                            // Add the new data point at the correct y-position for predicted state
+                            pitchAngleChart.data.datasets[1].data.push({ x: futureTime, y: angle });
+
+                            // Remove old data points to keep only the points within the futureTime - 5 to futureTime range
+                            pitchAngleChart.data.datasets[1].data = pitchAngleChart.data.datasets[1].data.filter(
+                                point => point.x >= futureTime - 5
+                            );
+                        }
+
+                        // Update the chart scales dynamically
+                        pitchAngleChart.options.scales.x.max = currentTime + 21;
+                        pitchAngleChart.options.scales.x.min = currentTime - 20;
+
+
+                        pitchAngleChart.update();
+                    }
+                }
             });
         </script>
     </div>
