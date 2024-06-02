@@ -48,9 +48,9 @@ class PredictionClass():
         self.full_measurements.append([current_time] + [measurements.get(key, 0.0) for key in required_measurements])  # Store all measurements
 
         if current_time >= time_horizon + self.initial_time and len(self.batch_data) <= self.batch_size:
-            current_index = (current_time - self.initial_time) / self.timestep
+            future_index = (current_time - self.initial_time) / self.timestep
             steps_in_horizon = time_horizon / self.timestep
-            update_index = round(current_index - steps_in_horizon)
+            update_index = round(future_index - steps_in_horizon)
             measurement_values = [measurements.get(key, 0.0) for key in required_measurements]
             self.batch_data[update_index][2:] = measurement_values
 
