@@ -61,14 +61,15 @@ class CombinedController:
 
         # Activate prediction model for live prediction of future states based on incoming waves
         Activate_Prediction_Model = True
+
+        setpoints = {"ZMQ_YawOffset": 0.0, 'ZMQ_PitOffset(1)': 0.0, 'ZMQ_PitOffset(2)': 0.0, 'ZMQ_PitOffset(3)': 0.0}
+
         if Activate_Prediction_Model:
             setpoints = self.prediction_model(current_time, measurements)
-        else: 
-            setpoints = {"ZMQ_YawOffset": 0.0, 'ZMQ_PitOffset(1)': 0.0, 'ZMQ_PitOffset(2)': 0.0, 'ZMQ_PitOffset(3)': 0.0}
+
         return setpoints
 
     def prediction_model(self, current_time, measurements):
-
         ################################################
         ######## PREDICTION MODEL CONFIGURATION ########
         ################################################
@@ -86,7 +87,7 @@ class CombinedController:
             config_data = yaml.safe_load(file)
         time_horizon = config_data['time_horizon']
 
-        plot_prediction = True # True: Plots prediction and measurements in real time
+        plot_prediction = False # True: Plots prediction and measurements in real time
         send_prediction = False # True: Sends prediction offset setpoint to ROSCO False (only used for BlPitchCMeas)
         Pred_Saturation = False # True: Saturates prediction setpoints before sending to RSOCO (only used for BlPitchCMeas)
         saturation_threshold = 2 * np.pi / 180 # Define treshold between prediction and measurement before sending to ROSCO
@@ -130,7 +131,7 @@ class CombinedController:
                 Pred_Delta_B_setpoint = 0.0
         else:
             Pred_Delta_B_Setpoint = 0.0
-        
+
         # Operation Data
         RotSpeed = measurements["RotSpeed"] * 60 / (2 * np.pi) # rad/s to rpm
         WE_Vw = measurements["WE_Vw"]
@@ -182,12 +183,12 @@ class CombinedController:
                 PtfmRDZ
             )
 
-            setpoints = {
-                "ZMQ_YawOffset": 0.0,
-                'ZMQ_PitOffset(1)': Pred_Delta_B_setpoint * K_pred,
-                'ZMQ_PitOffset(2)': Pred_Delta_B_setpoint * K_pred,
-                'ZMQ_PitOffset(3)': Pred_Delta_B_setpoint * K_pred
-            }
+        setpoints = {
+            "ZMQ_YawOffset": 0.0,
+            'ZMQ_PitOffset(1)': Pred_Delta_B_setpoint * K_pred,
+            'ZMQ_PitOffset(2)': Pred_Delta_B_setpoint * K_pred,
+            'ZMQ_PitOffset(3)': Pred_Delta_B_setpoint * K_pred
+        }
         return setpoints
 
     def update_system_state(self, current_time, save_to_csv=False, csv_file_path=None):
