@@ -86,7 +86,7 @@ class CombinedController:
             config_data = yaml.safe_load(file)
         time_horizon = config_data['time_horizon']
 
-        plot_prediction = False # True: Plots prediction and measurements in real time
+        plot_prediction = True # True: Plots prediction and measurements in real time
         send_prediction = False # True: Sends prediction offset setpoint to ROSCO False (only used for BlPitchCMeas)
         Pred_Saturation = False # True: Saturates prediction setpoints before sending to RSOCO (only used for BlPitchCMeas)
         saturation_threshold = 2 * np.pi / 180 # Define treshold between prediction and measurement before sending to ROSCO
